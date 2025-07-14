@@ -92,7 +92,10 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
                     <td>
                         <a href="editar.php?id=<?= $row['id'] ?>" class="text-primary me-2">✏️</a>
                         <a href="eliminar.php?id=<?= $row['id'] ?>" onclick="return confirm('¿Eliminar este registro?')" class="text-danger">🗑️</a>
-                    </td>
+                    <?php if ($row['tipo'] == 'usada'): ?>
+<br><a href="recibo_unidad.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-dark mt-1">📝 Recibo</a>
+<?php endif; ?>
+                </td>
                 </tr>
             <?php endwhile; ?>
             </tbody>
