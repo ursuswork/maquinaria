@@ -31,7 +31,8 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
         ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
-    <?php endif; ?>
+    <br><a href="recibo_formato_hoja.php?id=<?= $row['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">🖨️ Ver hoja</a>
+<?php endif; ?>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Inventario de Maquinaria</h2>
         <button id="btn-instalar" class="btn btn-success d-none" onclick="instalarApp()">Instalar App</button>
@@ -94,6 +95,7 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
                         <a href="eliminar.php?id=<?= $row['id'] ?>" onclick="return confirm('¿Eliminar este registro?')" class="text-danger">🗑️</a>
                     <?php if ($row['tipo'] == 'usada'): ?>
 <br><a href="recibo_unidad.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-dark mt-1">📝 Recibo</a>
+<br><a href="recibo_formato_hoja.php?id=<?= $row['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">🖨️ Ver hoja</a>
 <?php endif; ?>
                 </td>
                 </tr>
