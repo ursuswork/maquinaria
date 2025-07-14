@@ -11,24 +11,17 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
     <meta charset="UTF-8">
     <title>Inventario de Maquinaria</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         .imagen-mini {
             width: 60px;
             height: auto;
-        }
-        .card-resumen {
-            color: #fff;
-        }
-        .barra-condicion {
-            width: 100%;
-            height: 20px;
-            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body class="bg-light">
 <div class="container py-4">
-    
     <?php if (isset($_GET['mensaje'])): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <?php
@@ -39,14 +32,13 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
     <?php endif; ?>
-    
-<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Inventario de Maquinaria</h2>
         <button id="btn-instalar" class="btn btn-success d-none" onclick="instalarApp()">Instalar App</button>
     </div>
     <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <div class="card bg-primary card-resumen">
+            <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Maquinaria Nueva</h5>
                     <h2><?= $total_nueva ?></h2>
@@ -54,7 +46,7 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card bg-success card-resumen">
+            <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Maquinaria Usada</h5>
                     <h2><?= $total_usada ?></h2>
@@ -71,8 +63,8 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
         </form>
     </div>
     <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover">
-            <thead class="table-dark text-center">
+        <table class="table table-bordered table-striped table-hover align-middle text-center">
+            <thead class="table-dark">
                 <tr>
                     <th>Imagen</th><th>Nombre</th><th>Tipo</th><th>Modelo</th><th>Ubicación</th><th>Condición</th><th>Acciones</th>
                 </tr>
@@ -84,8 +76,8 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
                 $condicion = (int)$row['condicion_estimada'];
                 $color = $condicion >= 80 ? 'bg-success' : ($condicion >= 50 ? 'bg-warning' : 'bg-danger');
                 ?>
-                <tr class="text-center align-middle">
-                    <img src="imagenes/<?= $row['imagen'] ?>" class="imagen-mini" data-bs-toggle="modal" data-bs-target="#imagenModal" onclick="mostrarImagen('imagenes/<?= $row['imagen'] ?>')">
+                <tr>
+                    <td><img src="imagenes/<?= $row['imagen'] ?>" class="imagen-mini" data-bs-toggle="modal" data-bs-target="#imagenModal" onclick="mostrarImagen('imagenes/<?= $row['imagen'] ?>')"></td>
                     <td><?= $row['nombre'] ?></td>
                     <td><?= ucfirst($row['tipo']) ?></td>
                     <td><?= $row['modelo'] ?></td>
@@ -107,7 +99,23 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
         </table>
     </div>
 </div>
+
+<!-- Modal para imagen ampliada -->
+<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark">
+      <div class="modal-body text-center">
+        <img id="imagenAmpliada" src="" class="img-fluid rounded">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function mostrarImagen(src) {
+  document.getElementById('imagenAmpliada').src = src;
+}
+</script>
+
 <?php include 'register_sw.html'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
