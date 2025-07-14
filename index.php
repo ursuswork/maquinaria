@@ -85,7 +85,7 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY fecha_registro DESC");
                 $color = $condicion >= 80 ? 'bg-success' : ($condicion >= 50 ? 'bg-warning' : 'bg-danger');
                 ?>
                 <tr class="text-center align-middle">
-                    <td><img src="imagenes/<?= $row['imagen'] ?>" class="imagen-mini"></td>
+                    <img src="imagenes/<?= $row['imagen'] ?>" class="imagen-mini" data-bs-toggle="modal" data-bs-target="#imagenModal" onclick="mostrarImagen('imagenes/<?= $row['imagen'] ?>')">
                     <td><?= $row['nombre'] ?></td>
                     <td><?= ucfirst($row['tipo']) ?></td>
                     <td><?= $row['modelo'] ?></td>
