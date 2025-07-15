@@ -19,6 +19,16 @@ if ($_FILES['imagen']['name']) {
 $sql = "INSERT INTO maquinaria (nombre, tipo, modelo, numero_serie, marca, anio, ubicacion, condicion_estimada, imagen)
         VALUES ('$nombre', '$tipo', '$modelo', '$numero_serie', '$marca', '$anio', '$ubicacion', '$condicion', '$imagen')";
 
-$conn->query($sql);
-header("Location: index.php?mensaje=agregado");
+if ($conn->query($sql)) {
+    $ultimo_id = $conn->insert_id;
+
+    if ($tipo === 'usada') {
+        header("Location: acciones/recibo_unidad.php?id=" . $ultimo_id);
+    } else {
+        header("Location: index.php?mensaje=agregado");
+    }
+    exit;
+} else {
+    echo "Error al guardar: " . $conn->error;
+}
 ?>
