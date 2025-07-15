@@ -2,7 +2,7 @@
 include 'conexion.php';
 
 $busqueda = $_GET['busqueda'] ?? '';
-$sql = "SELECT * FROM maquinaria WHERE nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR empresa_origen LIKE '%$busqueda%' OR empresa_destino LIKE '%$busqueda%' ORDER BY id DESC";
+$sql = "SELECT * FROM maquinaria WHERE nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -27,7 +27,7 @@ $result = $conn->query($sql);
 <h2>Inventario de Maquinaria</h2>
 
 <form method="get">
-    <input type="text" name="busqueda" placeholder="Buscar por nombre, modelo o empresa" value="<?= htmlspecialchars($busqueda) ?>">
+    <input type="text" name="busqueda" placeholder="Buscar por nombre o modelo" value="<?= htmlspecialchars($busqueda) ?>">
     <input type="submit" value="Buscar">
     <a href="agregar.php" class="boton" style="background-color: green; color: white;">Agregar Maquinaria</a>
     <a href="exportar_excel.php" class="boton" style="background-color: darkorange; color: white;">Exportar a Excel</a>
@@ -39,8 +39,6 @@ $result = $conn->query($sql);
     <th>Nombre</th>
     <th>Modelo</th>
     <th>Año</th>
-    <th>Empresa Origen</th>
-    <th>Empresa Destino</th>
     <th>Tipo</th>
     <th>Condición Estimada</th>
     <th>Acciones</th>
@@ -51,8 +49,6 @@ $result = $conn->query($sql);
     <td><?= $row["nombre"] ?></td>
     <td><?= $row["modelo"] ?></td>
     <td><?= $row["anio"] ?></td>
-    <td><?= $row["empresa_origen"] ?></td>
-    <td><?= $row["empresa_destino"] ?></td>
     <td><?= ucfirst($row["tipo"]) ?></td>
     <td><?= $row["condicion_estimada"] !== null ? $row["condicion_estimada"] . "%" : "-" ?></td>
     <td class="acciones">
