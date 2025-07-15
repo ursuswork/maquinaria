@@ -1,42 +1,69 @@
 <?php
-include 'conexion.php';
+include '../conexion.php';
 
-$maquinaria_id = $_POST['maquinaria_id'];
-$campos = ['cilindros','pistones','anillos','inyectores','block','cabeza',
-           'transmision','diferenciales','cardan','alarmas','arneses',
-           'sistema_hidraulico','estetico','consumibles'];
-
-$valores = [];
-$total = 0;
-foreach ($campos as $campo) {
-    $val = $_POST[$campo];
-    $valores[$campo] = $val;
-
-    // Asignar puntaje por condición
-    $p = ($val == 'bueno') ? 100 : (($val == 'regular') ? 60 : 30);
-    $total += $p;
+$id = $_GET['id'] ?? null;
+if (!$id) {
+    die("ID no proporcionado.");
 }
-$condicion_total = round($total / count($campos));
 
-// Verificar si ya existe
-$existe = $conn->query("SELECT * FROM recibo_unidad WHERE maquinaria_id = $maquinaria_id")->num_rows;
-if ($existe) {
-    $sql = "UPDATE recibo_unidad SET ";
-    foreach ($valores as $k => $v) {
-        $sql .= "$k = '$v', ";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $campos = [];
+    $valores = [];
+    foreach ($_POST as $campo => $valor) {
+        $campos[] = $campo;
+        $valores[] = "'" . $conn->real_escape_string($valor) . "'";
     }
-    $sql .= "condicion_total = $condicion_total WHERE maquinaria_id = $maquinaria_id";
-} else {
-    $cols = implode(",", array_keys($valores));
-    $vals = implode("','", array_values($valores));
-    $sql = "INSERT INTO recibo_unidad (maquinaria_id, $cols, condicion_total)
-            VALUES ($maquinaria_id, '$vals', $condicion_total)";
+
+    $campos[] = "maquinaria_id";
+    $valores[] = $id;
+
+    $sql = "INSERT INTO recibo_unidad (" . implode(",", $campos) . ") VALUES (" . implode(",", $valores) . ")";
+
+    if ($conn->query($sql)) {
+        function valor_numerico($v) {
+            if ($v == 'bueno') return 100;
+            if ($v == 'regular') return 50;
+            if ($v == 'malo') return 0;
+            return null;
+        }
+
+        $componentes = [
+            "motor" => ["cilindros", "pistones", "anillos", "inyectores", "block", "cabeza", "varillas", "resortes", "punterias", "cigueñal", "arbol_de_elevas", "retenes", "ligas", "sensores", "poleas", "concha", "cremallera", "clutch", "coples", "bomba_de_inyeccion", "juntas", "marcha", "tuberia", "alternador", "filtros", "bases", "soportes", "turbo", "escape", "chicotes"],
+            "mecanico" => ["transmision", "diferenciales", "cardan"],
+            "hidraulico" => ["banco_de_valvulas", "bombas_de_transito", "bombas_de_precarga", "bombas_de_accesorios", "coples_hidraulicos", "clutch_hidraulico", "gatos_de_levante", "gatos_de_direccion", "gatos_de_accesorios", "mangueras", "motores_hidraulicos", "orbitrol", "torques_huv", "valvulas_de_retencion", "reductores"],
+            "electrico" => ["alarmas", "arneses", "bobinas", "botones", "cables", "cables_de_sensores", "conectores", "electro_valvulas", "fusibles", "porta_fusibles", "indicadores", "presion_agua_temp_voltimetro", "luces", "modulos", "torreta", "relevadores", "switch_llave", "sensores_electricos"],
+            "estetico" => ["pintura", "calcomanias", "asiento", "tapiceria", "tolvas", "cristales", "accesorios", "sistema_de_riego"],
+            "consumibles" => ["puntas", "porta_puntas", "garras", "cuchillas", "cepillos", "separadores", "llantas", "rines", "bandas_orugas"]
+        ];
+        $pesos = ['motor'=>15,'mecanico'=>15,'hidraulico'=>30,'electrico'=>25,'estetico'=>5,'consumibles'=>10];
+        $total = 0;
+
+        foreach ($pesos as $seccion => $peso) {
+            $lista = $componentes[$seccion];
+            $suma = 0;
+            $validos = 0;
+            foreach ($lista as $campo) {
+                if (isset($_POST[$campo])) {
+                    $v = valor_numerico($_POST[$campo]);
+                    if (!is_null($v)) {
+                        $suma += $v;
+                        $validos++;
+                    }
+                }
+            }
+            if ($validos > 0) {
+                $prom = $suma / $validos;
+                $total += ($prom * $peso) / 100;
+            }
+        }
+
+        $condicion = round($total, 2);
+        $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id");
+
+        header("Location: ../recibo_formato_hoja.php?id=$id");
+        exit;
+    } else {
+        echo "Error: " . $conn->error;
+    }
 }
-
-$conn->query($sql);
-
-// También actualizar maquinaria
-$conn->query("UPDATE maquinaria SET condicion_estimada = $condicion_total WHERE id = $maquinaria_id");
-
-header("Location: index.php?mensaje=recibo_guardado");
 ?>
