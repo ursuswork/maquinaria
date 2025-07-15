@@ -105,12 +105,14 @@ td img { width: 60px; border-radius: 5px; }
         <small><?= $cond ?>%</small>
     </td>
     <td class="acciones">
-        <a class="editar" href="editar.php?id=<?= $row['id'] ?>"><i class="fa fa-pen"></i></a>
-        <a class="eliminar" href="eliminar.php?id=<?= $row['id'] ?>"><i class="fa fa-trash"></i></a>
-        <?php if ($row["tipo"] == "usada"): ?>
-        <a class="ver" href="recibo_formato_hoja.php?id=<?= $row['id'] ?>"><i class="fa fa-file-alt"></i></a>
-        <?php endif; ?>
-    </td>
+    <a class="editar" href="editar.php?id=<?= $row['id'] ?>"><i class="fa fa-pen"></i></a>
+    <a class="eliminar" href="eliminar.php?id=<?= $row['id'] ?>"><i class="fa fa-trash"></i></a>
+    <?php if ($row["tipo"] === "usada"): ?>
+        <a class="recibo" href="recibo_formato_hoja.php?id=<?= $row['id'] ?>" style="background-color: purple;">
+            <i class="fa fa-file-alt"></i> Recibo
+        </a>
+    <?php endif; ?>
+</td>
 </tr>
 <?php endwhile; ?>
 </table>
