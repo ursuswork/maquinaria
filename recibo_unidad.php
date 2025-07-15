@@ -17,12 +17,66 @@ h4 { background: #dee2e6; padding: 10px; border-radius: 6px; margin-top: 30px; }
 .campo { margin-bottom: 10px; }
 label { font-weight: bold; }
 .opciones label { font-weight: normal; margin-right: 15px; }
+
+<style>
+input[type=radio] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #e0e0e0;
+  border: 2px solid #ccc;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  margin-right: 6px;
+  cursor: pointer;
+}
+input[type=radio]:checked::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background-color: #2ecc71;
+  border-radius: 2px;
+}
+</style>
 </style>
 </head>
 <body>
 <div class="container">
     <h2>Formulario Recibo de Unidad</h2>
     <form method="POST" action="acciones/guardar_recibo.php?id=<?= $id ?>">
+        <h4>Datos Generales</h4>
+        <div class='row'>
+            <div class='col-md-6 campo'>
+                <label>Empresa Origen</label>
+                <input type='text' name='empresa_origen' class='form-control' required>
+            </div>
+            <div class='col-md-6 campo'>
+                <label>Empresa Destino</label>
+                <input type='text' name='empresa_destino' class='form-control' required>
+            </div>
+            <div class='col-md-6 campo'>
+                <label>Equipo</label>
+                <input type='text' name='equipo' class='form-control'>
+            </div>
+            <div class='col-md-6 campo'>
+                <label>Marca</label>
+                <input type='text' name='marca' class='form-control'>
+            </div>
+            <div class='col-md-6 campo'>
+                <label>Modelo</label>
+                <input type='text' name='modelo' class='form-control'>
+            </div>
+            <div class='col-md-6 campo'>
+                <label>Serie</label>
+                <input type='text' name='serie' class='form-control'>
+            </div>
+        </div>
+
         <!-- Secciones dinámicas con campos comunes -->
         <?php
         function grupo($titulo, $campos) {
@@ -47,7 +101,12 @@ label { font-weight: bold; }
         grupo("ESTÉTICO", ["pintura", "calcomanias", "asiento", "tapiceria", "tolvas", "cristales", "accesorios", "sistema_de_riego"]);
         grupo("CONSUMIBLES", ["puntas", "porta_puntas", "garras", "cuchillas", "cepillos", "separadores", "llantas", "rines", "bandas_orugas"]);
         ?>
-        <div class="text-center mt-4">
+        
+        <h4>Observaciones</h4>
+        <div class='mb-4'>
+            <textarea name='observaciones' class='form-control' rows='4' placeholder='Escriba observaciones adicionales...'></textarea>
+        </div>
+<div class="text-center mt-4">
             <button type="submit" class="btn btn-success px-4 py-2">Guardar Recibo</button>
             <a href="index.php" class="btn btn-secondary px-4 py-2">Cancelar</a>
         </div>
