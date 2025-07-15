@@ -93,8 +93,8 @@ $result = $conn->query($sql);
         <small><?= $cond ?>%</small>
     </td>
     <td class="acciones">
-        <a class="editar" href="editar.php?id=<?= $row['id'] }}"><i class="fa fa-pen"></i></a>
-        <a class="eliminar" href="eliminar.php?id=<?= $row['id'] }}"><i class="fa fa-trash"></i></a>
+        <a class="editar" href="editar.php?id=<?= $row['id'] ?>" title="Editar"><i class="fa fa-pen"></i> Editar</a>
+        <a class="eliminar" href="eliminar.php?id=<?= $row['id'] ?>" title="Eliminar"><i class="fa fa-trash"></i> Eliminar</a>
     </td>
 </tr>
 <?php endwhile; ?>
