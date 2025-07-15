@@ -34,7 +34,7 @@ header .boton { background: #2ecc71; padding: 0.5rem 1rem; border-radius: 8px; t
 .buscador input[type=text] { padding: 0.6rem; width: 280px; max-width: 90%; border: 1px solid #ccc; border-radius: 6px; }
 
 table { width: 95%; margin: 1rem auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-collapse: collapse; }
-th, td { padding: 0.8rem; text-align: center; }
+th, td { padding: 0.8rem; text-align: center; border-bottom: 1px solid #ddd; }
 th { background: #ecf0f1; font-weight: bold; }
 td img { width: 60px; border-radius: 5px; }
 
