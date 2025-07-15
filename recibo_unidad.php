@@ -105,6 +105,11 @@
       </div>
     </div>
 
+    <div class="card p-3 mb-4">
+      <div class="section-title">Observaciones</div>
+      <textarea name="observaciones" class="form-control" rows="4" placeholder="Escribe aquí observaciones generales..."></textarea>
+    </div>
+
     <button type="submit" class="btn btn-primary guardar-btn">💾 Guardar</button>
   </form>
 </div>
