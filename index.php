@@ -13,9 +13,6 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY id DESC");
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #999; padding: 8px; text-align: center; }
         th { background-color: #f2f2f2; }
-        .verde { background-color: #d4edda; }
-        .amarillo { background-color: #fff3cd; }
-        .rojo { background-color: #f8d7da; }
     </style>
 </head>
 <body>
@@ -31,16 +28,8 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY id DESC");
     <th>Tipo</th>
     <th>Condición Estimada</th>
 </tr>
-<?php while($row = $result->fetch_assoc()): 
-    $condicion = $row["condicion_estimada"];
-    $clase = "";
-    if (!is_null($condicion)) {
-        if ($condicion >= 80) $clase = "verde";
-        elseif ($condicion >= 50) $clase = "amarillo";
-        else $clase = "rojo";
-    }
-?>
-<tr class="<?= $clase ?>">
+<?php while($row = $result->fetch_assoc()): ?>
+<tr>
     <td><?= $row["id"] ?></td>
     <td><?= $row["nombre"] ?></td>
     <td><?= $row["modelo"] ?></td>
@@ -48,7 +37,7 @@ $result = $conn->query("SELECT * FROM maquinaria ORDER BY id DESC");
     <td><?= $row["empresa_origen"] ?></td>
     <td><?= $row["empresa_destino"] ?></td>
     <td><?= ucfirst($row["tipo"]) ?></td>
-    <td><?= $condicion !== null ? $condicion . "%" : "-" ?></td>
+    <td><?= $row["condicion_estimada"] !== null ? $row["condicion_estimada"] . "%" : "-" ?></td>
 </tr>
 <?php endwhile; ?>
 </table>
