@@ -5,8 +5,13 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 include 'conexion.php';
-$nuevas = $conn->query("SELECT * FROM maquinaria WHERE tipo='nueva'");
-$usadas = $conn->query("SELECT * FROM maquinaria WHERE tipo='usada'");
+$filtro = "";
+if (isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
+  $busqueda = $conn->real_escape_string($_GET['busqueda']);
+  $filtro = " AND (nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%')";
+}
+$nuevas = $conn->query("SELECT * FROM maquinaria WHERE tipo='nueva' $filtro");
+$usadas = $conn->query("SELECT * FROM maquinaria WHERE tipo='usada' $filtro");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,6 +23,10 @@ $usadas = $conn->query("SELECT * FROM maquinaria WHERE tipo='usada'");
 <body class="bg-light">
   <div class="container mt-4">
     <h2 class="text-center">Inventario de Maquinaria</h2>
+    <form method="GET" class="my-3">
+      <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o modelo..." value="<?= isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : '' ?>">
+    </form>
+    <a href="exportar_excel.php" class="btn btn-outline-success mb-3">📤 Exportar a Excel</a>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#nuevas">Nuevas</button>
