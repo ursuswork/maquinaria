@@ -1,116 +1,116 @@
 <?php
-include 'conexion.php';
-$id = $_GET['id'] ?? null;
-if (!$id) { die("ID no proporcionado."); }
+session_start();
+if (!isset($_SESSION['login'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+include '../conexion.php';
+
+$id = intval($_GET['id'] ?? 0);
+if ($id <= 0) {
+    die("❌ ID inválido.");
+}
+
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
+if (!$maquinaria) {
+    die("❌ Maquinaria no encontrada.");
+}
+
+// Lista de secciones y componentes
+$secciones = [
+    "MOTOR" => ["Cilindros", "Inyectores", "Radiador", "Turbocargador"],
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["Luces", "Tablero", "Sensores"],
+    "SISTEMA HIDRÁULICO" => ["Bombas", "Mangueras", "Válvulas"],
+    "ESTÉTICO" => ["Pintura", "Cabina", "Cristales"],
+    "CONSUMIBLES" => ["Aceite", "Filtro de aire", "Filtro de combustible"]
+];
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Formulario Recibo Unidad</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-body { background: #f4f6f9; font-family: Arial, sans-serif; }
-.container { background: white; padding: 30px; border-radius: 12px; margin-top: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-h2 { text-align: center; margin-bottom: 30px; }
-h4 { background: #dee2e6; padding: 10px; border-radius: 6px; margin-top: 30px; }
-.campo { margin-bottom: 10px; }
-label { font-weight: bold; }
-.opciones label { font-weight: normal; margin-right: 15px; }
-
-<style>
-input[type=radio] {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #e0e0e0;
-  border: 2px solid #ccc;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  display: inline-block;
-  position: relative;
-  margin-right: 6px;
-  cursor: pointer;
-}
-input[type=radio]:checked::before {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 10px;
-  height: 10px;
-  background-color: #2ecc71;
-  border-radius: 2px;
-}
-</style>
-</style>
-</head>
-<body>
-<div class="container">
-    <h2>Formulario Recibo de Unidad</h2>
-    <form method="POST" action="acciones/guardar_recibo.php?id=<?= $id ?>">
-        <h4>Datos Generales</h4>
-        <div class='row'>
-            <div class='col-md-6 campo'>
-                <label>Empresa Origen</label>
-                <input type='text' name='empresa_origen' class='form-control' required>
-            </div>
-            <div class='col-md-6 campo'>
-                <label>Empresa Destino</label>
-                <input type='text' name='empresa_destino' class='form-control' required>
-            </div>
-            <div class='col-md-6 campo'>
-                <label>Equipo</label>
-                <input type='text' name='equipo' class='form-control'>
-            </div>
-            <div class='col-md-6 campo'>
-                <label>Marca</label>
-                <input type='text' name='marca' class='form-control'>
-            </div>
-            <div class='col-md-6 campo'>
-                <label>Modelo</label>
-                <input type='text' name='modelo' class='form-control'>
-            </div>
-            <div class='col-md-6 campo'>
-                <label>Serie</label>
-                <input type='text' name='serie' class='form-control'>
-            </div>
-        </div>
-
-        <!-- Secciones dinámicas con campos comunes -->
-        <?php
-        function grupo($titulo, $campos) {
-            echo "<h4>$titulo</h4><div class='row'>";
-            foreach ($campos as $campo) {
-                echo "<div class='col-md-6 campo'>
-                        <label>".strtoupper(str_replace("_", " ", $campo))."</label>
-                        <div class='opciones'>
-                            <label><input type='radio' name='$campo' value='bueno' required> Bueno</label>
-                            <label><input type='radio' name='$campo' value='regular'> Regular</label>
-                            <label><input type='radio' name='$campo' value='malo'> Malo</label>
-                        </div>
-                    </div>";
-            }
-            echo "</div>";
+    <meta charset="UTF-8">
+    <title>Recibo de Unidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6f9; }
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        h5 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+        select {
+            border-radius: 10px;
         }
 
-        grupo("MOTOR", ["cilindros", "pistones", "anillos", "inyectores", "block", "cabeza", "varillas", "resortes", "punterias", "cigueñal", "arbol_de_elevas", "retenes", "ligas", "sensores", "poleas", "concha", "cremallera", "clutch", "coples", "bomba_de_inyeccion", "juntas", "marcha", "tuberia", "alternador", "filtros", "bases", "soportes", "turbo", "escape", "chicotes"]);
-        grupo("SISTEMA MECÁNICO", ["transmision", "diferenciales", "cardan"]);
-        grupo("SISTEMA HIDRÁULICO", ["banco_de_valvulas", "bombas_de_transito", "bombas_de_precarga", "bombas_de_accesorios", "coples_hidraulicos", "clutch_hidraulico", "gatos_de_levante", "gatos_de_direccion", "gatos_de_accesorios", "mangueras", "motores_hidraulicos", "orbitrol", "torques_huv", "valvulas_de_retencion", "reductores"]);
-        grupo("SISTEMA ELÉCTRICO Y ELECTRÓNICO", ["alarmas", "arneses", "bobinas", "botones", "cables", "cables_de_sensores", "conectores", "electro_valvulas", "fusibles", "porta_fusibles", "indicadores", "presion_agua_temp_voltimetro", "luces", "modulos", "torreta", "relevadores", "switch_llave", "sensores_electricos"]);
-        grupo("ESTÉTICO", ["pintura", "calcomanias", "asiento", "tapiceria", "tolvas", "cristales", "accesorios", "sistema_de_riego"]);
-        grupo("CONSUMIBLES", ["puntas", "porta_puntas", "garras", "cuchillas", "cepillos", "separadores", "llantas", "rines", "bandas_orugas"]);
-        ?>
-        
-        <h4>Observaciones</h4>
-        <div class='mb-4'>
-            <textarea name='observaciones' class='form-control' rows='4' placeholder='Escriba observaciones adicionales...'></textarea>
+        @media print {
+            .btn,
+            nav,
+            .navbar,
+            .form-select,
+            textarea {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .form-section {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <h3 class="mb-4 text-center text-primary">📄 Recibo de Unidad - <?= htmlspecialchars($maquinaria['nombre']) ?></h3>
+
+    <form action="procesar_recibo.php" method="POST">
+        <input type="hidden" name="id_maquinaria" value="<?= $id ?>">
+
+        <?php foreach ($secciones as $titulo => $componentes): ?>
+            <div class="form-section">
+                <h5><?= $titulo ?></h5>
+                <div class="row">
+                    <?php foreach ($componentes as $comp): ?>
+                        <div class="col-md-6 mb-3">
+                            <label><strong><?= $comp ?>:</strong></label>
+                            <select name="componente[<?= $titulo ?>][<?= $comp ?>]" class="form-select" required>
+                                <option value="">-- Selecciona --</option>
+                                <option value="bueno">Bueno</option>
+                                <option value="regular">Regular</option>
+                                <option value="malo">Malo</option>
+                            </select>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <div class="form-section">
+            <label for="observaciones"><strong>📝 Observaciones:</strong></label>
+            <textarea name="observaciones" class="form-control" rows="4" placeholder="Notas adicionales..."></textarea>
         </div>
-<div class="text-center mt-4">
-            <button type="submit" class="btn btn-success px-4 py-2">Guardar Recibo</button>
-            <a href="index.php" class="btn btn-secondary px-4 py-2">Cancelar</a>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">💾 Guardar Evaluación</button>
+            <a href="../inventario.php" class="btn btn-secondary">← Cancelar</a>
+            <button type="button" class="btn btn-warning" onclick="window.print()">🖨️ Imprimir Recibo</button>
         </div>
     </form>
 </div>
+
 </body>
 </html>
