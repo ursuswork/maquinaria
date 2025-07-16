@@ -28,10 +28,10 @@ $resultado = $conn->query($sql);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: #eaf4f5;
+            background: #e6f0ff; /* Azul claro */
         }
         .navbar {
-            background: linear-gradient(90deg, #007BFF, #00C851);
+            background-color: #001f3f; /* Azul marino */
         }
         .navbar-brand {
             font-weight: bold;
@@ -77,7 +77,6 @@ $resultado = $conn->query($sql);
 <!-- CONTENIDO -->
 <div class="container py-4">
 
-    <!-- Alertas -->
     <?php if (isset($_GET['editado']) && $_GET['editado'] == 'ok'): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             ✅ Maquinaria editada correctamente.
@@ -90,16 +89,14 @@ $resultado = $conn->query($sql);
         </div>
     <?php endif; ?>
 
-    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row text-center text-md-start">
         <h3 class="mb-3 mb-md-0 text-primary">Maquinaria Registrada</h3>
         <div class="header-actions d-flex gap-2">
-            <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
-            <a href="exportar_excel.php" class="btn btn-outline-primary">📤 Exportar a Excel</a>
+            <a href="agregar_maquinaria.php" class="btn btn-primary">➕ Agregar Maquinaria</a>
+            <a href="exportar_excel.php" class="btn btn-warning text-dark">📤 Exportar a Excel</a>
         </div>
     </div>
 
-    <!-- Búsqueda -->
     <form method="GET" class="mb-4">
         <div class="input-group search-bar shadow-sm">
             <input type="text" name="busqueda" class="form-control" placeholder="🔎 Buscar por nombre, modelo o serie..." value="<?= htmlspecialchars($busqueda) ?>">
@@ -107,7 +104,6 @@ $resultado = $conn->query($sql);
         </div>
     </form>
 
-    <!-- Tarjetas -->
     <div class="row g-4">
         <?php if ($resultado && $resultado->num_rows > 0): ?>
             <?php while ($row = $resultado->fetch_assoc()): ?>
@@ -119,7 +115,7 @@ $resultado = $conn->query($sql);
                             <div class="text-center text-muted mb-3">📷 Sin imagen</div>
                         <?php endif; ?>
 
-                        <h5 class="text-success"><?= htmlspecialchars($row['nombre']) ?>
+                        <h5 class="text-primary"><?= htmlspecialchars($row['nombre']) ?>
                             <small class="text-muted">(<?= htmlspecialchars($row['tipo']) ?>)</small>
                         </h5>
                         <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($row['modelo']) ?></p>
@@ -142,7 +138,6 @@ $resultado = $conn->query($sql);
                             </div>
                         </div>
 
-                        <!-- Acciones -->
                         <div class="d-flex justify-content-between">
                             <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">
                                 ✏️ Editar
@@ -164,7 +159,6 @@ $resultado = $conn->query($sql);
     </div>
 </div>
 
-<!-- Bootstrap JS para alertas -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
