@@ -1,15 +1,23 @@
 <?php
-session_start();
 include '../conexion.php';
 
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$id = intval($_GET['id'] ?? 0);
 
-// Obtener componentes agrupados por sección
+if ($id <= 0) {
+    die("ID inválido.");
+}
+
+$consulta = $conn->query("SELECT * FROM maquinaria WHERE id = $id");
+$maquinaria = $consulta->fetch_assoc();
+
+if (!$maquinaria) {
+    die("Maquinaria no encontrada.");
+}
+
+$estructura = $conn->query("SELECT * FROM estructura_recibo_unidad ORDER BY seccion, id");
 $componentes = [];
-$query = "SELECT seccion, componente FROM estructura_recibo_unidad ORDER BY seccion, componente";
-$result = $conn->query($query);
-while ($row = $result->fetch_assoc()) {
-    $componentes[$row['seccion']][] = $row['componente'];
+while ($row = $estructura->fetch_assoc()) {
+    $componentes[$row['seccion']][] = $row['nombre'];
 }
 ?>
 
@@ -19,34 +27,38 @@ while ($row = $result->fetch_assoc()) {
     <meta charset="UTF-8">
     <title>Recibo de Unidad</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #f9f9f9; margin: 20px; }
-        .formulario { background: white; padding: 30px; border-radius: 10px; max-width: 900px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-bottom: 30px; }
-        .seccion { margin-bottom: 25px; }
-        .seccion h4 { margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .componente { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        select { width: 150px; }
-        .btn { background: #007bff; color: white; padding: 10px 25px; border: none; border-radius: 5px; }
-        textarea { width: 100%; height: 80px; }
-        .print { margin-top: 20px; text-align: center; }
+        body { background: #f3f4f6; padding: 40px; }
+        .hoja {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .titulo { font-size: 1.6rem; margin-bottom: 25px; font-weight: bold; }
+        .seccion { margin-top: 25px; margin-bottom: 10px; font-weight: bold; color: #1f2937; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        select.form-select { min-width: 120px; }
+        .form-observaciones { margin-top: 25px; }
     </style>
 </head>
 <body>
 
-<div class="formulario">
-    <h2>🛠️ Formato de Recibo de Unidad</h2>
-    <form method="POST" action="../procesar_recibo.php">
-        <input type="hidden" name="id_maquinaria" value="<?= \$id ?>">
+<div class="hoja">
+    <div class="titulo text-center">📄 Recibo de Unidad - <?= htmlspecialchars($maquinaria['nombre']) ?></div>
 
-        <?php foreach ($componentes as $seccion => $lista): ?>
-            <div class="seccion">
-                <h4><?= htmlspecialchars(\$seccion) ?></h4>
-                <?php foreach ($lista as $comp): ?>
-                    <div class="componente">
-                        <label><?= htmlspecialchars(\$comp) ?></label>
-                        <select name="componente[<?= htmlspecialchars(\$seccion) ?>][<?= htmlspecialchars(\$comp) ?>]" required>
-                            <option value="">-- Selecciona --</option>
+    <form action="../guardar_recibo.php" method="POST">
+        <input type="hidden" name="maquinaria_id" value="<?= $maquinaria['id'] ?>">
+
+        <?php foreach ($componentes as $seccion => $items): ?>
+            <div class="seccion"><?= htmlspecialchars($seccion) ?></div>
+            <div class="row">
+                <?php foreach ($items as $nombre): ?>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><?= htmlspecialchars($nombre) ?></label>
+                        <select class="form-select" name="componentes[<?= htmlspecialchars($nombre) ?>]" required>
                             <option value="bueno">Bueno</option>
                             <option value="regular">Regular</option>
                             <option value="malo">Malo</option>
@@ -56,19 +68,15 @@ while ($row = $result->fetch_assoc()) {
             </div>
         <?php endforeach; ?>
 
-        <div class="seccion">
-            <h4>Observaciones</h4>
-            <textarea name="observaciones" placeholder="Escribe cualquier nota técnica..."></textarea>
+        <div class="form-observaciones">
+            <label class="form-label">Observaciones:</label>
+            <textarea name="observaciones" class="form-control" rows="4"></textarea>
         </div>
 
-        <div class="text-center">
-            <button type="submit" class="btn">Guardar Evaluación</button>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary px-4">Guardar Recibo</button>
         </div>
     </form>
-
-    <div class="print">
-        <button onclick="window.print()" class="btn" style="background:#28a745">🖨 Imprimir</button>
-    </div>
 </div>
 
 </body>
