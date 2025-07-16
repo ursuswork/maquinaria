@@ -1,24 +1,30 @@
 <?php
+session_start();
+if (!isset($_SESSION['login'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
 include '../conexion.php';
 
 $id = intval($_GET['id'] ?? 0);
-
 if ($id <= 0) {
-    die("ID inválido.");
+    die("❌ ID inválido.");
 }
 
-$consulta = $conn->query("SELECT * FROM maquinaria WHERE id = $id");
-$maquinaria = $consulta->fetch_assoc();
-
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
 if (!$maquinaria) {
-    die("Maquinaria no encontrada.");
+    die("❌ Maquinaria no encontrada.");
 }
 
-$estructura = $conn->query("SELECT * FROM estructura_recibo_unidad ORDER BY seccion, id");
-$componentes = [];
-while ($row = $estructura->fetch_assoc()) {
-    $componentes[$row['seccion']][] = $row['nombre'];
-}
+// Lista de secciones y componentes
+$secciones = [
+    "MOTOR" => ["Cilindros", "Inyectores", "Radiador", "Turbocargador"],
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["Luces", "Tablero", "Sensores"],
+    "SISTEMA HIDRÁULICO" => ["Bombas", "Mangueras", "Válvulas"],
+    "ESTÉTICO" => ["Pintura", "Cabina", "Cristales"],
+    "CONSUMIBLES" => ["Aceite", "Filtro de aire", "Filtro de combustible"]
+];
 ?>
 
 <!DOCTYPE html>
@@ -29,52 +35,79 @@ while ($row = $estructura->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f3f4f6; padding: 40px; }
-        .hoja {
-            max-width: 900px;
-            margin: auto;
+        body { background: #f4f6f9; }
+        .form-section {
             background: white;
-            padding: 30px 40px;
             border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
         }
-        .titulo { font-size: 1.6rem; margin-bottom: 25px; font-weight: bold; }
-        .seccion { margin-top: 25px; margin-bottom: 10px; font-weight: bold; color: #1f2937; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        select.form-select { min-width: 120px; }
-        .form-observaciones { margin-top: 25px; }
+        h5 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+        select {
+            border-radius: 10px;
+        }
+
+        @media print {
+            .btn,
+            nav,
+            .navbar,
+            .form-select,
+            textarea {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .form-section {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="hoja">
-    <div class="titulo text-center">📄 Recibo de Unidad - <?= htmlspecialchars($maquinaria['nombre']) ?></div>
+<div class="container my-5">
+    <h3 class="mb-4 text-center text-primary">📄 Recibo de Unidad - <?= htmlspecialchars($maquinaria['nombre']) ?></h3>
 
-    <form action="../guardar_recibo.php" method="POST">
-        <input type="hidden" name="maquinaria_id" value="<?= $maquinaria['id'] ?>">
+    <form action="procesar_recibo.php" method="POST">
+        <input type="hidden" name="id_maquinaria" value="<?= $id ?>">
 
-        <?php foreach ($componentes as $seccion => $items): ?>
-            <div class="seccion"><?= htmlspecialchars($seccion) ?></div>
-            <div class="row">
-                <?php foreach ($items as $nombre): ?>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label"><?= htmlspecialchars($nombre) ?></label>
-                        <select class="form-select" name="componentes[<?= htmlspecialchars($nombre) ?>]" required>
-                            <option value="bueno">Bueno</option>
-                            <option value="regular">Regular</option>
-                            <option value="malo">Malo</option>
-                        </select>
-                    </div>
-                <?php endforeach; ?>
+        <?php foreach ($secciones as $titulo => $componentes): ?>
+            <div class="form-section">
+                <h5><?= $titulo ?></h5>
+                <div class="row">
+                    <?php foreach ($componentes as $comp): ?>
+                        <div class="col-md-6 mb-3">
+                            <label><strong><?= $comp ?>:</strong></label>
+                            <select name="componente[<?= $titulo ?>][<?= $comp ?>]" class="form-select" required>
+                                <option value="">-- Selecciona --</option>
+                                <option value="bueno">Bueno</option>
+                                <option value="regular">Regular</option>
+                                <option value="malo">Malo</option>
+                            </select>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         <?php endforeach; ?>
 
-        <div class="form-observaciones">
-            <label class="form-label">Observaciones:</label>
-            <textarea name="observaciones" class="form-control" rows="4"></textarea>
+        <div class="form-section">
+            <label for="observaciones"><strong>📝 Observaciones:</strong></label>
+            <textarea name="observaciones" class="form-control" rows="4" placeholder="Notas adicionales..."></textarea>
         </div>
 
-        <div class="text-center mt-4">
-            <button class="btn btn-primary px-4">Guardar Recibo</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">💾 Guardar Evaluación</button>
+            <a href="../inventario.php" class="btn btn-secondary">← Cancelar</a>
+            <button type="button" class="btn btn-warning" onclick="window.print()">🖨️ Imprimir Recibo</button>
         </div>
     </form>
 </div>

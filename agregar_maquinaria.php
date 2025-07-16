@@ -16,26 +16,26 @@ if (!isset($_SESSION['login'])) {
     <style>
         body { background: #f2f6f9; }
         .card-form {
-            max-width: 850px;
+            max-width: 800px;
             margin: auto;
             margin-top: 40px;
             background: white;
-            padding: 35px;
+            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         .form-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-align: center;
         }
-        .preview-img {
-            max-width: 100%;
-            height: 150px;
-            object-fit: cover;
-            margin-top: 10px;
+        .form-control, .form-select {
             border-radius: 10px;
+        }
+        .btn-success {
+            border-radius: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -44,7 +44,7 @@ if (!isset($_SESSION['login'])) {
 <div class="card-form">
     <div class="form-title text-primary">➕ Agregar Nueva Maquinaria</div>
 
-    <form action="guardar.php" method="POST" enctype="multipart/form-data" class="row g-3">
+    <form action="procesar_agregar.php" method="POST" enctype="multipart/form-data" class="row g-3">
 
         <div class="col-md-6">
             <label for="nombre">Nombre:</label>
@@ -86,29 +86,20 @@ if (!isset($_SESSION['login'])) {
         </div>
 
         <div class="col-md-6">
-            <label for="imagen">Imagen:</label>
-            <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*" onchange="previewImagen(event)">
-            <img id="preview" class="preview-img" src="#" alt="Vista previa" style="display:none;">
+            <label for="condicion_estimada">Condición estimada (%):</label>
+            <input type="number" class="form-control" name="condicion_estimada" id="condicion_estimada" min="0" max="100">
         </div>
 
-        <div class="col-12 text-center mt-4">
-            <button type="submit" class="btn btn-success px-5">Guardar Maquinaria</button>
+        <div class="col-md-12">
+            <label for="imagen">Imagen:</label>
+            <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
+        </div>
+
+        <div class="col-12 text-center mt-3">
+            <button type="submit" class="btn btn-success">💾 Guardar Maquinaria</button>
         </div>
     </form>
 </div>
-
-<script>
-    function previewImagen(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('preview');
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = "block";
-        } else {
-            preview.style.display = "none";
-        }
-    }
-</script>
 
 </body>
 </html>
