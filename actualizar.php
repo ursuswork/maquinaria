@@ -1,1 +1,0 @@
-// Ya reemplazado por procesar_editar.php, pero conservado si se desea.
