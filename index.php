@@ -5,8 +5,8 @@ include 'conexion.php';
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $user = $_POST['username'];
-    $pass = hash('sha256', $_POST['password']);
+    $user = $_POST['username'] ?? '';
+    $pass = isset($_POST['password']) ? hash('sha256', $_POST['password']) : '';
 
     $stmt = $conn->prepare("SELECT * FROM usuarios WHERE username = ? AND password = ?");
     $stmt->bind_param("ss", $user, $pass);
