@@ -1,97 +1,66 @@
 <?php
 session_start();
-include 'conexion.php';
-
-$error = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $user = $_POST['username'] ?? '';
-    $pass = isset($_POST['password']) ? hash('sha256', $_POST['password']) : '';
-
-    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE username = ? AND password = ?");
-    $stmt->bind_param("ss", $user, $pass);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result && $result->num_rows === 1) {
-        $_SESSION['login'] = true;
-        header("Location: inventario.php");
-        exit();
-    } else {
-        $error = "❌ Usuario o contraseña incorrectos.";
-    }
+if (!isset($_SESSION['usuario'])) {
+  header("Location: login.php");
+  exit;
 }
+include 'conexion.php';
+$nuevas = $conn->query("SELECT * FROM maquinaria WHERE tipo='nueva'");
+$usadas = $conn->query("SELECT * FROM maquinaria WHERE tipo='usada'");
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f0f2f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        .form-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .form-control {
-            border-radius: 10px;
-        }
-        .btn-primary {
-            border-radius: 10px;
-            font-weight: bold;
-        }
-        .error-msg {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: 500;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Inventario de Maquinaria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-
-<div class="login-card">
-    <div class="form-title">🔒 Iniciar Sesión</div>
-
-    <form method="POST">
-        <div class="mb-3">
-            <label for="username" class="form-label">Usuario:</label>
-            <input type="text" class="form-control" id="username" name="username" required autofocus>
+<body class="bg-light">
+  <div class="container mt-4">
+    <h2 class="text-center">Inventario de Maquinaria</h2>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#nuevas">Nuevas</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#usadas">Usadas</button>
+      </li>
+    </ul>
+    <div class="tab-content mt-3">
+      <div class="tab-pane fade show active" id="nuevas">
+        <div class="row">
+          <?php while($row = $nuevas->fetch_assoc()): ?>
+          <div class="col-6 col-md-4 col-lg-3 mb-3">
+            <div class="card h-100">
+              <img src="imagenes/<?= $row['imagen'] ?>" class="card-img-top" style="object-fit: cover; height:150px;">
+              <div class="card-body p-2">
+                <h6><?= $row['nombre'] ?></h6>
+                <small><?= $row['modelo'] ?></small>
+              </div>
+            </div>
+          </div>
+          <?php endwhile; ?>
         </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Contraseña:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+      <div class="tab-pane fade" id="usadas">
+        <div class="row">
+          <?php while($row = $usadas->fetch_assoc()): ?>
+          <div class="col-6 col-md-4 col-lg-3 mb-3">
+            <div class="card h-100">
+              <img src="imagenes/<?= $row['imagen'] ?>" class="card-img-top" style="object-fit: cover; height:150px;">
+              <div class="card-body p-2">
+                <h6><?= $row['nombre'] ?></h6>
+                <small><?= $row['modelo'] ?></small>
+              </div>
+            </div>
+          </div>
+          <?php endwhile; ?>
         </div>
-
-        <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Entrar</button>
-        </div>
-
-        <?php if (!empty($error)) : ?>
-            <div class="error-msg"><?= $error ?></div>
-        <?php endif; ?>
-    </form>
-</div>
-
+      </div>
+    </div>
+    <a href="agregar.php" class="btn btn-success w-100 mt-3">➕ Agregar Maquinaria</a>
+    <a href="logout.php" class="btn btn-outline-danger w-100 mt-2">Cerrar sesión</a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
