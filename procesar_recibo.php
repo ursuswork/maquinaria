@@ -16,14 +16,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
     $componentes   = $_POST['componente'] ?? [];
 
-    // Pesos por sección
     $pesos = [
-        "MOTOR"                         => 0.30,
-        "SISTEMA MECÁNICO"             => 0.00, // no usado aquí
+        "MOTOR"                         => 0.15,
+        "SISTEMA MECÁNICO"              => 0.15,
         "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 0.25,
-        "SISTEMA HIDRÁULICO"           => 0.30,
-        "ESTÉTICO"                     => 0.05,
-        "CONSUMIBLES"                  => 0.10,
+        "SISTEMA HIDRÁULICO"            => 0.30,
+        "ESTÉTICO"                      => 0.05,
+        "CONSUMIBLES"                   => 0.10,
     ];
 
     $total_condicion = 0;
@@ -35,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         foreach ($items as $nombre => $estado) {
             $valor = valor_componente($estado);
 
-            // Guardar en tabla de recibo (opcional)
             $stmt = $conn->prepare("INSERT INTO recibo_unidad 
                 (id_maquinaria, seccion, componente, estado) 
                 VALUES (?, ?, ?, ?)");
@@ -51,10 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // Normaliza el resultado a porcentaje redondeado
     $condicion_final = round($total_condicion);
 
-    // Actualizar maquinaria
     $stmt = $conn->prepare("UPDATE maquinaria 
                             SET condicion_estimada = ?, observaciones = ?
                             WHERE id = ?");

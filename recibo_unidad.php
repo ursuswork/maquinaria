@@ -1,30 +1,16 @@
 <?php
 session_start();
-if (!isset($_SESSION['login'])) {
-    header("Location: ../index.php");
-    exit();
-}
-
 include '../conexion.php';
 
-$id = intval($_GET['id'] ?? 0);
-if ($id <= 0) {
-    die("❌ ID inválido.");
-}
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
-if (!$maquinaria) {
-    die("❌ Maquinaria no encontrada.");
+// Obtener componentes agrupados por sección
+$componentes = [];
+$query = "SELECT seccion, componente FROM estructura_recibo_unidad ORDER BY seccion, componente";
+$result = $conn->query($query);
+while ($row = $result->fetch_assoc()) {
+    $componentes[$row['seccion']][] = $row['componente'];
 }
-
-// Lista de secciones y componentes
-$secciones = [
-    "MOTOR" => ["Cilindros", "Inyectores", "Radiador", "Turbocargador"],
-    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["Luces", "Tablero", "Sensores"],
-    "SISTEMA HIDRÁULICO" => ["Bombas", "Mangueras", "Válvulas"],
-    "ESTÉTICO" => ["Pintura", "Cabina", "Cristales"],
-    "CONSUMIBLES" => ["Aceite", "Filtro de aire", "Filtro de combustible"]
-];
 ?>
 
 <!DOCTYPE html>
@@ -33,83 +19,56 @@ $secciones = [
     <meta charset="UTF-8">
     <title>Recibo de Unidad</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f4f6f9; }
-        .form-section {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-        h5 {
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
-            margin-bottom: 20px;
-        }
-        select {
-            border-radius: 10px;
-        }
-
-        @media print {
-            .btn,
-            nav,
-            .navbar,
-            .form-select,
-            textarea {
-                display: none !important;
-            }
-
-            body {
-                background: white;
-            }
-
-            .form-section {
-                box-shadow: none;
-                border: 1px solid #ccc;
-            }
-        }
+        body { font-family: sans-serif; background: #f9f9f9; margin: 20px; }
+        .formulario { background: white; padding: 30px; border-radius: 10px; max-width: 900px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin-bottom: 30px; }
+        .seccion { margin-bottom: 25px; }
+        .seccion h4 { margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .componente { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        select { width: 150px; }
+        .btn { background: #007bff; color: white; padding: 10px 25px; border: none; border-radius: 5px; }
+        textarea { width: 100%; height: 80px; }
+        .print { margin-top: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container my-5">
-    <h3 class="mb-4 text-center text-primary">📄 Recibo de Unidad - <?= htmlspecialchars($maquinaria['nombre']) ?></h3>
+<div class="formulario">
+    <h2>🛠️ Formato de Recibo de Unidad</h2>
+    <form method="POST" action="../procesar_recibo.php">
+        <input type="hidden" name="id_maquinaria" value="<?= \$id ?>">
 
-    <form action="procesar_recibo.php" method="POST">
-        <input type="hidden" name="id_maquinaria" value="<?= $id ?>">
-
-        <?php foreach ($secciones as $titulo => $componentes): ?>
-            <div class="form-section">
-                <h5><?= $titulo ?></h5>
-                <div class="row">
-                    <?php foreach ($componentes as $comp): ?>
-                        <div class="col-md-6 mb-3">
-                            <label><strong><?= $comp ?>:</strong></label>
-                            <select name="componente[<?= $titulo ?>][<?= $comp ?>]" class="form-select" required>
-                                <option value="">-- Selecciona --</option>
-                                <option value="bueno">Bueno</option>
-                                <option value="regular">Regular</option>
-                                <option value="malo">Malo</option>
-                            </select>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+        <?php foreach ($componentes as $seccion => $lista): ?>
+            <div class="seccion">
+                <h4><?= htmlspecialchars(\$seccion) ?></h4>
+                <?php foreach ($lista as $comp): ?>
+                    <div class="componente">
+                        <label><?= htmlspecialchars(\$comp) ?></label>
+                        <select name="componente[<?= htmlspecialchars(\$seccion) ?>][<?= htmlspecialchars(\$comp) ?>]" required>
+                            <option value="">-- Selecciona --</option>
+                            <option value="bueno">Bueno</option>
+                            <option value="regular">Regular</option>
+                            <option value="malo">Malo</option>
+                        </select>
+                    </div>
+                <?php endforeach; ?>
             </div>
         <?php endforeach; ?>
 
-        <div class="form-section">
-            <label for="observaciones"><strong>📝 Observaciones:</strong></label>
-            <textarea name="observaciones" class="form-control" rows="4" placeholder="Notas adicionales..."></textarea>
+        <div class="seccion">
+            <h4>Observaciones</h4>
+            <textarea name="observaciones" placeholder="Escribe cualquier nota técnica..."></textarea>
         </div>
 
         <div class="text-center">
-            <button type="submit" class="btn btn-primary">💾 Guardar Evaluación</button>
-            <a href="../inventario.php" class="btn btn-secondary">← Cancelar</a>
-            <button type="button" class="btn btn-warning" onclick="window.print()">🖨️ Imprimir Recibo</button>
+            <button type="submit" class="btn">Guardar Evaluación</button>
         </div>
     </form>
+
+    <div class="print">
+        <button onclick="window.print()" class="btn" style="background:#28a745">🖨 Imprimir</button>
+    </div>
 </div>
 
 </body>
