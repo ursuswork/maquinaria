@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result && $result->num_rows === 1) {
         $_SESSION['login'] = true;
-        header("Location: index.php");
+        header("Location: inventario.php");
         exit();
     } else {
         $error = "❌ Usuario o contraseña incorrectos.";
