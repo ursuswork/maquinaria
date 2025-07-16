@@ -1,4 +1,6 @@
 <?php
+header("Location: login.php");
+exit();
 include 'conexion.php';
 
 $nuevas = $conn->query("SELECT COUNT(*) FROM maquinaria WHERE tipo = 'nueva'")->fetch_row()[0];
