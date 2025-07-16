@@ -1,6 +1,13 @@
 <?php
+session_start();
+if (!isset($_SESSION['login'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'conexion.php';
 
+// Validar y limpiar datos del formulario
 $nombre         = $_POST['nombre'] ?? '';
 $tipo           = $_POST['tipo'] ?? '';
 $modelo         = $_POST['modelo'] ?? '';
@@ -9,28 +16,37 @@ $marca          = $_POST['marca'] ?? '';
 $anio           = $_POST['anio'] ?? '';
 $ubicacion      = $_POST['ubicacion'] ?? '';
 $condicion      = $_POST['condicion_estimada'] ?? '';
+$imagen         = '';
 
-$imagen = '';
+// Procesar la imagen si se envió
 if (!empty($_FILES['imagen']['name'])) {
-    $nombre_archivo = time() . "_" . basename($_FILES['imagen']['name']);
-    $ruta_destino = "imagenes/" . $nombre_archivo;
+    $directorio = 'imagenes/';
+    if (!is_dir($directorio)) {
+        mkdir($directorio, 0755, true);
+    }
 
-    if (move_uploaded_file($_FILES['imagen']['tmp_name'], $ruta_destino)) {
-        $imagen = $nombre_archivo;
+    $nombre_imagen = time() . '_' . basename($_FILES['imagen']['name']);
+    $ruta_imagen = $directorio . $nombre_imagen;
+
+    // Validar tipo MIME
+    $permitidos = ['image/jpeg', 'image/png', 'image/gif'];
+    if (in_array($_FILES['imagen']['type'], $permitidos)) {
+        if (move_uploaded_file($_FILES['imagen']['tmp_name'], $ruta_imagen)) {
+            $imagen = $nombre_imagen;
+        } else {
+            die("❌ Error al subir la imagen.");
+        }
     } else {
-        echo "❌ Error al subir la imagen.";
-        exit;
+        die("❌ Solo se permiten archivos JPG, PNG o GIF.");
     }
 }
 
-// Preparar la consulta SQL para mayor seguridad
-$stmt = $conn->prepare("INSERT INTO maquinaria 
-    (nombre, tipo, modelo, numero_serie, marca, anio, ubicacion, condicion_estimada, imagen)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+// Usar prepare para insertar de forma segura
+$stmt = $conn->prepare("INSERT INTO maquinaria (nombre, tipo, modelo, numero_serie, marca, anio, ubicacion, condicion_estimada, imagen)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 if (!$stmt) {
-    echo "❌ Error en prepare(): " . $conn->error;
-    exit;
+    die("❌ Error en prepare(): " . $conn->error);
 }
 
 $stmt->bind_param("sssssssss", $nombre, $tipo, $modelo, $numero_serie, $marca, $anio, $ubicacion, $condicion, $imagen);
@@ -48,4 +64,3 @@ if ($stmt->execute()) {
     echo "❌ Error al guardar: " . $stmt->error;
 }
 ?>
-
