@@ -74,9 +74,12 @@ $resultado = $conn->query($sql);
 </style>
 
 <body class="bg-light d-flex justify-content-center align-items-start pt-4">
-  <div class="titulo-app">Inventario de Maquinaria</div>
+  <div class="titulo-app text-center mb-3">Inventario de Maquinaria</div>
   <div class="card shadow p-4 w-100" style="max-width: 1000px;">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    
+<a href="logout.php" class="btn btn-outline-light">🔒 Cerrar Sesión</a>
+
       <h4 class="text-primary">Inventario de Maquinaria</h4>
       <div class="d-flex flex-column flex-sm-row gap-2">
         <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
