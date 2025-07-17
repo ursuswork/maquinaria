@@ -107,8 +107,8 @@ if ($resultado) {
     <div class="tab-pane fade" id="usada" role="tabpanel">
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 <?php
-$resultado->data_seek(0);
-while ($row = $resultado->fetch_assoc()) {
+$resultado_usada = $conn->query($sql);
+while ($row = $resultado_usada->fetch_assoc()) {
   if ($row['tipo_maquinaria'] === 'usada') {
 ?>
         <div class="col">
@@ -124,12 +124,12 @@ while ($row = $resultado->fetch_assoc()) {
                 </div>
               </div>
 <?php
-  $id_maquinaria = $row['id'];
-  $recibo_guardado = false;
-  $verifica = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
-  if ($verifica && $verifica->num_rows > 0) {
-    $recibo_guardado = true;
-  }
+    $id_maquinaria = $row['id'];
+    $recibo_guardado = false;
+    $verifica = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
+    if ($verifica && $verifica->num_rows > 0) {
+      $recibo_guardado = true;
+    }
 ?>
               <div class="d-flex flex-column gap-2">
                 <div class="d-flex justify-content-between">
@@ -155,4 +155,3 @@ while ($row = $resultado->fetch_assoc()) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-git
