@@ -33,12 +33,33 @@ function botonOpcion($nombre, $componente) {
 }
 
 $secciones = [
-  'MOTOR' => [...],
-  'SISTEMA MECÁNICO' => [...],
-  'SISTEMA HIDRÁULICO' => [...],
-  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => [...],
-  'ESTÉTICO' => [...],
-  'CONSUMIBLES' => [...]
+  'MOTOR' => [
+    "Cilindros", "Pistones", "Anillos", "Inyectores", "Block", "Cabeza", "Varillas", "Resortes",
+    "Punterías", "Cigüeñal", "Árbol de levas", "Retenes", "Ligas", "Sensores", "Poleas", "Concha",
+    "Cremallera", "Clutch", "Coples", "Bomba de inyección", "Juntas", "Marcha", "Tubería",
+    "Alternador", "Filtros", "Bases", "Soportes", "Turbo", "Escape", "Chicotes"
+  ],
+  'SISTEMA MECÁNICO' => [
+    "Transmisión", "Diferenciales", "Cardán"
+  ],
+  'SISTEMA HIDRÁULICO' => [
+    "Banco de válvulas", "Bombas de tránsito", "Bombas de precarga", "Bombas de accesorios",
+    "Coples", "Clutch hidráulico", "Gatos de levante", "Gatos de dirección", "Gatos de accesorios",
+    "Mangueras", "Motores hidráulicos", "Orbitrol", "Torques HUV (Satélites)",
+    "Válvulas de retención", "Reductores"
+  ],
+  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => [
+    "Alarmas", "Arneses", "Bobinas", "Botones", "Cables", "Cables de sensores", "Conectores",
+    "Electro válvulas", "Fusibles", "Porta fusibles", "Indicadores",
+    "Presión/Agua/Temperatura/Voltímetro", "Luces", "Módulos", "Torreta",
+    "Relevadores", "Switch (llave)", "Sensores"
+  ],
+  'ESTÉTICO' => [
+    "Pintura", "Calcomanías", "Asiento", "Tapicería", "Tolvas", "Cristales", "Accesorios", "Sistema de riego"
+  ],
+  'CONSUMIBLES' => [
+    "Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"
+  ]
 ];
 ?>
 <!DOCTYPE html>
