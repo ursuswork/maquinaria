@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
-  header("Location: login.php");
+  header("Location: index.php");
   exit;
 }
 include 'conexion.php';
@@ -22,7 +22,7 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .etiqueta-nueva { background-color: #0056b3; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .etiqueta-usada { background-color: #ffc107; color: black; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .card-img-top { height: 150px; object-fit: cover; }
     .barra-condicion { height: 10px; border-radius: 5px; }
@@ -38,13 +38,20 @@ $resultado = $conn->query($sql);
       font-weight: bold;
       margin-bottom: 20px;
     }
-    .btn-primary { background-color: #0074D9; border: none; }
+    .btn-primary { background-color: #0056b3; border: none; }
     .btn-warning { background-color: #FFDC00; color: black; border: none; }
-    .btn-success { background-color: #2ECC40; border: none; }
+    .btn-success { background-color: #006400; border: none; }
     .btn-outline-secondary { border-color: white; color: white; }
     .nav-tabs .nav-link.active { background-color: #FFDC00; color: black; }
-    .nav-tabs .nav-link { color: #0074D9; }
-  </style>
+    .nav-tabs .nav-link { color: #0056b3; }
+  
+    .bg-botella { background-color: #006400 !important; color: white; }
+    .btn-success { background-color: #006400; border: none; }
+    .btn-success:hover { background-color: #004d00; }
+    .etiqueta-nueva { background-color: #0056b3; }
+    .etiqueta-usada { background-color: #006400; }
+</style>
+
 </head>
 <body class="pt-4">
 <div class="titulo-app">Inventario de Maquinaria</div>
@@ -89,7 +96,7 @@ if ($resultado) {
               <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
               <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
               <div class="progress barra-condicion mb-2">
-                <div class="progress-bar bg-success" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
+                <div class="progress-bar bg-botella" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
                   <?= $row['condicion_estimada'] ?>%
                 </div>
               </div>
@@ -119,7 +126,7 @@ while ($row = $resultado_usada->fetch_assoc()) {
               <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
               <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
               <div class="progress barra-condicion mb-2">
-                <div class="progress-bar bg-warning" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
+                <div class="progress-bar bg-botella" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
                   <?= $row['condicion_estimada'] ?>%
                 </div>
               </div>
