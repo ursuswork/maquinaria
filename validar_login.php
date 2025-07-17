@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 include 'conexion.php';
@@ -12,9 +13,10 @@ $resultado = $stmt->get_result();
 
 if ($resultado->num_rows === 1) {
   $_SESSION['usuario'] = $usuario;
-  header("Location: dashboard.php");
-  exit; // 🔴 Esto es necesario
+  header("Location: inventario.php");
+  exit;
 } else {
-  echo "<script>alert('Usuario o contraseña incorrectos');window.location='index.php';</script>";
+  header("Location: login.php?error=1");
+  exit;
 }
 ?>
