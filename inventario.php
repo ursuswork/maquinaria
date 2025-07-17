@@ -26,7 +26,7 @@ $resultado = $conn->query($sql);
     .etiqueta-usada { background-color: #ffc107; color: black; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .card-img-top { height: 150px; object-fit: cover; }
     .barra-condicion { height: 10px; border-radius: 5px; }
-    body { background-color: #001f3f; color: #000; }
+    body { background-color: #001f3f; color: white; }
     .card { background-color: white; border-radius: 10px; }
     .titulo-app {
       background-color: #001f3f;
@@ -47,7 +47,7 @@ $resultado = $conn->query($sql);
   </style>
 </head>
 <body class="bg-light d-flex justify-content-center align-items-start pt-4">
-  <div class="titulo-app">Inventario de Maquinaria</div>
+  
   <div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto; background-color: white;">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <div class="w-100 d-flex justify-content-between align-items-center flex-wrap">
