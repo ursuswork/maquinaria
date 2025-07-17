@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
-  header("Location: ../index.php");
+  header("Location: ../login.php");
   exit;
 }
 include '../conexion.php';
@@ -15,11 +15,11 @@ if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
-function componenteSelect(\$nombre) {
+function componenteSelect($nombre) {
   return "
     <div class='col-md-6 mb-2'>
-      <label class='form-label fw-bold'>\$nombre</label>
-      <select name='componentes[\$nombre]' class='form-select' required>
+      <label class='form-label fw-bold'>$nombre</label>
+      <select name='componentes[$nombre]' class='form-select' required>
         <option value='bueno'>Bueno</option>
         <option value='regular'>Regular</option>
         <option value='malo'>Malo</option>
@@ -77,19 +77,19 @@ $secciones = [
 <div class="contenedor">
   <h4 class="text-center mb-4">Recibo de Unidad</h4>
   <form action="guardar_recibo.php" method="POST">
-    <input type="hidden" name="id_maquinaria" value="<?= \$maquinaria['id'] ?>">
+    <input type="hidden" name="id_maquinaria" value="<?= $maquinaria['id'] ?>">
 
     <div class="mb-3">
-      <strong>Equipo:</strong> <?= htmlspecialchars(\$maquinaria['nombre']) ?> &nbsp;&nbsp;
-      <strong>Modelo:</strong> <?= htmlspecialchars(\$maquinaria['modelo']) ?> &nbsp;&nbsp;
-      <strong>Ubicación:</strong> <?= htmlspecialchars(\$maquinaria['ubicacion']) ?>
+      <strong>Equipo:</strong> <?= htmlspecialchars($maquinaria['nombre']) ?> &nbsp;&nbsp;
+      <strong>Modelo:</strong> <?= htmlspecialchars($maquinaria['modelo']) ?> &nbsp;&nbsp;
+      <strong>Ubicación:</strong> <?= htmlspecialchars($maquinaria['ubicacion']) ?>
     </div>
 
-    <?php foreach (\$secciones as \$titulo => \$componentes): ?>
-      <h5 class="mt-4"><?= \$titulo ?></h5>
+    <?php foreach ($secciones as $titulo => $componentes): ?>
+      <h5 class="mt-4"><?= $titulo ?></h5>
       <div class="row">
-        <?php foreach (\$componentes as \$componente): ?>
-          <?= componenteSelect(\$componente) ?>
+        <?php foreach ($componentes as $componente): ?>
+          <?= componenteSelect($componente) ?>
         <?php endforeach; ?>
       </div>
     <?php endforeach; ?>
