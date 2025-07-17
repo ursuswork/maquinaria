@@ -28,7 +28,53 @@ $resultado = $conn->query($sql);
     .barra-condicion { height: 10px; border-radius: 5px; }
   </style>
 </head>
+
+<style>
+  body {
+    background-color: #001f3f; /* azul marino */
+  }
+  .card {
+    background-color: white;
+    border-radius: 10px;
+  }
+  .titulo-app {
+    background-color: #001f3f;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .btn-primary {
+    background-color: #0074D9; /* azul rey */
+    border: none;
+  }
+  .btn-warning {
+    background-color: #FFDC00;
+    color: black;
+    border: none;
+  }
+  .btn-success {
+    background-color: #2ECC40;
+    border: none;
+  }
+  .btn-outline-secondary {
+    border-color: white;
+    color: white;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #FFDC00;
+    color: black;
+  }
+  .nav-tabs .nav-link {
+    color: #0074D9;
+  }
+</style>
+
 <body class="bg-light d-flex justify-content-center align-items-start pt-4">
+  <div class="titulo-app">Inventario de Maquinaria</div>
   <div class="card shadow p-4 w-100" style="max-width: 1000px;">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <h4 class="text-primary">Inventario de Maquinaria</h4>
