@@ -1,5 +1,5 @@
 <?php
-$servername = "b3p6qq8wsihgfuawhkmt-mysql.services.clever-cloud.com";
+$servername = "b3p6qq8wsihgfuawhkmt-mysql.services.clever-cloud.com;
 $username = "u0f3xgk6ntxayxon";
 $password = "040ii4QwsywMuZIQqLHM";
 $dbname = "b3p6qq8wsihgfuawhkmt";
