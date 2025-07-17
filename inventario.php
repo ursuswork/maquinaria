@@ -25,6 +25,12 @@ $resultado = $stmt->get_result();
   <meta charset="UTF-8">
   <title>Inventario</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -38,7 +44,10 @@ $resultado = $stmt->get_result();
       <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar..." value="<?= htmlspecialchars($busqueda) ?>">
       <button class="btn btn-primary" type="submit">Buscar</button>
     </form>
-    <div class="row g-4">
+
+    <button onclick="exportTableToExcel('tablaInventario')" class="btn btn-success mb-3">Exportar a Excel</button>
+
+    <div class="row g-4" id="tablaInventario">
       <?php while ($row = $resultado->fetch_assoc()): ?>
         <div class="col-md-4">
           <div class="card">
@@ -47,11 +56,14 @@ $resultado = $stmt->get_result();
               <h5 class="card-title"><?= $row['nombre'] ?></h5>
               <p class="card-text"><?= $row['modelo'] ?> - <?= $row['ubicacion'] ?></p>
               <p class="text-warning">Condición: <?= $row['condicion_estimada'] ?>%</p>
+              <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
+              <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este registro?')">Eliminar</a>
             </div>
           </div>
         </div>
       <?php endwhile; ?>
     </div>
   </div>
+  <script src="exportar_excel.js"></script>
 </body>
 </html>
