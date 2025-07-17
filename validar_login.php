@@ -13,6 +13,7 @@ $resultado = $stmt->get_result();
 if ($resultado->num_rows === 1) {
   $_SESSION['usuario'] = $usuario;
   header("Location: dashboard.php");
+  exit; // 🔴 Esto es necesario
 } else {
   echo "<script>alert('Usuario o contraseña incorrectos');window.location='index.php';</script>";
 }
