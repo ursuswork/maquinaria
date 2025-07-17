@@ -1,3 +1,3 @@
 <?php
-echo "✅ index.php se ejecuta correctamente.";
-
+echo "✅ index.php está funcionando correctamente.";
+?>
