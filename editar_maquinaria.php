@@ -15,7 +15,6 @@ $row = $resultado->fetch_assoc();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $nombre = $_POST['nombre'];
-  $tipo = $_POST['tipo'];
   $modelo = $_POST['modelo'];
   $ubicacion = $_POST['ubicacion'];
   $tipo_maquinaria = $_POST['tipo_maquinaria'];
@@ -29,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $imagen = $row['imagen'];
   }
 
-  $stmt = $conn->prepare("UPDATE maquinaria SET nombre=?, tipo=?, modelo=?, ubicacion=?, tipo_maquinaria=?, condicion_estimada=?, imagen=? WHERE id=?");
-  $stmt->bind_param("sssssisi", $nombre, $tipo, $modelo, $ubicacion, $tipo_maquinaria, $condicion, $imagen, $id);
+  $stmt = $conn->prepare("UPDATE maquinaria SET nombre=?, modelo=?, ubicacion=?, tipo_maquinaria=?, condicion_estimada=?, imagen=? WHERE id=?");
+  $stmt->bind_param("sssssisi", $nombre, $modelo, $ubicacion, $tipo_maquinaria, $condicion, $imagen, $id);
   $stmt->execute();
 
   header("Location: inventario.php");
@@ -49,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <h2 class="mb-4 text-primary">Editar Maquinaria</h2>
   <form method="POST" enctype="multipart/form-data">
     <div class="mb-3"><label class="form-label">Nombre</label><input type="text" name="nombre" class="form-control" value="<?= $row['nombre'] ?>" required></div>
-    <div class="mb-3"><label class="form-label">Tipo</label><input type="text" name="tipo" class="form-control" value="<?= $row['tipo'] ?>" required></div>
     <div class="mb-3"><label class="form-label">Modelo</label><input type="text" name="modelo" class="form-control" value="<?= $row['modelo'] ?>" required></div>
     <div class="mb-3"><label class="form-label">Ubicación</label><input type="text" name="ubicacion" class="form-control" value="<?= $row['ubicacion'] ?>" required></div>
     <div class="mb-3">
