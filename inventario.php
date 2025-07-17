@@ -26,64 +26,35 @@ $resultado = $conn->query($sql);
     .etiqueta-usada { background-color: #ffc107; color: black; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .card-img-top { height: 150px; object-fit: cover; }
     .barra-condicion { height: 10px; border-radius: 5px; }
+    body { background-color: #001f3f; color: #000; }
+    .card { background-color: white; border-radius: 10px; }
+    .titulo-app {
+      background-color: #001f3f;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .btn-primary { background-color: #0074D9; border: none; }
+    .btn-warning { background-color: #FFDC00; color: black; border: none; }
+    .btn-success { background-color: #2ECC40; border: none; }
+    .btn-outline-secondary { border-color: white; color: white; }
+    .nav-tabs .nav-link.active { background-color: #FFDC00; color: black; }
+    .nav-tabs .nav-link { color: #0074D9; }
   </style>
 </head>
-
-<style>
-  body { background-color: #001f3f; color: #000; }
-  .card {
-    background-color: white;
-    border-radius: 10px;
-  }
-  .titulo-app {
-    background-color: #001f3f;
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  .btn-primary {
-    background-color: #0074D9; /* azul rey */
-    border: none;
-  }
-  .btn-warning {
-    background-color: #FFDC00;
-    color: black;
-    border: none;
-  }
-  .btn-success {
-    background-color: #2ECC40;
-    border: none;
-  }
-  .btn-outline-secondary {
-    border-color: white;
-    color: white;
-  }
-  .nav-tabs .nav-link.active {
-    background-color: #FFDC00;
-    color: black;
-  }
-  .nav-tabs .nav-link {
-    color: #0074D9;
-  }
-</style>
-
 <body class="bg-light d-flex justify-content-center align-items-start pt-4">
   <div class="titulo-app">Inventario de Maquinaria</div>
-  
-<div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto; background-color: white;">
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-    <h2 class="text-white bg-dark px-4 py-2 rounded w-100 text-center">Inventario de Maquinaria</h2>
-    <div class="d-flex gap-2 flex-wrap justify-content-center mt-3">
-      <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
-      <a href="exportar_excel.php" class="btn btn-warning">📥 Exportar a Excel</a>
-      <a href="logout.php" class="btn btn-outline-light">🔒 Cerrar Sesión</a>
-    </div>
-  </div>
-
+  <div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto; background-color: white;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div class="w-100 d-flex justify-content-between align-items-center flex-wrap">
+        <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
+        <a href="exportar_excel.php" class="btn btn-warning me-2 mb-2">📥 Exportar a Excel</a>
+        <a href="logout.php" class="btn btn-outline-dark mb-2">🔒 Cerrar Sesión</a>
+      </div>
     </div>
 
     <form method="GET" class="mb-4 d-flex flex-column flex-sm-row">
@@ -103,12 +74,12 @@ $resultado = $conn->query($sql);
     <div class="tab-content" id="tabContent">
       <div class="tab-pane fade show active" id="nueva" role="tabpanel">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <?php
-          if ($resultado) {
-            $resultado->data_seek(0);
-            while ($row = $resultado->fetch_assoc()) {
-              if ($row['tipo_maquinaria'] === 'nueva') {
-        ?>
+<?php
+if ($resultado) {
+  $resultado->data_seek(0);
+  while ($row = $resultado->fetch_assoc()) {
+    if ($row['tipo_maquinaria'] === 'nueva') {
+?>
           <div class="col">
             <div class="card h-100 shadow-sm">
               <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
@@ -128,17 +99,17 @@ $resultado = $conn->query($sql);
               </div>
             </div>
           </div>
-        <?php }}} ?>
+<?php }}} ?>
         </div>
       </div>
 
       <div class="tab-pane fade" id="usada" role="tabpanel">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <?php
-          $resultado->data_seek(0);
-          while ($row = $resultado->fetch_assoc()) {
-            if ($row['tipo_maquinaria'] === 'usada') {
-        ?>
+<?php
+$resultado->data_seek(0);
+while ($row = $resultado->fetch_assoc()) {
+  if ($row['tipo_maquinaria'] === 'usada') {
+?>
           <div class="col">
             <div class="card h-100 shadow-sm">
               <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
@@ -158,7 +129,7 @@ $resultado = $conn->query($sql);
               </div>
             </div>
           </div>
-        <?php }} ?>
+<?php }} ?>
         </div>
       </div>
     </div>
