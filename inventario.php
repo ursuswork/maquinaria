@@ -23,7 +23,7 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .etiqueta-nueva { background-color: #0056b3; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
-    .etiqueta-usada { background-color: #ffc107; color: black; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .etiqueta-usada { background-color: #ffc107; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .card-img-top { height: 150px; object-fit: cover; }
     .barra-condicion { height: 10px; border-radius: 5px; }
     body { background-color: #001f3f; color: white; }
@@ -39,17 +39,17 @@ $resultado = $conn->query($sql);
       margin-bottom: 20px;
     }
     .btn-primary { background-color: #0056b3; border: none; }
-    .btn-warning { background-color: #FFDC00; color: black; border: none; }
-    .btn-success { background-color: #006400; border: none; }
+    .btn-warning { background-color: #0056b3; color: black; border: none; }
+    .btn-success { background-color: #14ab14ff; border: none; }
     .btn-outline-secondary { border-color: white; color: white; }
-    .nav-tabs .nav-link.active { background-color: #FFDC00; color: black; }
+    .nav-tabs .nav-link.active { background-color: #0056b3; color: black; }
     .nav-tabs .nav-link { color: #0056b3; }
   
-    .bg-botella { background-color: #006400 !important; color: white; }
-    .btn-success { background-color: #006400; border: none; }
-    .btn-success:hover { background-color: #004d00; }
+    .bg-botella { background-color: #0bac0bff !important; color: white; }
+    .btn-success { background-color: #0bac0bff; border: none; }
+    .btn-success:hover { background-color: #0bac0bff; }
     .etiqueta-nueva { background-color: #0056b3; }
-    .etiqueta-usada { background-color: #006400; }
+    .etiqueta-usada { background-color: #0bac0bff; }
 </style>
 
 </head>
