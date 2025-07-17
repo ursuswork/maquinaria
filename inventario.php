@@ -1,72 +1,120 @@
 <?php
-include 'conexion.php';
 session_start();
-
 if (!isset($_SESSION['usuario'])) {
-  header("Location: login.php");
+  header("Location: index.php");
   exit;
 }
-
-$tipos_validos = ['nueva', 'usada'];
-$filtro = isset($_GET['tipo']) && in_array($_GET['tipo'], $tipos_validos) ? $_GET['tipo'] : 'nueva';
+include 'conexion.php';
 
 $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
-$sql = "SELECT * FROM maquinaria WHERE tipo_maquinaria = ? AND (nombre LIKE ? OR modelo LIKE ? OR ubicacion LIKE ?) ORDER BY id DESC";
-
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-    die("❌ Error en la preparación de la consulta: " . $conn->error);
+$sql = "SELECT * FROM maquinaria";
+if (!empty($busqueda)) {
+  $sql .= " WHERE nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%'";
 }
-$like = "%$busqueda%";
-$stmt->bind_param("ssss", $filtro, $like, $like, $like);
-$stmt->execute();
-$resultado = $stmt->get_result();
+$sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
+$resultado = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inventario</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
+  <title>Inventario de Maquinaria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .etiqueta-usada { background-color: #ffc107; color: black; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .card-img-top { height: 150px; object-fit: cover; }
+    .barra-condicion { height: 10px; border-radius: 5px; }
+  </style>
 </head>
-<body>
-  <nav class="navbar navbar-dark bg-dark px-3">
-    <span class="navbar-brand">Inventario</span>
-    <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
-  </nav>
+<body class="bg-light">
   <div class="container py-4">
-    <form method="GET" class="mb-4 d-flex">
-      <input type="hidden" name="tipo" value="<?= htmlspecialchars($filtro) ?>">
-      <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar..." value="<?= htmlspecialchars($busqueda) ?>">
-      <button class="btn btn-primary" type="submit">Buscar</button>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+      <h2 class="text-primary">Inventario de Maquinaria</h2>
+      <div class="mt-2 mt-md-0">
+        <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
+        <a href="exportar_excel.php" class="btn btn-warning mb-2">📥 Exportar a Excel</a>
+      </div>
+    </div>
+
+    <form method="GET" class="mb-4 d-flex flex-column flex-sm-row">
+      <input type="text" name="busqueda" class="form-control me-sm-2 mb-2 mb-sm-0" placeholder="Buscar maquinaria..." value="<?= htmlspecialchars($busqueda) ?>">
+      <button class="btn btn-outline-primary">Buscar</button>
     </form>
 
-    <button onclick="exportTableToExcel('tablaInventario')" class="btn btn-success mb-3">Exportar a Excel</button>
+    <ul class="nav nav-tabs mb-3" id="tabMaquinaria" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="nueva-tab" data-bs-toggle="tab" data-bs-target="#nueva" type="button">Nueva</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="usada-tab" data-bs-toggle="tab" data-bs-target="#usada" type="button">Usada</button>
+      </li>
+    </ul>
 
-    <div class="row g-4" id="tablaInventario">
-      <?php while ($row = $resultado->fetch_assoc()): ?>
-        <div class="col-md-4">
-          <div class="card">
-            <img src="imagenes/<?= $row['imagen'] ?>" class="card-img-top" alt="Imagen">
-            <div class="card-body">
-              <h5 class="card-title"><?= $row['nombre'] ?></h5>
-              <p class="card-text"><?= $row['modelo'] ?> - <?= $row['ubicacion'] ?></p>
-              <p class="text-warning">Condición: <?= $row['condicion_estimada'] ?>%</p>
-              <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
-              <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este registro?')">Eliminar</a>
+    <div class="tab-content" id="tabContent">
+      <div class="tab-pane fade show active" id="nueva" role="tabpanel">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <?php
+          if ($resultado) {
+            $resultado->data_seek(0);
+            while ($row = $resultado->fetch_assoc()) {
+              if ($row['tipo_maquinaria'] === 'nueva') {
+        ?>
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
+              <div class="card-body">
+                <h5 class="card-title"><?= $row['nombre'] ?> <span class="etiqueta-nueva">Nueva</span></h5>
+                <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
+                <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
+                <div class="progress barra-condicion mb-2">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
+                    <?= $row['condicion_estimada'] ?>%
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Editar</a>
+                  <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Eliminar</a>
+                </div>
+              </div>
             </div>
           </div>
+        <?php }}} ?>
         </div>
-      <?php endwhile; ?>
+      </div>
+
+      <div class="tab-pane fade" id="usada" role="tabpanel">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <?php
+          $resultado->data_seek(0);
+          while ($row = $resultado->fetch_assoc()) {
+            if ($row['tipo_maquinaria'] === 'usada') {
+        ?>
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
+              <div class="card-body">
+                <h5 class="card-title"><?= $row['nombre'] ?> <span class="etiqueta-usada">Usada</span></h5>
+                <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
+                <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
+                <div class="progress barra-condicion mb-2">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
+                    <?= $row['condicion_estimada'] ?>%
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Editar</a>
+                  <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Eliminar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <?php }} ?>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="exportar_excel.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
