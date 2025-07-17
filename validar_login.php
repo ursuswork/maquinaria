@@ -18,14 +18,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($resultado && $resultado->num_rows > 0) {
             $_SESSION['usuario'] = $usuario;
-            header("Location: index.php");
+            header("Location: inventario.php");
             exit;
         } else {
-            header("Location: login.php?error=1");
+            header("Location: index.php?error=1");
             exit;
         }
     } else {
-        header("Location: login.php?error=1");
+        header("Location: index.php?error=1");
         exit;
     }
 } else {
