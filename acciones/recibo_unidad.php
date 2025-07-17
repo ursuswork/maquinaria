@@ -1,69 +1,106 @@
 <?php
 session_start();
+if (!isset($_SESSION['usuario'])) {
+  header("Location: ../index.php");
+  exit;
+}
 include '../conexion.php';
 
-function convertir_valor($valor) {
-    switch ($valor) {
-        case 'bueno': return 100;
-        case 'regular': return 70;
-        case 'malo': return 40;
-        default: return 0;
-    }
+$id = intval($_GET['id'] ?? 0);
+if ($id <= 0) {
+  die("❌ ID inválido.");
+}
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
+if (!$maquinaria) {
+  die("❌ Maquinaria no encontrada.");
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_maquinaria = intval($_POST['id_maquinaria']);
-    $empresa_origen = $_POST['empresa_origen'] ?? '';
-    $empresa_destino = $_POST['empresa_destino'] ?? '';
-    $observaciones = $_POST['observaciones'] ?? '';
-    $componentes = $_POST['componentes'] ?? [];
+function botonOpcion($nombre, $componente) {
+  $id_html = strtolower(str_replace(' ', '_', $componente));
+  return "<div class='col-md-4 mb-3'>
+    <label class='form-label fw-bold'>$componente</label><br>
+    <div class='btn-group' role='group'>
+      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_bueno' value='bueno' required>
+      <label class='btn btn-outline-success' for='{$id_html}_bueno'>Bueno</label>
 
-    $total = 0;
-    $peso_total = 0;
+      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_regular' value='regular'>
+      <label class='btn btn-outline-warning' for='{$id_html}_regular'>Regular</label>
 
-    $pesos = [
-        'MOTOR' => 15,
-        'SISTEMA MECÁNICO' => 15,
-        'SISTEMA HIDRÁULICO' => 30,
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => 25,
-        'ESTÉTICO' => 5,
-        'CONSUMIBLES' => 10
-    ];
-
-    $secciones = [
-        'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Block", "Cabeza", "Varillas", "Resortes", "Punterías", "Cigüeñal", "Árbol de levas", "Retenes", "Ligas", "Sensores", "Poleas", "Concha", "Cremallera", "Clutch", "Coples", "Bomba de inyección", "Juntas", "Marcha", "Tubería", "Alternador", "Filtros", "Bases", "Soportes", "Turbo", "Escape", "Chicotes"],
-        'SISTEMA MECÁNICO' => ["Transmisión", "Diferenciales", "Cardán"],
-        'SISTEMA HIDRÁULICO' => ["Banco de válvulas", "Bombas de tránsito", "Bombas de precarga", "Bombas de accesorios", "Coples", "Clutch hidráulico", "Gatos de levante", "Gatos de dirección", "Gatos de accesorios", "Mangueras", "Motores hidráulicos", "Orbitrol", "Torques HUV (Satélites)", "Válvulas de retención", "Reductores"],
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Alarmas", "Arneses", "Bobinas", "Botones", "Cables", "Cables de sensores", "Conectores", "Electro válvulas", "Fusibles", "Porta fusibles", "Indicadores", "Presión/Agua/Temperatura/Voltímetro", "Luces", "Módulos", "Torreta", "Relevadores", "Switch (llave)", "Sensores"],
-        'ESTÉTICO' => ["Pintura", "Calcomanías", "Asiento", "Tapicería", "Tolvas", "Cristales", "Accesorios", "Sistema de riego"],
-        'CONSUMIBLES' => ["Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"]
-    ];
-
-    foreach ($secciones as $nombre => $campos) {
-        $suma = 0;
-        $cuenta = 0;
-        foreach ($campos as $c) {
-            if (isset($componentes[$c])) {
-                $suma += convertir_valor($componentes[$c]);
-                $cuenta++;
-            }
-        }
-        if ($cuenta > 0) {
-            $prom = $suma / $cuenta;
-            $total += $prom * ($pesos[$nombre] / 100);
-            $peso_total += $pesos[$nombre];
-        }
-    }
-
-    $condicion = round($total);
-
-    $stmt = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada) VALUES (?, ?, ?, NOW(), ?, ?)");
-    $stmt->bind_param("isssi", $id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion);
-    $stmt->execute();
-
-    $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
-
-    header("Location: ../inventario.php?guardado=1");
-    exit;
+      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_malo' value='malo'>
+      <label class='btn btn-outline-danger' for='{$id_html}_malo'>Malo</label>
+    </div>
+  </div>";
 }
+
+$secciones = [
+  'MOTOR' => [...],
+  'SISTEMA MECÁNICO' => [...],
+  'SISTEMA HIDRÁULICO' => [...],
+  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => [...],
+  'ESTÉTICO' => [...],
+  'CONSUMIBLES' => [...]
+];
 ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recibo de Unidad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #001f3f; color: white; }
+    .formulario { background: white; color: black; padding: 30px; border-radius: 15px; max-width: 1000px; margin: auto; }
+    .seccion { margin-top: 30px; }
+    @media print {
+      body * { visibility: hidden; }
+      .formulario, .formulario * { visibility: visible; }
+      .formulario { position: absolute; top: 0; left: 0; width: 100%; }
+      .btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="formulario">
+  <h3 class="text-center mb-4">Recibo de Unidad</h3>
+  <form method="POST" action="guardar_recibo.php">
+    <input type="hidden" name="id_maquinaria" value="<?= $maquinaria['id'] ?>">
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Empresa Origen</label>
+        <input type="text" name="empresa_origen" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Empresa Destino</label>
+        <input type="text" name="empresa_destino" class="form-control" required>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <strong>Equipo:</strong> <?= $maquinaria['nombre'] ?> | <strong>Modelo:</strong> <?= $maquinaria['modelo'] ?> | <strong>Ubicación:</strong> <?= $maquinaria['ubicacion'] ?>
+    </div>
+
+    <?php foreach ($secciones as $titulo => $componentes): ?>
+      <div class="seccion">
+        <h5 class="bg-primary text-white p-2"><?= $titulo ?></h5>
+        <div class="row">
+          <?php foreach ($componentes as $c): echo botonOpcion($titulo, $c); endforeach; ?>
+        </div>
+      </div>
+    <?php endforeach; ?>
+
+    <div class="mb-3">
+      <label class="form-label">Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-success">Guardar</button>
+      <button type="button" onclick="window.print()" class="btn btn-outline-primary">Imprimir</button>
+    </div>
+  </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

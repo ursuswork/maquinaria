@@ -13,8 +13,8 @@ function convertir_valor($valor) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_maquinaria = intval($_POST['id_maquinaria']);
-    $empresa_origen = $_POST['empresa_origen'];
-    $empresa_destino = $_POST['empresa_destino'];
+    $empresa_origen = $_POST['empresa_origen'] ?? '';
+    $empresa_destino = $_POST['empresa_destino'] ?? '';
     $observaciones = $_POST['observaciones'] ?? '';
     $componentes = $_POST['componentes'] ?? [];
 
@@ -57,8 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $condicion = round($total);
 
-    $stmt = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, fecha, observaciones, condicion_estimada) VALUES (?, NOW(), ?, ?)");
-    $stmt->bind_param("isi", $id_maquinaria, $observaciones, $condicion);
+    $stmt = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada) VALUES (?, ?, ?, NOW(), ?, ?)");
+    $stmt->bind_param("isssi", $id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion);
     $stmt->execute();
 
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
