@@ -14,6 +14,9 @@ $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda
 $sql = "SELECT * FROM maquinaria WHERE tipo_maquinaria = ? AND (nombre LIKE ? OR modelo LIKE ? OR ubicacion LIKE ?) ORDER BY id DESC";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("❌ Error en la preparación de la consulta: " . $conn->error);
+}
 $like = "%$busqueda%";
 $stmt->bind_param("ssss", $filtro, $like, $like, $like);
 $stmt->execute();
