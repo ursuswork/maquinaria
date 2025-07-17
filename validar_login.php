@@ -21,10 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             header("Location: index.php");
             exit;
         } else {
-            echo "❌ Usuario o contraseña incorrectos.";
+            header("Location: login.php?error=1");
+            exit;
         }
     } else {
-        echo "⚠️ Faltan datos del formulario.";
+        header("Location: login.php?error=1");
+        exit;
     }
 } else {
     echo "❌ Acceso no permitido.";
