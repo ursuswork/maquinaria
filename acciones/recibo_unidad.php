@@ -16,24 +16,24 @@ if (!$maquinaria) {
 }
 
 function componenteSelect($nombre) {
-  return "
-    <div class='col-md-6 mb-2'>
-      <label class='form-label fw-bold'>$nombre</label>
-      <select name='componentes[$nombre]' class='form-select' required>
-        <option value='bueno'>Bueno</option>
-        <option value='regular'>Regular</option>
-        <option value='malo'>Malo</option>
-      </select>
-    </div>";
+  $opciones = ['bueno', 'regular', 'malo'];
+  $html = "<div class='col-md-6 mb-3'><label class='form-label fw-bold'>" . htmlspecialchars($nombre) . "</label><div class='btn-group w-100' role='group' aria-label='Estado'>";
+  foreach ($opciones as $opcion) {
+    $id = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $nombre)) . "_" . $opcion;
+    $html .= "<input type='radio' class='btn-check' name='componentes[$nombre]' id='$id' value='$opcion' required>"
+          . "<label class='btn btn-outline-secondary' for='$id'>" . ucfirst($opcion) . "</label>";
+  }
+  $html .= "</div></div>";
+  return $html;
 }
 
 $secciones = [
-  'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Árbol de levas", "Balancines", "Bielas", "Block", "Culata", "Válvulas", "Turbo", "Múltiple de escape", "Radiador", "Termostato", "Bomba de agua", "Bomba de aceite", "Cárter", "Filtro de aceite", "Sensor de oxígeno", "Computadora", "Chicotes", "Arrancador", "Alternador", "Fajas", "Poleas", "Tapa de punterías", "Ventilador", "Soportes de motor", "Depósito de refrigerante", "Sensor de temperatura"],
+  'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Block", "Cabeza", "Varillas", "Resortes", "Punterías", "Cigüeñal", "Árbol de levas", "Retenes", "Ligas", "Sensores", "Poleas", "Concha", "Cremallera", "Clutch", "Coples", "Bomba de inyección", "Juntas", "Marcha", "Tubería", "Alternador", "Filtros", "Bases", "Soportes", "Turbo", "Escape", "Chicotes"],
   'SISTEMA MECÁNICO' => ["Transmisión", "Diferenciales", "Cardán"],
-  'SISTEMA HIDRÁULICO' => ["Bombas hidráulicas", "Cilindros", "Válvulas", "Mangueras"],
-  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Luces", "Tablero", "Sensores", "Fusibles"],
-  'ESTÉTICO' => ["Pintura", "Cabina", "Cristales", "Asientos"],
-  'CONSUMIBLES' => ["Aceite motor", "Filtro de aire", "Filtro combustible", "Filtro hidráulico"]
+  'SISTEMA HIDRÁULICO' => ["Banco de válvulas", "Bombas de tránsito", "Bombas de precarga", "Bombas de accesorios", "Coples", "Clutch hidráulico", "Gatos de levante", "Gatos de dirección", "Gatos de accesorios", "Mangueras", "Motores hidráulicos", "Orbitrol", "Torques HUV (Satélites)", "Válvulas de retención", "Reductores"],
+  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Alarmas", "Arneses", "Bobinas", "Botones", "Cables", "Cables de sensores", "Conectores", "Electro válvulas", "Fusibles", "Porta fusibles", "Indicadores", "Presión/Agua/Temperatura/Voltímetro", "Luces", "Módulos", "Torreta", "Relevadores", "Switch (llave)", "Sensores"],
+  'ESTÉTICO' => ["Pintura", "Calcomanías", "Asiento", "Tapicería", "Tolvas", "Cristales", "Accesorios", "Sistema de riego"],
+  'CONSUMIBLES' => ["Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"]
 ];
 ?>
 <!DOCTYPE html>
@@ -83,6 +83,17 @@ $secciones = [
       <strong>Equipo:</strong> <?= htmlspecialchars($maquinaria['nombre']) ?> &nbsp;&nbsp;
       <strong>Modelo:</strong> <?= htmlspecialchars($maquinaria['modelo']) ?> &nbsp;&nbsp;
       <strong>Ubicación:</strong> <?= htmlspecialchars($maquinaria['ubicacion']) ?>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Empresa Origen</label>
+        <input type="text" name="empresa_origen" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Empresa Destino</label>
+        <input type="text" name="empresa_destino" class="form-control" required>
+      </div>
     </div>
 
     <?php foreach ($secciones as $titulo => $componentes): ?>
