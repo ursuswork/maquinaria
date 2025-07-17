@@ -34,7 +34,7 @@ $resultado = $conn->query($sql);
       padding: 15px;
       border-radius: 8px;
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: bold;
       margin-bottom: 20px;
     }
@@ -46,10 +46,10 @@ $resultado = $conn->query($sql);
     .nav-tabs .nav-link { color: #0074D9; }
   </style>
 </head>
-<body class="bg-light d-flex justify-content-center align-items-start pt-4">
-<div class="text-white text-center w-100 mb-4" style="font-size: 2rem;">Inventario de Maquinaria</div>
+<body class="pt-4">
+<div class="titulo-app">Inventario de Maquinaria</div>
   
-  <div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto; background-color: white;">
+  <div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto;">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <div class="w-100 d-flex justify-content-between align-items-center flex-wrap">
         <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
