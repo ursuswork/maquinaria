@@ -28,11 +28,11 @@ $resultado = $conn->query($sql);
     .barra-condicion { height: 10px; border-radius: 5px; }
   </style>
 </head>
-<body class="bg-light">
-  <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-      <h2 class="text-primary">Inventario de Maquinaria</h2>
-      <div class="mt-2 mt-md-0">
+<body class="bg-light d-flex justify-content-center align-items-start pt-4">
+  <div class="card shadow p-4 w-100" style="max-width: 1000px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <h4 class="text-primary">Inventario de Maquinaria</h4>
+      <div>
         <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
         <a href="exportar_excel.php" class="btn btn-warning mb-2">📥 Exportar a Excel</a>
       </div>
