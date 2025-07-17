@@ -18,7 +18,7 @@ if (isset($_SESSION['usuario'])) {
   <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
     <h4 class="text-center mb-4 text-primary">Iniciar Sesión</h4>
     <?php if (isset($_GET['error'])): ?>
-      <div class="alert alert-danger" role="alert">Usuario o contraseña incorrectos.</div>
+      <div class="alert alert-danger text-center">Usuario o contraseña incorrectos.</div>
     <?php endif; ?>
     <form action="validar_login.php" method="POST">
       <input type="text" name="usuario" class="form-control mb-3" placeholder="Usuario" required>
