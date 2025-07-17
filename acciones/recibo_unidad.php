@@ -6,60 +6,38 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
-$id = intval($_GET['id'] ?? 0);
-if ($id <= 0) {
-  die("❌ ID inválido.");
+$id_maquinaria = intval($_GET['id'] ?? 0);
+if ($id_maquinaria <= 0) {
+  die("❌ ID de maquinaria inválido.");
 }
-$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
-function botonOpcion($nombre, $componente) {
-  $id_html = strtolower(str_replace(' ', '_', $componente));
-  return "<div class='col-md-4 mb-3'>
-    <label class='form-label fw-bold'>$componente</label><br>
-    <div class='btn-group' role='group'>
-      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_bueno' value='bueno' required>
-      <label class='btn btn-outline-success' for='{$id_html}_bueno'>Bueno</label>
+$recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
 
-      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_regular' value='regular'>
-      <label class='btn btn-outline-warning' for='{$id_html}_regular'>Regular</label>
-
-      <input type='radio' class='btn-check' name='componentes[$componente]' id='{$id_html}_malo' value='malo'>
-      <label class='btn btn-outline-danger' for='{$id_html}_malo'>Malo</label>
-    </div>
-  </div>";
+function componenteSelect($nombre, $recibo_existente) {
+  $valor = $recibo_existente[$nombre] ?? '';
+  $selected = fn($val) => $valor == $val ? 'selected' : '';
+  return "
+    <div class='col-md-6 mb-2'>
+      <label class='form-label fw-bold'>$nombre</label>
+      <select name='componentes[$nombre]' class='form-select' required>
+        <option value='bueno' {$selected('bueno')}>Bueno</option>
+        <option value='regular' {$selected('regular')}>Regular</option>
+        <option value='malo' {$selected('malo')}>Malo</option>
+      </select>
+    </div>";
 }
 
 $secciones = [
-  'MOTOR' => [
-    "Cilindros", "Pistones", "Anillos", "Inyectores", "Block", "Cabeza", "Varillas", "Resortes",
-    "Punterías", "Cigüeñal", "Árbol de levas", "Retenes", "Ligas", "Sensores", "Poleas", "Concha",
-    "Cremallera", "Clutch", "Coples", "Bomba de inyección", "Juntas", "Marcha", "Tubería",
-    "Alternador", "Filtros", "Bases", "Soportes", "Turbo", "Escape", "Chicotes"
-  ],
-  'SISTEMA MECÁNICO' => [
-    "Transmisión", "Diferenciales", "Cardán"
-  ],
-  'SISTEMA HIDRÁULICO' => [
-    "Banco de válvulas", "Bombas de tránsito", "Bombas de precarga", "Bombas de accesorios",
-    "Coples", "Clutch hidráulico", "Gatos de levante", "Gatos de dirección", "Gatos de accesorios",
-    "Mangueras", "Motores hidráulicos", "Orbitrol", "Torques HUV (Satélites)",
-    "Válvulas de retención", "Reductores"
-  ],
-  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => [
-    "Alarmas", "Arneses", "Bobinas", "Botones", "Cables", "Cables de sensores", "Conectores",
-    "Electro válvulas", "Fusibles", "Porta fusibles", "Indicadores",
-    "Presión/Agua/Temperatura/Voltímetro", "Luces", "Módulos", "Torreta",
-    "Relevadores", "Switch (llave)", "Sensores"
-  ],
-  'ESTÉTICO' => [
-    "Pintura", "Calcomanías", "Asiento", "Tapicería", "Tolvas", "Cristales", "Accesorios", "Sistema de riego"
-  ],
-  'CONSUMIBLES' => [
-    "Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"
-  ]
+  'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Árbol de levas", "Balancines", "Bielas", "Block", "Culata", "Válvulas", "Turbo", "Múltiple de escape", "Radiador", "Termostato", "Bomba de agua", "Bomba de aceite", "Cárter", "Filtro de aceite", "Sensor de oxígeno", "Computadora", "Chicotes", "Arrancador", "Alternador", "Fajas", "Poleas", "Tapa de punterías", "Ventilador", "Soportes de motor", "Depósito de refrigerante", "Sensor de temperatura"],
+  'SISTEMA MECÁNICO' => ["Transmisión", "Diferenciales", "Cardán"],
+  'SISTEMA HIDRÁULICO' => ["Bombas hidráulicas", "Cilindros", "Válvulas", "Mangueras"],
+  'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Luces", "Tablero", "Sensores", "Fusibles"],
+  'ESTÉTICO' => ["Pintura", "Cabina", "Cristales", "Asientos"],
+  'CONSUMIBLES' => ["Aceite motor", "Filtro de aire", "Filtro combustible", "Filtro hidráulico"]
 ];
 ?>
 <!DOCTYPE html>
@@ -70,58 +48,67 @@ $secciones = [
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #001f3f; color: white; }
-    .formulario { background: white; color: black; padding: 30px; border-radius: 15px; max-width: 1000px; margin: auto; }
-    .seccion { margin-top: 30px; }
-    @media print {
-      body * { visibility: hidden; }
-      .formulario, .formulario * { visibility: visible; }
-      .formulario { position: absolute; top: 0; left: 0; width: 100%; }
-      .btn { display: none; }
+    body {
+      background-color: #001f3f;
+      color: white;
+      padding: 20px;
+    }
+    .contenedor {
+      background-color: white;
+      color: black;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h4 {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-<div class="formulario">
-  <h3 class="text-center mb-4">Recibo de Unidad</h3>
-  <form method="POST" action="guardar_recibo.php">
+<div class="contenedor">
+  <h4 class="text-center mb-4">Recibo de Unidad</h4>
+  <form action="guardar_recibo.php" method="POST">
     <input type="hidden" name="id_maquinaria" value="<?= $maquinaria['id'] ?>">
-
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <label class="form-label">Empresa Origen</label>
-        <input type="text" name="empresa_origen" class="form-control" required>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Empresa Destino</label>
-        <input type="text" name="empresa_destino" class="form-control" required>
-      </div>
-    </div>
+    <?php if ($recibo_existente): ?>
+      <input type="hidden" name="modo_edicion" value="1">
+    <?php endif; ?>
 
     <div class="mb-3">
-      <strong>Equipo:</strong> <?= $maquinaria['nombre'] ?> | <strong>Modelo:</strong> <?= $maquinaria['modelo'] ?> | <strong>Ubicación:</strong> <?= $maquinaria['ubicacion'] ?>
+      <strong>Equipo:</strong> <?= htmlspecialchars($maquinaria['nombre']) ?> &nbsp;&nbsp;
+      <strong>Modelo:</strong> <?= htmlspecialchars($maquinaria['modelo']) ?> &nbsp;&nbsp;
+      <strong>Ubicación:</strong> <?= htmlspecialchars($maquinaria['ubicacion']) ?>
     </div>
 
     <?php foreach ($secciones as $titulo => $componentes): ?>
-      <div class="seccion">
-        <h5 class="bg-primary text-white p-2"><?= $titulo ?></h5>
-        <div class="row">
-          <?php foreach ($componentes as $c): echo botonOpcion($titulo, $c); endforeach; ?>
-        </div>
+      <h5 class="mt-4"><?= $titulo ?></h5>
+      <div class="row">
+        <?php foreach ($componentes as $componente): ?>
+          <?= componenteSelect($componente, $recibo_existente) ?>
+        <?php endforeach; ?>
       </div>
     <?php endforeach; ?>
 
     <div class="mb-3">
       <label class="form-label">Observaciones</label>
-      <textarea name="observaciones" class="form-control" rows="3"></textarea>
+      <textarea name="observaciones" class="form-control" rows="3"><?= $recibo_existente['observaciones'] ?? '' ?></textarea>
     </div>
 
-    <div class="d-flex justify-content-between">
-      <button type="submit" class="btn btn-success">Guardar</button>
-      <button type="button" onclick="window.print()" class="btn btn-outline-primary">Imprimir</button>
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary">Guardar Recibo</button>
     </div>
   </form>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
