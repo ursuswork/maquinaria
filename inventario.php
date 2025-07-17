@@ -30,9 +30,7 @@ $resultado = $conn->query($sql);
 </head>
 
 <style>
-  body {
-    background-color: #001f3f; /* azul marino */
-  }
+  body { background-color: #001f3f; color: #000; }
   .card {
     background-color: white;
     border-radius: 10px;
@@ -74,18 +72,18 @@ $resultado = $conn->query($sql);
 </style>
 
 <body class="bg-light d-flex justify-content-center align-items-start pt-4">
-  <div class="titulo-app text-center mb-3">Inventario de Maquinaria</div>
-  <div class="card shadow p-4 w-100" style="max-width: 1000px;">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-    
-<a href="logout.php" class="btn btn-outline-light">🔒 Cerrar Sesión</a>
+  <div class="titulo-app">Inventario de Maquinaria</div>
+  
+<div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto; background-color: white;">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+    <h2 class="text-white bg-dark px-4 py-2 rounded w-100 text-center">Inventario de Maquinaria</h2>
+    <div class="d-flex gap-2 flex-wrap justify-content-center mt-3">
+      <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
+      <a href="exportar_excel.php" class="btn btn-warning">📥 Exportar a Excel</a>
+      <a href="logout.php" class="btn btn-outline-light">🔒 Cerrar Sesión</a>
+    </div>
+  </div>
 
-      <h4 class="text-primary">Inventario de Maquinaria</h4>
-      <div class="d-flex flex-column flex-sm-row gap-2">
-        <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
-        <a href="exportar_excel.php" class="btn btn-warning">📥 Exportar a Excel</a>
-        <a href="logout.php" class="btn btn-outline-secondary">🔒 Cerrar Sesión</a>
-      </div>
     </div>
 
     <form method="GET" class="mb-4 d-flex flex-column flex-sm-row">
