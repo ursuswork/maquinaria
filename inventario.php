@@ -32,9 +32,10 @@ $resultado = $conn->query($sql);
   <div class="card shadow p-4 w-100" style="max-width: 1000px;">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <h4 class="text-primary">Inventario de Maquinaria</h4>
-      <div>
-        <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
-        <a href="exportar_excel.php" class="btn btn-warning mb-2">📥 Exportar a Excel</a>
+      <div class="d-flex flex-column flex-sm-row gap-2">
+        <a href="agregar_maquinaria.php" class="btn btn-success">➕ Agregar Maquinaria</a>
+        <a href="exportar_excel.php" class="btn btn-warning">📥 Exportar a Excel</a>
+        <a href="logout.php" class="btn btn-outline-secondary">🔒 Cerrar Sesión</a>
       </div>
     </div>
 
