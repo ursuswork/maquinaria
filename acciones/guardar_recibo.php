@@ -22,8 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $peso_total = 0;
 
     $pesos = [
-        'MOTOR' => 30,
-        'SISTEMA MECÁNICO' => 30,
+        'MOTOR' => 15,
+        'SISTEMA MECÁNICO' => 15,
         'SISTEMA HIDRÁULICO' => 30,
         'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => 25,
         'ESTÉTICO' => 5,
@@ -57,13 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $condicion = round($total);
 
-    // Guardar en recibo_unidad
     $stmt = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, fecha, observaciones, condicion_estimada) VALUES (?, NOW(), ?, ?)");
     $stmt->bind_param("isi", $id_maquinaria, $observaciones, $condicion);
     $stmt->execute();
-    $id_recibo = $stmt->insert_id;
 
-    // Actualizar maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
 
     header("Location: ../inventario.php?guardado=1");
