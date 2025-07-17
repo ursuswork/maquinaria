@@ -1,39 +1,19 @@
 <?php
-include 'conexion.php';
 session_start();
 if (!isset($_SESSION['usuario'])) {
-  header("Location: login.php");
+  header("Location: index.php");
   exit;
 }
+include 'conexion.php';
 
-$id = $_GET['id'];
-$query = $conn->prepare("SELECT * FROM maquinaria WHERE id = ?");
-$query->bind_param("i", $id);
-$query->execute();
-$resultado = $query->get_result();
-$row = $resultado->fetch_assoc();
+$id = intval($_GET['id'] ?? 0);
+if ($id <= 0) {
+  die("❌ ID inválido.");
+}
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $nombre = $_POST['nombre'];
-  $modelo = $_POST['modelo'];
-  $ubicacion = $_POST['ubicacion'];
-  $tipo_maquinaria = $_POST['tipo_maquinaria'];
-  $condicion = $_POST['condicion_estimada'];
-
-  if ($_FILES['imagen']['name']) {
-    $imagen = uniqid() . "-" . basename($_FILES['imagen']['name']);
-    $ruta = "imagenes/" . $imagen;
-    move_uploaded_file($_FILES['imagen']['tmp_name'], $ruta);
-  } else {
-    $imagen = $row['imagen'];
-  }
-
-  $stmt = $conn->prepare("UPDATE maquinaria SET nombre=?, modelo=?, ubicacion=?, tipo_maquinaria=?, condicion_estimada=?, imagen=? WHERE id=?");
-  $stmt->bind_param("sssssisi", $nombre, $modelo, $ubicacion, $tipo_maquinaria, $condicion, $imagen, $id);
-  $stmt->execute();
-
-  header("Location: inventario.php");
-  exit;
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
+if (!$maquinaria) {
+  die("❌ Maquinaria no encontrada.");
 }
 ?>
 <!DOCTYPE html>
@@ -41,27 +21,92 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
   <meta charset="UTF-8">
   <title>Editar Maquinaria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #001f3f; /* Azul marino */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .contenedor-editar {
+      background-color: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 600px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-regresar {
+      background-color: transparent;
+      border: 2px solid #007bff;
+      color: #007bff;
+    }
+    .btn-regresar:hover {
+      background-color: #007bff;
+      color: white;
+    }
+    img.preview {
+      max-height: 150px;
+      object-fit: contain;
+      margin-bottom: 15px;
+      display: block;
+    }
+  </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-  <h2 class="mb-4 text-primary">Editar Maquinaria</h2>
-  <form method="POST" enctype="multipart/form-data">
-    <div class="mb-3"><label class="form-label">Nombre</label><input type="text" name="nombre" class="form-control" value="<?= $row['nombre'] ?>" required></div>
-    <div class="mb-3"><label class="form-label">Modelo</label><input type="text" name="modelo" class="form-control" value="<?= $row['modelo'] ?>" required></div>
-    <div class="mb-3"><label class="form-label">Ubicación</label><input type="text" name="ubicacion" class="form-control" value="<?= $row['ubicacion'] ?>" required></div>
-    <div class="mb-3">
-      <label class="form-label">Tipo de Maquinaria</label>
-      <select name="tipo_maquinaria" class="form-control" required>
-        <option value="nueva" <?= $row['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
-        <option value="usada" <?= $row['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
-      </select>
-    </div>
-    <div class="mb-3"><label class="form-label">Condición (%)</label><input type="number" name="condicion_estimada" class="form-control" value="<?= $row['condicion_estimada'] ?>" min="0" max="100" required></div>
-    <div class="mb-3"><label class="form-label">Imagen</label><input type="file" name="imagen" class="form-control" accept="image/*"></div>
-    <button type="submit" class="btn btn-primary">Actualizar</button>
-    <a href="inventario.php" class="btn btn-secondary">Cancelar</a>
-  </form>
-</div>
+<body>
+
+  <div class="contenedor-editar">
+    <h4 class="text-center mb-4 text-primary">Editar Maquinaria</h4>
+    <form action="procesar_editar.php" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="<?= $maquinaria['id'] ?>">
+
+      <div class="mb-3">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($maquinaria['nombre']) ?>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Modelo</label>
+        <input type="text" name="modelo" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Ubicación</label>
+        <input type="text" name="ubicacion" class="form-control" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipo</label>
+        <select name="tipo_maquinaria" class="form-select" required>
+          <option value="nueva" <?= $maquinaria['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
+          <option value="usada" <?= $maquinaria['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
+        </select>
+      </div>
+
+      <?php if (!empty($maquinaria['imagen'])): ?>
+        <label class="form-label">Imagen actual:</label>
+        <img src="imagenes/<?= $maquinaria['imagen'] ?>" class="preview">
+      <?php endif; ?>
+
+      <div class="mb-3">
+        <label class="form-label">Nueva imagen (opcional)</label>
+        <input type="file" name="imagen" class="form-control" accept="image/*">
+      </div>
+
+      <div class="d-grid mb-2">
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </form>
+    <a href="inventario.php" class="btn btn-regresar w-100 text-center">← Volver al Inventario</a>
+  </div>
+
 </body>
 </html>
