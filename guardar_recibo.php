@@ -3,7 +3,7 @@ session_start();
 include '../conexion.php';
 
 function convertir_valor($valor) {
-    return match ($valor) {
+    return match (strtolower($valor)) {
         'bueno' => 100,
         'regular' => 70,
         'malo' => 40,
@@ -29,12 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ];
 
     $secciones = [
-        'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Árbol de levas", "Balancines", "Bielas", "Block", "Culata", "Válvulas", "Turbo", "Múltiple de escape", "Radiador", "Termostato", "Bomba de agua", "Bomba de aceite", "Cárter", "Filtro de aceite", "Sensor de oxígeno", "Computadora", "Chicotes", "Arrancador", "Alternador", "Fajas", "Poleas", "Tapa de punterías", "Ventilador", "Soportes de motor", "Depósito de refrigerante", "Sensor de temperatura"],
-        'SISTEMA MECÁNICO' => ["Transmisión", "Diferenciales", "Cardán"],
-        'SISTEMA HIDRÁULICO' => ["Bombas hidráulicas", "Cilindros", "Válvulas", "Mangueras"],
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Luces", "Tablero", "Sensores", "Fusibles"],
-        'ESTÉTICO' => ["Pintura", "Cabina", "Cristales", "Asientos"],
-        'CONSUMIBLES' => ["Aceite motor", "Filtro de aire", "Filtro combustible", "Filtro hidráulico"]
+        'MOTOR' => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "ARBOL DE LEVAS", "BALANCINES", "BIELAS", "BLOCK", "CULATA", "VALVULAS", "TURBO", "MULTIPLE DE ESCAPE", "RADIADOR", "TERMOSTATO", "BOMBA DE AGUA", "BOMBA DE ACEITE", "CARTER", "FILTRO DE ACEITE", "SENSOR DE OXIGENO", "COMPUTADORA", "CHICOTES", "ARRANCADOR", "ALTERNADOR", "FAJAS", "POLEAS", "TAPA DE PUNTERIAS", "VENTILADOR", "SOPORTES DE MOTOR", "DEPOSITO DE REFRIGERANTE", "SENSOR DE TEMPERATURA"],
+        'SISTEMA MECÁNICO' => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
+        'SISTEMA HIDRÁULICO' => ["BOMBAS HIDRÁULICAS", "CILINDROS", "VÁLVULAS", "MANGUERAS"],
+        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["LUCES", "TABLERO", "SENSORES", "FUSIBLES"],
+        'ESTÉTICO' => ["PINTURA", "CABINA", "CRISTALES", "ASIENTOS"],
+        'CONSUMIBLES' => ["ACEITE MOTOR", "FILTRO DE AIRE", "FILTRO COMBUSTIBLE", "FILTRO HIDRÁULICO"]
     ];
 
     $total = 0;
