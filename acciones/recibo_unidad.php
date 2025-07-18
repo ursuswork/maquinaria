@@ -63,6 +63,27 @@ $secciones = [
 <body class="bg-light">
   <div class="container py-4 formulario-recibo">
     <h3 class="text-center text-primary mb-4">Recibo de Unidad</h3>
+
+    <?php if (isset($recibo_existente['condicion_estimada'])): ?>
+      <div class="my-3 text-center">
+        <label class="form-label fw-bold">Condición Estimada</label>
+        <div class="progress" style="height: 30px;">
+          <div class="progress-bar 
+            <?php
+              $c = $recibo_existente['condicion_estimada'];
+              echo $c >= 85 ? 'bg-success' : ($c >= 60 ? 'bg-warning' : 'bg-danger');
+            ?>" 
+            role="progressbar" 
+            style="width: <?=$recibo_existente['condicion_estimada']?>%;" 
+            aria-valuenow="<?=$recibo_existente['condicion_estimada']?>" 
+            aria-valuemin="0" 
+            aria-valuemax="100">
+            <?=$recibo_existente['condicion_estimada']?>%
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <form method="POST" action="guardar_recibo.php">
       <input type="hidden" name="id_maquinaria" value="<?=$id_maquinaria?>">
 
