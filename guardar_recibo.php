@@ -54,6 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $conn->query("ALTER TABLE recibo_unidad ADD COLUMN condicion_estimada INT DEFAULT 0");
     }
 
+    // Asegurar que la columna condicion_estimada exista en maquinaria
+    $chk_maquinaria = $conn->query("SHOW COLUMNS FROM maquinaria LIKE 'condicion_estimada'");
+    if ($chk_maquinaria->num_rows === 0) {
+        $conn->query("ALTER TABLE maquinaria ADD COLUMN condicion_estimada INT DEFAULT 0");
+    }
+
     // Calcular condición estimada
     $total = 0;
     foreach ($secciones as $seccion => $lista) {
