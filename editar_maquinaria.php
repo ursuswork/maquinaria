@@ -25,7 +25,7 @@ if (!$maquinaria) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #001f3f; /* Azul marino */
+      background-color: #001f3f;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -85,9 +85,21 @@ if (!$maquinaria) {
       </div>
       <div class="mb-3">
         <label class="form-label">Tipo</label>
-        <select name="tipo_maquinaria" class="form-select" required>
+        <select name="tipo_maquinaria" class="form-select" id="tipo" required>
           <option value="nueva" <?= $maquinaria['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
           <option value="usada" <?= $maquinaria['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
+        </select>
+      </div>
+
+      <div class="mb-3" id="subtipo-container" style="display: none;">
+        <label class="form-label">Subtipo</label>
+        <select name="subtipo" class="form-select">
+          <option value="">Selecciona una opción</option>
+          <option value="petrolizadora" <?= $maquinaria['subtipo'] == 'petrolizadora' ? 'selected' : '' ?>>Petrolizadora</option>
+          <option value="esparcidor de sello" <?= $maquinaria['subtipo'] == 'esparcidor de sello' ? 'selected' : '' ?>>Esparcidor de sello</option>
+          <option value="tanque de almacen" <?= $maquinaria['subtipo'] == 'tanque de almacen' ? 'selected' : '' ?>>Tanque de almacén</option>
+          <option value="bachadora" <?= $maquinaria['subtipo'] == 'bachadora' ? 'selected' : '' ?>>Bachadora</option>
+          <option value="planta de mezcla en frio" <?= $maquinaria['subtipo'] == 'planta de mezcla en frio' ? 'selected' : '' ?>>Planta de mezcla en frío</option>
         </select>
       </div>
 
@@ -107,6 +119,18 @@ if (!$maquinaria) {
     </form>
     <a href="inventario.php" class="btn btn-regresar w-100 text-center">← Volver al Inventario</a>
   </div>
+
+  <script>
+    const tipo = document.getElementById("tipo");
+    const subtipoContainer = document.getElementById("subtipo-container");
+
+    function toggleSubtipo() {
+      subtipoContainer.style.display = tipo.value === "nueva" ? "block" : "none";
+    }
+
+    tipo.addEventListener("change", toggleSubtipo);
+    toggleSubtipo(); // al cargar
+  </script>
 
 </body>
 </html>

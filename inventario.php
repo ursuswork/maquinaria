@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -9,7 +10,7 @@ include 'conexion.php';
 $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $sql = "SELECT * FROM maquinaria";
 if (!empty($busqueda)) {
-  $sql .= " WHERE nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%'";
+  $sql .= " WHERE nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%' OR subtipo LIKE '%$busqueda%'";
 }
 $sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
 $resultado = $conn->query($sql);
@@ -22,114 +23,64 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .etiqueta-nueva { background-color: #0056b3; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
-    .etiqueta-usada { background-color: #0bac0bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
-    .card-img-top { height: 150px; object-fit: cover; }
-    .barra-condicion { height: 10px; border-radius: 5px; }
-    body { background-color: #001f3f; color: white; }
-    .card { background-color: white; border-radius: 10px; }
-    .titulo-app {
-      background-color: #001f3f;
-      color: white;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    .btn-primary { background-color: #0056b3; border: none; }
-    .btn-warning { background-color: #ffc107; color: black; border: none; }
-    .btn-success { background-color: #0bac0bff; border: none; }
-    .btn-outline-secondary { border-color: white; color: white; }
-    .nav-tabs .nav-link.active { background-color: #0056b3; color: black; }
-    .nav-tabs .nav-link { color: #0056b3; }
+    .etiqueta-nueva { background-color: #2525ddff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .tabla-img { width: 80px; height: auto; border-radius: 4px; }
+    .btn-sm { font-size: 0.75rem; }
   </style>
 </head>
-<body class="pt-4">
-<div class="titulo-app">Inventario de Maquinaria</div>
-<div class="card shadow p-4 w-100" style="max-width: 1000px; margin: auto;">
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-    <a href="agregar_maquinaria.php" class="btn btn-success me-2 mb-2">➕ Agregar Maquinaria</a>
-    <a href="exportar_excel.php" class="btn btn-warning me-2 mb-2">📥 Exportar a Excel</a>
-    <a href="logout.php" class="btn btn-outline-dark mb-2">🔒 Cerrar Sesión</a>
-  </div>
+<body class="bg-light">
+  <div class="container py-4">
+    <h2 class="mb-4 text-center text-primary">Inventario de Maquinaria</h2>
+    <form class="d-flex mb-3" method="GET">
+      <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar maquinaria..." value="<?=htmlspecialchars($busqueda)?>">
+      <button type="submit" class="btn btn-outline-primary">Buscar</button>
+    </form>
 
-  <form method="GET" class="mb-4 d-flex flex-column flex-sm-row">
-    <input type="text" name="busqueda" class="form-control me-sm-2 mb-2 mb-sm-0" placeholder="Buscar maquinaria..." value="<?= htmlspecialchars($busqueda) ?>">
-    <button class="btn btn-outline-primary">Buscar</button>
-  </form>
-
-  <ul class="nav nav-tabs mb-3" id="tabMaquinaria" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="nueva-tab" data-bs-toggle="tab" data-bs-target="#nueva" type="button">Nueva</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="usada-tab" data-bs-toggle="tab" data-bs-target="#usada" type="button">Usada</button>
-    </li>
-  </ul>
-
-  <div class="tab-content" id="tabContent">
-    <?php function barra_color($porcentaje) {
-      if ($porcentaje >= 80) return 'bg-success';
-      if ($porcentaje >= 50) return 'bg-warning';
-      return 'bg-danger';
-    } ?>
-
-    <div class="tab-pane fade show active" id="nueva" role="tabpanel">
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <?php $resultado->data_seek(0); while ($row = $resultado->fetch_assoc()): if ($row['tipo_maquinaria'] === 'nueva'): ?>
-        <div class="col">
-          <div class="card h-100 shadow-sm">
-            <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
-            <div class="card-body">
-              <h5 class="card-title"><?= $row['nombre'] ?> <span class="etiqueta-nueva">Nueva</span></h5>
-              <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
-              <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
-              <div class="progress barra-condicion mb-2">
-                <div class="progress-bar <?= barra_color($row['condicion_estimada']) ?>" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
-                  <?= $row['condicion_estimada'] ?>%
-                </div>
-              </div>
-              <div class="d-flex justify-content-between">
-                <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Editar</a>
-                <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Eliminar</a>
+    <table class="table table-bordered table-striped table-hover">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Subtipo</th>
+          <th>Modelo</th>
+          <th>Ubicación</th>
+          <th>Condición</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php while ($fila = $resultado->fetch_assoc()): ?>
+        <tr>
+          <td class="text-center">
+            <?php if (!empty($fila['imagen'])): ?>
+              <img src="imagenes/<?=htmlspecialchars($fila['imagen'])?>" class="tabla-img">
+            <?php else: ?>
+              <span class="text-muted">Sin imagen</span>
+            <?php endif; ?>
+          </td>
+          <td><?=htmlspecialchars($fila['nombre'])?></td>
+          <td><?=htmlspecialchars($fila['tipo_maquinaria'])?></td>
+          <td><?=htmlspecialchars($fila['subtipo'] ?? '-')?></td>
+          <td><?=htmlspecialchars($fila['modelo'])?></td>
+          <td><?=htmlspecialchars($fila['ubicacion'])?></td>
+          <td>
+            <div class="progress" style="height: 20px;">
+              <div class="progress-bar 
+                <?=($fila['condicion_estimada'] >= 85) ? 'bg-success' : (($fila['condicion_estimada'] >= 60) ? 'bg-warning' : 'bg-danger')?>"
+                style="width: <?=$fila['condicion_estimada']?>%;">
+                <?=$fila['condicion_estimada']?>%
               </div>
             </div>
-          </div>
-        </div>
-      <?php endif; endwhile; ?>
-      </div>
-    </div>
-
-    <div class="tab-pane fade" id="usada" role="tabpanel">
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <?php $resultado->data_seek(0); while ($row = $resultado->fetch_assoc()): if ($row['tipo_maquinaria'] === 'usada'): ?>
-        <div class="col">
-          <div class="card h-100 shadow-sm">
-            <img src="imagenes/<?= $row['imagen'] ?: 'no-imagen.png' ?>" class="card-img-top" alt="Imagen">
-            <div class="card-body">
-              <h5 class="card-title"><?= $row['nombre'] ?> <span class="etiqueta-usada">Usada</span></h5>
-              <p class="card-text mb-1"><strong>Modelo:</strong> <?= $row['modelo'] ?></p>
-              <p class="card-text mb-1"><strong>Ubicación:</strong> <?= $row['ubicacion'] ?></p>
-              <div class="progress barra-condicion mb-2">
-                <div class="progress-bar <?= barra_color($row['condicion_estimada']) ?>" role="progressbar" style="width: <?= $row['condicion_estimada'] ?>%;">
-                  <?= $row['condicion_estimada'] ?>%
-                </div>
-              </div>
-              <div class="d-flex justify-content-between">
-                <a href="editar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Editar</a>
-                <a href="eliminar_maquinaria.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Eliminar</a>
-              </div>
-              <a href="acciones/recibo_unidad.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-warning mt-2 w-100">📝 Recibo</a>
-            </div>
-          </div>
-        </div>
-      <?php endif; endwhile; ?>
-      </div>
-    </div>
+          </td>
+          <td class="text-center">
+            <a href="editar_maquinaria.php?id=<?=$fila['id']?>" class="btn btn-sm btn-primary">✏️</a>
+            <a href="eliminar_maquinaria.php?id=<?=$fila['id']?>" class="btn btn-sm btn-danger">🗑️</a>
+          </td>
+        </tr>
+      <?php endwhile; ?>
+      </tbody>
+    </table>
   </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
