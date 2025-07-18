@@ -60,7 +60,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $nuevos_componentes = [];
     foreach ($componentes as $campo => $valor) {
+        if (trim($campo) === '') continue;
         $col = $conn->real_escape_string(normalizar_campo($campo));
+        if ($col === '') continue;
         $nuevos_componentes[$col] = $valor;
 
         $existe = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
