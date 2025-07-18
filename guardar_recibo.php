@@ -37,8 +37,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'CONSUMIBLES' => ["ACEITE MOTOR", "FILTRO DE AIRE", "FILTRO COMBUSTIBLE", "FILTRO HIDRÁULICO"]
     ];
 
-    $total = 0;
+    // Crear todas las columnas si no existen
+    foreach ($secciones as $lista) {
+        foreach ($lista as $componente) {
+            $col = "`" . $conn->real_escape_string($componente) . "`";
+            $exists = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
+            if ($exists->num_rows === 0) {
+                $conn->query("ALTER TABLE recibo_unidad ADD COLUMN $col VARCHAR(20) DEFAULT ''");
+            }
+        }
+    }
 
+    // Calcular condición estimada
+    $total = 0;
     foreach ($secciones as $seccion => $lista) {
         $sum = 0;
         $count = 0;
@@ -53,38 +64,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $total += $promedio * ($pesos[$seccion] / 100);
         }
     }
-
     $condicion = round($total);
 
-    // Asegurar que las columnas existan en la tabla
-    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'empresa_origen'");
-    if ($result->num_rows === 0) {
-        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN empresa_origen VARCHAR(255) DEFAULT ''");
-    }
-    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'empresa_destino'");
-    if ($result->num_rows === 0) {
-        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN empresa_destino VARCHAR(255) DEFAULT ''");
-    }
-    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'condicion_estimada'");
-    if ($result->num_rows === 0) {
-        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN condicion_estimada INT DEFAULT 0");
+    // Preparar campos dinámicos de componentes
+    $campos_extra = "";
+    $marcadores = "";
+    $valores = [];
+    foreach ($componentes as $clave => $valor) {
+        $campo = $conn->real_escape_string($clave);
+        $campos_extra .= ", `$campo`";
+        $marcadores .= ", ?";
+        $valores[] = $valor;
     }
 
-    // Validar si ya existe
+    // Verificar si ya existe un recibo
     $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
     if ($check->num_rows > 0) {
-        // UPDATE si existe
-        $update = $conn->prepare("UPDATE recibo_unidad SET empresa_origen=?, empresa_destino=?, fecha=NOW(), observaciones=?, condicion_estimada=? WHERE id_maquinaria=?");
-        $update->bind_param("sssii", $empresa_origen, $empresa_destino, $observaciones, $condicion, $id_maquinaria);
-        $update->execute();
+        // UPDATE dinámico
+        $sets = "empresa_origen=?, empresa_destino=?, fecha=NOW(), observaciones=?, condicion_estimada=?";
+        foreach ($componentes as $clave => $valor) {
+            $sets .= ", `" . $conn->real_escape_string($clave) . "` = ?";
+        }
+        $sql = "UPDATE recibo_unidad SET $sets WHERE id_maquinaria=?";
+        $stmt = $conn->prepare($sql);
+
+        $tipos = str_repeat("s", count($valores) + 3) . "ii";
+        $stmt->bind_param($tipos, ...array_merge([$empresa_origen, $empresa_destino, $observaciones, $condicion], $valores, [$id_maquinaria]));
+        $stmt->execute();
     } else {
-        // INSERT si no existe
-        $insert = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada) VALUES (?, ?, ?, NOW(), ?, ?)");
-        $insert->bind_param("isssi", $id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion);
-        $insert->execute();
+        // INSERT dinámico
+        $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada$campos_extra) VALUES (?, ?, ?, NOW(), ?, ?$marcadores)";
+        $stmt = $conn->prepare($sql);
+
+        $tipos = "isssi" . str_repeat("s", count($valores));
+        $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
+        $stmt->execute();
     }
 
-    // Actualizar en tabla maquinaria
+    // Actualizar en maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
 
     header("Location: ../inventario.php?guardado=1");
