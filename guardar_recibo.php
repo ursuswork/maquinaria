@@ -56,6 +56,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $condicion = round($total);
 
+    // Asegurar que las columnas existan en la tabla
+    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'empresa_origen'");
+    if ($result->num_rows === 0) {
+        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN empresa_origen VARCHAR(255) DEFAULT ''");
+    }
+    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'empresa_destino'");
+    if ($result->num_rows === 0) {
+        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN empresa_destino VARCHAR(255) DEFAULT ''");
+    }
+    $result = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'condicion_estimada'");
+    if ($result->num_rows === 0) {
+        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN condicion_estimada INT DEFAULT 0");
+    }
+
     // Validar si ya existe
     $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
     if ($check->num_rows > 0) {
