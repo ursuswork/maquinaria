@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Asegurar columna condicion_estimada en recibo_unidad y maquinaria
     $conn->query("ALTER TABLE recibo_unidad ADD COLUMN IF NOT EXISTS condicion_estimada INT DEFAULT 0");
-    $conn->query("ALTER TABLE maquinaria ADD COLUMN IF NOT EXISTS condicion_estimada INT DEFAULT 0");
+    $conn->query("ALTER TABLE inventario ADD COLUMN IF NOT EXISTS condicion_estimada INT DEFAULT 0");
 
     // Calcular porcentaje de condición
     $total = 0;
