@@ -40,12 +40,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Crear todas las columnas si no existen
     foreach ($secciones as $lista) {
         foreach ($lista as $componente) {
-            $col = "`" . $conn->real_escape_string($componente) . "`";
+            $col = $conn->real_escape_string($componente);
             $exists = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
             if ($exists->num_rows === 0) {
-                $conn->query("ALTER TABLE recibo_unidad ADD COLUMN $col VARCHAR(20) DEFAULT ''");
+                $conn->query("ALTER TABLE recibo_unidad ADD COLUMN `$col` VARCHAR(20) DEFAULT ''");
             }
         }
+    }
+
+    // Asegurar que la columna condicion_estimada exista
+    $chk = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE 'condicion_estimada'");
+    if ($chk->num_rows === 0) {
+        $conn->query("ALTER TABLE recibo_unidad ADD COLUMN condicion_estimada INT DEFAULT 0");
     }
 
     // Calcular condición estimada
@@ -104,7 +110,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Actualizar en maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
 
-    header("Location: ../inventario.php?guardado=1");
+    // Redirigir a recibo_unidad con confirmación
+    header("Location: recibo_unidad.php?id=$id_maquinaria&guardado=1");
     exit;
 }
 ?>
