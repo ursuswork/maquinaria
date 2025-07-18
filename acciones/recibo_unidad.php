@@ -23,13 +23,13 @@ function botonOpciones($nombre, $valor_existente) {
       <label class='form-label fw-bold'>" . htmlspecialchars($nombre) . "</label><br>
       <div class='btn-group' role='group'>
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno' " . ($valor_existente == 'bueno' ? 'checked' : '') . ">
-        <label class='btn btn-outline-success btn-sm' for='{$nombre}_bueno'>Bueno</label>
+        <label class='btn btn-outline-success btn-md px-4 py-2' for='{$nombre}_bueno'>Bueno</label>
 
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular' " . ($valor_existente == 'regular' ? 'checked' : '') . ">
-        <label class='btn btn-outline-warning btn-sm' for='{$nombre}_regular'>Regular</label>
+        <label class='btn btn-outline-warning btn-md px-4 py-2' for='{$nombre}_regular'>Regular</label>
 
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo' " . ($valor_existente == 'malo' ? 'checked' : '') . ">
-        <label class='btn btn-outline-danger btn-sm' for='{$nombre}_malo'>Malo</label>
+        <label class='btn btn-outline-danger btn-md px-4 py-2' for='{$nombre}_malo'>Malo</label>
       </div>
     </div>
   ";
