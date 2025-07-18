@@ -3,12 +3,12 @@ session_start();
 include '../conexion.php';
 
 function convertir_valor($valor) {
-    switch ($valor) {
-        case 'bueno': return 100;
-        case 'regular': return 70;
-        case 'malo': return 40;
-        default: return 0;
-    }
+    return match (strtolower($valor)) {
+        'bueno' => 100,
+        'regular' => 70,
+        'malo' => 40,
+        default => 0
+    };
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -17,9 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $empresa_destino = $_POST['empresa_destino'] ?? '';
     $observaciones = $_POST['observaciones'] ?? '';
     $componentes = $_POST['componentes'] ?? [];
-
-    $total = 0;
-    $peso_total = 0;
 
     $pesos = [
         'MOTOR' => 15,
@@ -39,6 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'CONSUMIBLES' => ["Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"]
     ];
 
+    // Calcular condición
+    $total = 0;
     foreach ($secciones as $nombre => $campos) {
         $suma = 0;
         $cuenta = 0;
@@ -51,16 +50,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($cuenta > 0) {
             $prom = $suma / $cuenta;
             $total += $prom * ($pesos[$nombre] / 100);
-            $peso_total += $pesos[$nombre];
+        }
+    }
+    $condicion = round($total);
+
+    // Asegurar que cada componente sea una columna en recibo_unidad
+    foreach ($componentes as $campo => $valor) {
+        $col = $conn->real_escape_string($campo);
+        $existe = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
+        if ($existe->num_rows === 0) {
+            $conn->query("ALTER TABLE recibo_unidad ADD COLUMN `$col` VARCHAR(20) DEFAULT ''");
         }
     }
 
-    $condicion = round($total);
+    // Insertar valores dinámicamente
+    $cols = "";
+    $vals = "";
+    $datos = [];
+    foreach ($componentes as $campo => $valor) {
+        $cols .= ", `$campo`";
+        $vals .= ", ?";
+        $datos[] = $valor;
+    }
 
-    $stmt = $conn->prepare("INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada) VALUES (?, ?, ?, NOW(), ?, ?)");
-    $stmt->bind_param("isssi", $id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion);
+    $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada $cols) VALUES (?, ?, ?, NOW(), ?, ? $vals)";
+    $stmt = $conn->prepare($sql);
+
+    $tipos = "isssi" . str_repeat("s", count($datos));
+    $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $datos));
     $stmt->execute();
 
+    // Actualizar maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
 
     header("Location: ../inventario.php?guardado=1");
