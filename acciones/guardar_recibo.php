@@ -11,6 +11,11 @@ function convertir_valor($valor) {
     };
 }
 
+function normalizar_campo($cadena) {
+    $sin_acentos = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);
+    return strtolower(preg_replace('/[^a-z0-9_]/', '_', $sin_acentos));
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_maquinaria = intval($_POST['id_maquinaria']);
     $empresa_origen = $_POST['empresa_origen'] ?? '';
@@ -53,18 +58,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $condicion = round($total);
 
+    $nuevos_componentes = [];
     foreach ($componentes as $campo => $valor) {
-        $col = $conn->real_escape_string($campo);
+        $col = $conn->real_escape_string(normalizar_campo($campo));
+        $nuevos_componentes[$col] = $valor;
+
         $existe = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
         if ($existe->num_rows === 0) {
-            $conn->query("ALTER TABLE recibo_unidad ADD COLUMN `$col` VARCHAR(20) DEFAULT ''");
+            $conn->query("ALTER TABLE recibo_unidad ADD COLUMN `$col` ENUM('bueno','regular','malo') DEFAULT NULL");
         }
     }
 
     $cols = "";
     $vals = "";
     $datos = [];
-    foreach ($componentes as $campo => $valor) {
+    foreach ($nuevos_componentes as $campo => $valor) {
         $cols .= ", `$campo`";
         $vals .= ", ?";
         $datos[] = $valor;
