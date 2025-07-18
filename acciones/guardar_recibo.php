@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'CONSUMIBLES' => ["Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"]
     ];
 
-    // Calcular condición
     $total = 0;
     foreach ($secciones as $nombre => $campos) {
         $suma = 0;
@@ -54,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $condicion = round($total);
 
-    // Asegurar que cada componente sea una columna en recibo_unidad
     foreach ($componentes as $campo => $valor) {
         $col = $conn->real_escape_string($campo);
         $existe = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
@@ -63,7 +61,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // Insertar valores dinámicamente
     $cols = "";
     $vals = "";
     $datos = [];
@@ -75,14 +72,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada $cols) VALUES (?, ?, ?, NOW(), ?, ? $vals)";
     $stmt = $conn->prepare($sql);
-
     $tipos = "isssi" . str_repeat("s", count($datos));
     $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $datos));
     $stmt->execute();
 
-    // Actualizar maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
-
     header("Location: ../inventario.php?guardado=1");
     exit;
 }
