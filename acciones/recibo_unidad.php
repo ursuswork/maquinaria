@@ -77,9 +77,24 @@ $secciones = [
         </div>
       </div>
 
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Equipo</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marca</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Modelo</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly>
+        </div>
+      </div>
+
       <?php foreach ($secciones as $titulo => $componentes): ?>
         <hr>
-        <h5 class="text-secondary"><?=htmlspecialchars($titulo)?></h5>
+        <h5 class="text-secondary fw-bold border-bottom pb-1 mt-4">Sección: <?=htmlspecialchars($titulo)?></h5>
         <div class="row">
           <?php
           $unicos = array_unique($componentes);
