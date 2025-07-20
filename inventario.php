@@ -140,15 +140,17 @@ $resultado = $conn->query($sql);
           "Probar equipo" => 5
         ];
       }
-      while ($row = $avance_result->fetch_assoc()) {
-        $etapas_realizadas[] = $row['etapa'];
+      if (!empty($avance_result)) {
+        while ($row = $avance_result->fetch_assoc()) {
+          $etapas_realizadas[] = $row['etapa'];
+        }
+        $peso_total = array_sum($etapas);
+        $peso_completado = 0;
+        foreach ($etapas as $nombre => $peso) {
+          if (in_array($nombre, $etapas_realizadas)) $peso_completado += $peso;
+        }
+        $porc_avance = round(($peso_completado / $peso_total) * 100);
       }
-      $peso_total = array_sum($etapas);
-      $peso_completado = 0;
-      foreach ($etapas as $nombre => $peso) {
-        if (in_array($nombre, $etapas_realizadas)) $peso_completado += $peso;
-      }
-      $porc_avance = round(($peso_completado / $peso_total) * 100);
     }
   ?>
   <div class="col-md-4 mb-4">
@@ -178,7 +180,7 @@ $resultado = $conn->query($sql);
       </div>
       <?php if (strtolower(trim($fila['tipo_maquinaria'] ?? '')) == 'usada'): ?>
         <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
-      <?php elseif ($porc_avance > 0): ?>
+      <?php elseif ($tipo == 'nueva' && in_array($subtipo, ['esparcidor de sello', 'bachadora', 'petrolizadora'])): ?>
         <a href="avance_<?= strtolower(str_replace(' ', '_', $subtipo)) ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
       <?php endif; ?>
     </div>
