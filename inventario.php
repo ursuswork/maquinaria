@@ -79,7 +79,7 @@ $resultado = $conn->query($sql);
 
     <?php
     $porc_avance = 0;
-    if (strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' && strtolower(trim($fila['subtipo'])) == 'esparcidor de sello') {
+    if (strtolower(trim(\$fila['tipo_maquinaria'] ?? '')) == 'nueva' && strtolower(trim(\$fila['subtipo'] ?? '')) == 'esparcidor de sello') {
       $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
       $etapas_realizadas = [];
       while ($row = $avance_result->fetch_assoc()) { $etapas_realizadas[] = $row['etapa']; }
@@ -127,10 +127,10 @@ $resultado = $conn->query($sql);
       <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
     </div>
 
-    <?php if (strtolower(trim($fila['tipo_maquinaria'])) == 'usada'): ?>
+    <?php if (strtolower(trim(\$fila['tipo_maquinaria'] ?? '')) == 'usada'): ?>
       <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
     <?php endif; ?>
-    <?php if (strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' && strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'): ?>
+    <?php if (strtolower(trim(\$fila['tipo_maquinaria'] ?? '')) == 'nueva' && strtolower(trim(\$fila['subtipo'] ?? '')) == 'esparcidor de sello'): ?>
       <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
     <?php endif; ?>
   </div>

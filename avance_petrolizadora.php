@@ -17,7 +17,9 @@ if (!$maquinaria) {
     die("❌ Maquinaria no encontrada.");
 }
 
-if (strtolower(trim($maquinaria['tipo_maquinaria'])) !== 'nueva' || strtolower(trim($maquinaria['subtipo'])) !== 'petrolizadora') {
+$tipo_maquinaria = strtolower(trim($maquinaria['tipo_maquinaria'] ?? ''));
+$subtipo = strtolower(trim($maquinaria['subtipo'] ?? ''));
+if ($tipo_maquinaria !== 'nueva' || $subtipo !== 'petrolizadora') {
     die("⚠️ Solo disponible para maquinaria nueva de subtipo 'petrolizadora'.");
 }
 
@@ -47,7 +49,6 @@ $etapas = [
     ]
 ];
 
-// Crear tabla si no existe
 $conn->query("
     CREATE TABLE IF NOT EXISTS avance_petrolizadora (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,7 +59,6 @@ $conn->query("
     )
 ");
 
-// Guardar cambios si se envió POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $etapa = $_POST['etapa'] ?? '';
     $accion = $_POST['accion'] ?? '';
@@ -71,14 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Leer avances marcados
 $completados = [];
 $res = $conn->query("SELECT etapa FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria AND completado = 1");
 while ($row = $res->fetch_assoc()) {
     $completados[] = $row['etapa'];
 }
 
-// Calcular porcentaje
 $total = 0;
 foreach ($etapas as $grupo) {
     foreach ($grupo as $nombre => $peso) {
