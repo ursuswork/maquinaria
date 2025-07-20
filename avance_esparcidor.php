@@ -6,150 +6,109 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-$busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
-$tipo_filtro = $_GET['tipo'] ?? 'todas';
+$id_maquinaria = intval($_GET['id'] ?? 0);
+if ($id_maquinaria <= 0) die("❌ ID inválido");
 
-$sql = "SELECT * FROM maquinaria";
-if (!empty($busqueda)) {
-  $sql .= " WHERE (nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%')";
+$maq = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
+if (!$maq) die("❌ Maquinaria no encontrada.");
+
+$etapas_tanque = [
+  "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
+  "Trazar,cortar,rolar cuerpo" => 5,
+  "Armar cuerpo" => 5,
+  "Armar chasis" => 5,
+  "Armar flux" => 5,
+  "Colocar chasis y flux" => 5,
+  "Colocar tapas y tubulares" => 5,
+  "Colocar fibra de vidrio y lamina A.I" => 10,
+  "Colocar accesorios" => 5
+];
+$etapas_esparcidor = [
+  "Armar cajas negras y de controles" => 55,
+  "Armar chasis" => 60,
+  "Cortar, doblar y armar tolva" => 65,
+  "Doblar, armar y colocar cabezal" => 70,
+  "Doblar,armar,probar y colocar tanque de aceite" => 75,
+  "Armar bomba" => 80,
+  "Armar transportadores" => 83,
+  "Pintar" => 85,
+  "Colocar hidráulico y neumático" => 89,
+  "Conectar eléctrico" => 92,
+  "Colocar accesorios finales" => 95,
+  "Prueba de equipo final" => 100
+];
+$secciones = ['ARMAR TANQUE' => $etapas_tanque, 'ESPARCIDOR' => $etapas_esparcidor];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
+  $etapa = $conn->real_escape_string($_POST['etapa']);
+  $conn->query("REPLACE INTO avance_esparcidor (id_maquinaria, etapa, completado) VALUES ($id_maquinaria, '$etapa', 1)");
+  header("Location: avance_esparcidor.php?id=$id_maquinaria");
+  exit;
 }
-if ($tipo_filtro === 'nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'nueva'";
-} elseif ($tipo_filtro === 'usada') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'usada'";
+
+$completadas = [];
+$res = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = $id_maquinaria AND completado = 1");
+while ($r = $res->fetch_assoc()) {
+  $completadas[] = $r['etapa'];
 }
-$sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
-$resultado = $conn->query($sql);
+
+$peso_total = 0;
+$peso_completado = 0;
+foreach ($secciones as $grupo) {
+  foreach ($grupo as $nombre => $peso) {
+    $peso_total += $peso;
+    if (in_array($nombre, $completadas)) {
+      $peso_completado += $peso;
+    }
+  }
+}
+$porcentaje = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inventario de Maquinaria</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avance Técnico</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #121212;
-      color: #ffffff;
-    }
-    .card-maquinaria {
-      background-color: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .btn-primary, .btn-success, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary, .btn-outline-success {
-      border-radius: 10px;
-    }
-    .progress {
-      background-color: #333;
-    }
-    .progress-bar {
-      font-weight: bold;
-    }
-    .etiqueta-nueva {
-      background-color: #007bff;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-    .nav-tabs .nav-link.active {
-      background-color: #007bff;
-      color: white;
-    }
-    .nav-tabs .nav-link {
-      color: #ccc;
-    }
-    .debug-box {
-      background-color: #222;
-      color: #ffc107;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-family: monospace;
-    }
+    body { background-color: #121212; color: #fff; }
+    .contenedor { max-width: 900px; margin: auto; padding: 20px; }
+    .btn-etapa { margin-bottom: 10px; }
+    .btn-completada { background-color: #28a745 !important; color: white !important; border-color: #28a745 !important; }
+    .progress { height: 30px; background-color: #333; }
+    .progress-bar { font-weight: bold; font-size: 16px; }
   </style>
 </head>
 <body>
-<div class="container py-4">
-  <div class="d-flex justify-content-between mb-3">
-    <h3 class="text-light">Inventario de Maquinaria</h3>
-    <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
+<div class="contenedor">
+  <h3 class="text-center mb-4">🛠️ Avance: <?= htmlspecialchars($maq['nombre']) ?></h3>
+  <p><strong>Modelo:</strong> <?= htmlspecialchars($maq['modelo']) ?></p>
+  <p><strong>Ubicación:</strong> <?= htmlspecialchars($maq['ubicacion']) ?></p>
+  <p><strong>Subtipo:</strong> <?= htmlspecialchars($maq['subtipo']) ?></p>
+  <hr>
+  <div class="mb-4">
+    <h5>Progreso General:</h5>
+    <div class="progress">
+      <div class="progress-bar bg-info" style="width: <?= $porcentaje ?>%;"><?= $porcentaje ?>%</div>
+    </div>
   </div>
-
-  <!-- Tabs -->
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
-    </li>
-  </ul>
-
-  <!-- Buscador -->
-  <form class="mb-4" method="GET">
-    <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
-    <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
-  </form>
-
-  <!-- Tarjetas -->
-  <div class="row">
-    <?php while ($fila = $resultado->fetch_assoc()): ?>
-      <div class="col-md-4 mb-4">
-        <div class="card card-maquinaria p-3 text-light">
-
-          <!-- Depuración visible -->
-          <div class="debug-box">
-            tipo: [<?= $fila['tipo_maquinaria'] ?>] | subtipo: [<?= $fila['subtipo'] ?>]
+  <form method="POST">
+    <?php foreach ($secciones as $titulo => $etapas): ?>
+      <h5 class="mt-4"><?= $titulo ?></h5>
+      <div class="row">
+        <?php foreach ($etapas as $etapa => $peso): ?>
+          <div class="col-md-6">
+            <button type="submit" name="etapa" value="<?= $etapa ?>"
+              class="btn w-100 btn-outline-light btn-etapa <?= in_array($etapa, $completadas) ? 'btn-completada' : '' ?>">
+              <?= in_array($etapa, $completadas) ? "✅ $etapa ($peso%)" : "$etapa ($peso%)" ?>
+            </button>
           </div>
-
-          <?php if (!empty($fila['imagen'])): ?>
-            <img src="imagenes/<?= $fila['imagen'] ?>" class="img-fluid rounded mb-2" style="max-height:200px; object-fit:contain;">
-          <?php endif; ?>
-          <h5><?= htmlspecialchars($fila['nombre']) ?></h5>
-          <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($fila['modelo']) ?></p>
-          <p class="mb-1"><strong>Ubicación:</strong> <?= htmlspecialchars($fila['ubicacion']) ?></p>
-          <p class="mb-1"><strong>Tipo:</strong>
-            <?= htmlspecialchars($fila['tipo_maquinaria']) ?>
-            <?php if ($fila['tipo_maquinaria'] == 'nueva'): ?>
-              <span class="etiqueta-nueva">Nueva</span>
-            <?php endif; ?>
-          </p>
-          <?php if (!empty($fila['subtipo'])): ?>
-            <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
-          <?php endif; ?>
-          <?php if (!is_null($fila['condicion_estimada'])): ?>
-            <div class="progress mb-2" style="height: 25px;">
-              <div class="progress-bar <?= $fila['condicion_estimada'] >= 85 ? 'bg-success' : ($fila['condicion_estimada'] >= 60 ? 'bg-warning' : 'bg-danger') ?>"
-                   style="width: <?= $fila['condicion_estimada'] ?>%;">
-                <?= $fila['condicion_estimada'] ?>%
-              </div>
-            </div>
-          <?php endif; ?>
-          <div class="d-flex justify-content-between">
-            <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
-            <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
-          </div>
-          <?php if (strtolower(trim($fila['tipo_maquinaria'])) == 'usada'): ?>
-            <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
-          <?php endif; ?>
-          <?php
-            $tipo = strtolower(trim($fila['tipo_maquinaria']));
-            $subtipo = strtolower(trim($fila['subtipo']));
-            if ($tipo == 'nueva' && $subtipo == 'esparcidor de sello'):
-          ?>
-            <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
-          <?php endif; ?>
-        </div>
+        <?php endforeach; ?>
       </div>
-    <?php endwhile; ?>
+    <?php endforeach; ?>
+  </form>
+  <div class="mt-4 text-center">
+    <a href="inventario.php" class="btn btn-outline-secondary">← Volver</a>
   </div>
 </div>
 </body>
