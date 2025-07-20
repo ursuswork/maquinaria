@@ -100,9 +100,14 @@ $resultado = $conn->query($sql);
           <?php
           $porc_avance = 0;
           if (
-            strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
-            strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
+             strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
+             strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
           ) {
+             $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
+             $etapas_realizadas = [];
+            while ($row = $avance_result->fetch_assoc()) {
+             $etapas_realizadas[] = $row['etapa'];
+             }
           elseif (
             strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
             strtolower(trim($fila['subtipo'])) == 'petrolizadora'
