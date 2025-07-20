@@ -29,10 +29,7 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #121212;
-      color: #ffffff;
-    }
+    body { background-color: #121212; color: #ffffff; }
     .card-maquinaria {
       background-color: #1e1e1e;
       border: 1px solid #333;
@@ -42,12 +39,8 @@ $resultado = $conn->query($sql);
     .btn-primary, .btn-success, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary, .btn-outline-success {
       border-radius: 10px;
     }
-    .progress {
-      background-color: #333;
-    }
-    .progress-bar {
-      font-weight: bold;
-    }
+    .progress { background-color: #333; }
+    .progress-bar { font-weight: bold; }
     .etiqueta-nueva {
       background-color: #007bff;
       color: white;
@@ -55,13 +48,8 @@ $resultado = $conn->query($sql);
       border-radius: 5px;
       font-size: 12px;
     }
-    .nav-tabs .nav-link.active {
-      background-color: #007bff;
-      color: white;
-    }
-    .nav-tabs .nav-link {
-      color: #ccc;
-    }
+    .nav-tabs .nav-link.active { background-color: #007bff; color: white; }
+    .nav-tabs .nav-link { color: #ccc; }
   </style>
 </head>
 <body>
@@ -70,7 +58,6 @@ $resultado = $conn->query($sql);
     <h3 class="text-light">Inventario de Maquinaria</h3>
     <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
   </div>
-
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
@@ -82,12 +69,10 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
   </ul>
-
   <form class="mb-4" method="GET">
     <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
     <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
   </form>
-
   <div class="row">
     <?php while ($fila = $resultado->fetch_assoc()): ?>
       <div class="col-md-4 mb-4">
@@ -107,14 +92,43 @@ $resultado = $conn->query($sql);
           <?php if (!empty($fila['subtipo'])): ?>
             <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
           <?php endif; ?>
-          <?php if (!is_null($fila['condicion_estimada'])): ?>
+
+          <?php
+          $porc_avance = 0;
+          if (
+            strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
+            strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
+          ) {
+            $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
+            $etapas = [];
+            while ($row = $avance_result->fetch_assoc()) {
+              $etapas[] = $row['etapa'];
+            }
+            $pesos = [
+              "Armar cajas negras y de controles" => 55, "Armar chasis" => 60,
+              "Cortar, doblar y armar tolva" => 65, "Doblar, armar y colocar cabezal" => 70,
+              "Doblar,armar,probar y colocar tanque de aceite" => 75, "Armar bomba" => 80,
+              "Armar transportadores" => 83, "Pintar" => 85,
+              "Colocar hidráulico y neumático" => 89, "Conectar eléctrico" => 92,
+              "Colocar accesorios finales" => 95, "Prueba de equipo final" => 100
+            ];
+            $peso_total = array_sum($pesos);
+            $peso_completado = 0;
+            foreach ($etapas as $et) {
+              if (isset($pesos[$et])) $peso_completado += $pesos[$et];
+            }
+            $porc_avance = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
+          }
+          ?>
+
+          <?php if ($porc_avance > 0): ?>
             <div class="progress mb-2" style="height: 25px;">
-              <div class="progress-bar <?= $fila['condicion_estimada'] >= 85 ? 'bg-success' : ($fila['condicion_estimada'] >= 60 ? 'bg-warning' : 'bg-danger') ?>"
-                   style="width: <?= $fila['condicion_estimada'] ?>%;">
-                <?= $fila['condicion_estimada'] ?>%
+              <div class="progress-bar bg-info" style="width: <?= $porc_avance ?>%;">
+                <?= $porc_avance ?>%
               </div>
             </div>
           <?php endif; ?>
+
           <div class="d-flex justify-content-between">
             <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
             <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
