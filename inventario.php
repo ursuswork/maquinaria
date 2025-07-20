@@ -1,35 +1,10 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario'])) {
-  header("Location: index.php");
-  exit;
-}
-include 'conexion.php';
-
-$busqueda = isset($_GET['busqueda']) ? trim($conn->real_escape_string($_GET['busqueda'])) : '';
-$tipo_filtro = $_GET['tipo'] ?? 'todas';
-
-$sql = "SELECT * FROM maquinaria";
-if (!empty($busqueda)) {
-  $sql .= " WHERE (nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%')";
-}
-if ($tipo_filtro === 'nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'nueva'";
-} elseif ($tipo_filtro === 'usada') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'usada'";
-}
-$sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
-$resultado = $conn->query($sql);
-?>
-
-<!-- OMITIDO: encabezado HTML por brevedad -->
-
-<?php
 $porc_avance = 0;
 $etapas_realizadas = [];
 
 if (strtolower(trim($fila['tipo_maquinaria'])) == 'nueva') {
   $subtipo = strtolower(trim($fila['subtipo']));
+  
   if ($subtipo == 'esparcidor de sello') {
     $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
     $etapas = [
@@ -104,8 +79,10 @@ if (strtolower(trim($fila['tipo_maquinaria'])) == 'nueva') {
     ];
   }
 
-  while ($row = $avance_result->fetch_assoc()) {
-    $etapas_realizadas[] = $row['etapa'];
+  if ($avance_result && $avance_result->num_rows > 0) {
+    while ($row = $avance_result->fetch_assoc()) {
+      $etapas_realizadas[] = $row['etapa'];
+    }
   }
 
   $peso_total = array_sum($etapas);
