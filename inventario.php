@@ -129,7 +129,7 @@ $resultado = $conn->query($sql);
               "Pintar" => 2,
               "Colocar hidráulico y neumático" => 4,
               "Conectar eléctrico" => 3,
-              "Colocar accesorios finales" => 2,
+              "Colocar accesorios finales" => 3,
               "Prueba de equipo final" => 5
             ];
 
