@@ -1,3 +1,4 @@
+
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -180,8 +181,18 @@ $resultado = $conn->query($sql);
       </div>
       <?php if (strtolower(trim($fila['tipo_maquinaria'] ?? '')) == 'usada'): ?>
         <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
-      <?php elseif ($tipo == 'nueva' && in_array($subtipo, ['esparcidor de sello', 'bachadora', 'petrolizadora'])): ?>
-        <a href="avance_<?= strtolower(str_replace(' ', '_', $subtipo)) ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
+      <?php elseif ($tipo == 'nueva'): ?>
+        <?php
+          $archivo_avance = match ($subtipo) {
+            'esparcidor de sello' => 'avance_esparcidor',
+            'bachadora' => 'avance_bachadora',
+            'petrolizadora' => 'avance_petrolizadora',
+            default => ''
+          };
+        ?>
+        <?php if ($archivo_avance): ?>
+          <a href="<?= $archivo_avance ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
+        <?php endif; ?>
       <?php endif; ?>
     </div>
   </div>
