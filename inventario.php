@@ -132,11 +132,14 @@ $resultado = $conn->query($sql);
               "Colocar accesorios finales" => 2,
               "Prueba de equipo final" => 5
             ];
+
+            $completadas = $etapas_realizadas;
             $peso_total = array_sum($etapas);
             $peso_completado = 0;
             foreach ($etapas as $nombre => $peso) {
               if (in_array($nombre, $completadas)) $peso_completado += $peso;
             }
+            $porc_avance = round(($peso_completado / $peso_total) * 100);
           ?>
 
           <?php if ($porc_avance > 0): ?>
@@ -146,6 +149,8 @@ $resultado = $conn->query($sql);
               </div>
             </div>
           <?php endif; ?>
+
+          <?php } ?>
 
           <div class="d-flex justify-content-between">
             <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
