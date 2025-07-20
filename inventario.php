@@ -62,39 +62,37 @@ $resultado = $conn->query($sql);
             strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
             strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
           ) {
-            $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
-            $completadas = [];
+            $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = { $fila['id'] }");
+            $etapas = [];
             while ($row = $avance_result->fetch_assoc()) {
-              $completadas[] = $row['etapa'];
+              $etapas[] = $row['etapa'];
             }
-            $pesos = [
-              "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
-              "Trazar, cortar, rolar cuerpo" => 5,
-              "Armar cuerpo" => 5,
-              "Armar chasis" => 60,
-              "Armar flux" => 5,
-              "Colocar chasis y flux" => 5,
-              "Colocar tapas y tubulares" => 5,
-              "Colocar fibra de vidrio y lámina A.I" => 10,
-              "Colocar accesorios" => 5,
-              "Armar cajas negras y de controles" => 55,
-              "Cortar, doblar y armar tolva" => 65,
-              "Doblar, armar y colocar cabezal" => 70,
-              "Doblar, armar, probar y colocar tanque de aceite" => 75,
-              "Armar bomba" => 80,
-              "Armar transportadores" => 83,
-              "Pintar" => 85,
-              "Colocar hidráulico y neumático" => 89,
-              "Conectar eléctrico" => 92,
-              "Colocar accesorios finales" => 95,
-              "Prueba de equipo final" => 100
-            ];
-            $peso_total = array_sum($pesos);
+            $etapas = [
+  "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
+  "Trazar, cortar, rolar cuerpo" => 5,
+  "Armar cuerpo" => 5,
+  "Armar chasis" => 60,
+  "Armar flux" => 5,
+  "Colocar chasis y flux" => 5,
+  "Colocar tapas y tubulares" => 5,
+  "Colocar fibra de vidrio y lámina A.I" => 10,
+  "Colocar accesorios" => 5,
+  "Armar cajas negras y de controles" => 55,
+  "Cortar, doblar y armar tolva" => 65,
+  "Doblar, armar y colocar cabezal" => 70,
+  "Doblar, armar, probar y colocar tanque de aceite" => 75,
+  "Armar bomba" => 80,
+  "Armar transportadores" => 83,
+  "Pintar" => 85,
+  "Colocar hidráulico y neumático" => 89,
+  "Conectar eléctrico" => 92,
+  "Colocar accesorios finales" => 95,
+  "Prueba de equipo final" => 100,
+];
+            $peso_total = array_sum($etapas);
             $peso_completado = 0;
-            foreach ($completadas as $et) {
-              if (isset($pesos[$et])) {
-                $peso_completado += $pesos[$et];
-              }
+            foreach ($etapas as $nombre => $peso) {
+              if (in_array($nombre, $etapas)) $peso_completado += $peso;
             }
             $porc_avance = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
           }
