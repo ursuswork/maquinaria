@@ -119,26 +119,24 @@ $resultado = $conn->query($sql);
               "Colocar tapas y tubulares" => 5,
               "Colocar fibra de vidrio y lámina A.I" => 10,
               "Colocar accesorios" => 5,
-              "Armar cajas negras y de controles" => 55,
-              "Cortar, doblar y armar tolva" => 65,
-              "Doblar, armar y colocar cabezal" => 70,
-              "Doblar, armar, probar y colocar tanque de aceite" => 75,
-              "Armar bomba" => 80,
-              "Armar transportadores" => 83,
-              "Pintar" => 85,
-              "Colocar hidráulico y neumático" => 89,
-              "Conectar eléctrico" => 92,
-              "Colocar accesorios finales" => 95,
-              "Prueba de equipo final" => 100,
+              "Armar cajas negras y de controles" => 5,
+              "Armar chasis" => 5,
+              "Cortar, doblar y armar tolva" => 5,
+              "Doblar, armar y colocar cabezal" => 5,
+              "Doblar, armar, probar y colocar tanque de aceite" => 5,
+              "Armar bomba" => 5,
+              "Armar transportadores" => 3,
+              "Pintar" => 2,
+              "Colocar hidráulico y neumático" => 4,
+              "Conectar eléctrico" => 3,
+              "Colocar accesorios finales" => 2,
+              "Prueba de equipo final" => 5
             ];
-
             $peso_total = array_sum($etapas);
             $peso_completado = 0;
-            foreach ($etapas_realizadas as $et) {
-              if (isset($etapas[$et])) $peso_completado += $etapas[$et];
+            foreach ($etapas as $nombre => $peso) {
+              if (in_array($nombre, $completadas)) $peso_completado += $peso;
             }
-            $porc_avance = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
-          }
           ?>
 
           <?php if ($porc_avance > 0): ?>
