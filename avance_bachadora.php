@@ -11,9 +11,7 @@ if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
 }
 
-// Lista de etapas
 $etapas = [
-  // Armar Tanque (60%)
   "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
   "Trazar,cortar,rolar cuerpo" => 5,
   "Armar cuerpo" => 5,
@@ -25,8 +23,6 @@ $etapas = [
   "Colocar accesorios" => 5,
   "Armar ejes" => 5,
   "Armar jalon" => 5,
-
-  // Bachadora (40%)
   "Armar barra" => 5,
   "Armar chasis de bomba y motor" => 5,
   "Armar accesorios" => 5,
@@ -38,7 +34,6 @@ $etapas = [
   "Probar equipo" => 5,
 ];
 
-// Guardar etapa si se marca
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
   $existe = $conn->query("SELECT 1 FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
@@ -49,14 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   }
 }
 
-// Obtener etapas completadas
 $realizadas = [];
 $res = $conn->query("SELECT etapa FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria");
 while ($row = $res->fetch_assoc()) {
   $realizadas[] = $row['etapa'];
 }
 
-// Calcular avance
 $peso_total = array_sum($etapas);
 $peso_completado = 0;
 foreach ($etapas as $nombre => $peso) {
@@ -75,14 +68,8 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #121212; color: #fff; }
-    .etapa-btn {
-      width: 100%; margin-bottom: 10px;
-    }
-    .completada {
-      background-color: #198754;
-      color: white;
-      font-weight: bold;
-    }
+    .etapa-btn { width: 100%; margin-bottom: 10px; }
+    .completada { background-color: #198754; color: white; font-weight: bold; }
   </style>
 </head>
 <body class="container py-4">
