@@ -103,6 +103,46 @@ $resultado = $conn->query($sql);
             strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
             strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
           ) {
+          elseif (
+            strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
+            strtolower(trim($fila['subtipo'])) == 'petrolizadora'
+          ) {
+            $avance_result = $conn->query("SELECT etapa FROM avance_petrolizadora WHERE id_maquinaria = {$fila['id']}");
+            $etapas_realizadas = [];
+            while ($row = $avance_result->fetch_assoc()) {
+              $etapas_realizadas[] = $row['etapa'];
+            }
+
+            $etapas = [
+              "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
+              "Trazar,cortar,rolar cuerpo" => 5,
+              "Armar cuerpo" => 5,
+              "Armar chasis" => 5,
+              "Armar flux" => 5,
+              "Colocar chasis y flux" => 5,
+              "Colocar tapas y tubulares" => 5,
+              "Colocar fibra de vidrio y lamina A.I" => 10,
+              "Colocar accesorios" => 5,
+              "Armar y colocar barra" => 5,
+              "Armar y colocar chasis p/bomba y motor" => 5,
+              "Armar,alinear motor y bomba" => 5,
+              "Montar alinear motor" => 5,
+              "Armar tuberia interna y externa" => 5,
+              "Alinear y colocar tuberias" => 5,
+              "Colocar accesorios" => 5,
+              "Pintura" => 5,
+              "Intalacion electrica" => 5,
+              "Probar y checar fugas" => 5
+            ];
+
+            $completadas = $etapas_realizadas;
+            $peso_total = array_sum($etapas);
+            $peso_completado = 0;
+            foreach ($etapas as $nombre => $peso) {
+              if (in_array($nombre, $completadas)) $peso_completado += $peso;
+            }
+            $porc_avance = round(($peso_completado / $peso_total) * 100);
+          
             $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
             $etapas_realizadas = [];
             while ($row = $avance_result->fetch_assoc()) {
@@ -129,7 +169,7 @@ $resultado = $conn->query($sql);
               "Pintar" => 2,
               "Colocar hidráulico y neumático" => 4,
               "Conectar eléctrico" => 3,
-              "Colocar accesorios finales" => 3,
+              "Colocar accesorios finales" => 2,
               "Prueba de equipo final" => 5
             ];
 
