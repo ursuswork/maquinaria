@@ -24,17 +24,17 @@ $etapas_tanque = [
   "Colocar accesorios" => 5
 ];
 $etapas_esparcidor = [
-  "Armar cajas negras y de controles" => 5,
-  "Armar chasis" => 5,
-  "Cortar, doblar y armar tolva" => 5,
-  "Doblar, armar y colocar cabezal" => 5,
-  "Doblar, armar, probar y colocar tanque de aceite" => 5,
-  "Armar bomba" => 5,
-  "Armar transportadores" => 3,
-  "Pintar" => 2,
-  "Colocar hidráulico y neumático" => 4,
-  "Conectar eléctrico" => 3,
-  "Colocar accesorios finales" => 2,
+  "Armar cajas negras y de controles" => 55,
+  "Armar chasis" => 60,
+  "Cortar, doblar y armar tolva" => 65,
+  "Doblar, armar y colocar cabezal" => 70,
+  "Doblar, armar, probar y colocar tanque de aceite" => 75,
+  "Armar bomba" => 80,
+  "Armar transportadores" => 83,
+  "Pintar" => 85,
+  "Colocar hidráulico y neumático" => 89,
+  "Conectar eléctrico" => 92,
+  "Colocar accesorios finales" => 95,
   "Prueba de equipo final" => 100
 ];
 $secciones = ['ARMAR TANQUE' => $etapas_tanque, 'ESPARCIDOR' => $etapas_esparcidor];
