@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -31,14 +30,14 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #121212;
+      background-color: #08088eff;
       color: #ffffff;
     }
     .card-maquinaria {
-      background-color: #1e1e1e;
+      background-color: #291378ff;
       border: 1px solid #333;
       border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(39, 21, 174, 0.5);
     }
     .btn-primary, .btn-success, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary, .btn-outline-success {
       border-radius: 10px;
@@ -120,7 +119,7 @@ $resultado = $conn->query($sql);
           <?php if ($fila['tipo_maquinaria'] == 'usada'): ?>
             <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
           <?php endif; ?>
-          <?php if ($fila['tipo_maquinaria'] == 'nueva' && $fila['subtipo'] == 'esparcidor de sello'): ?>
+          <?php if ($fila['tipo_maquinaria'] == 'nueva' && $fila['subtipo'] == 'Esparcidor de sello'): ?>
             <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
           <?php endif; ?>
         </div>
