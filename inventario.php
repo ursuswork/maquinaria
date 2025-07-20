@@ -30,14 +30,14 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #08088eff;
+      background-color: #121212;
       color: #ffffff;
     }
     .card-maquinaria {
-      background-color: #291378ff;
+      background-color: #1e1e1e;
       border: 1px solid #333;
       border-radius: 15px;
-      box-shadow: 0 0 10px rgba(39, 21, 174, 0.5);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     .btn-primary, .btn-success, .btn-outline-primary, .btn-outline-danger, .btn-outline-secondary, .btn-outline-success {
       border-radius: 10px;
@@ -70,6 +70,7 @@ $resultado = $conn->query($sql);
     <h3 class="text-light">Inventario de Maquinaria</h3>
     <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
   </div>
+
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
@@ -81,10 +82,12 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
   </ul>
+
   <form class="mb-4" method="GET">
     <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
     <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
   </form>
+
   <div class="row">
     <?php while ($fila = $resultado->fetch_assoc()): ?>
       <div class="col-md-4 mb-4">
@@ -116,10 +119,13 @@ $resultado = $conn->query($sql);
             <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
             <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
           </div>
-          <?php if ($fila['tipo_maquinaria'] == 'usada'): ?>
+          <?php if (strtolower(trim($fila['tipo_maquinaria'])) == 'usada'): ?>
             <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
           <?php endif; ?>
-          <?php if ($fila['tipo_maquinaria'] == 'nueva' && $fila['subtipo'] == 'Esparcidor de sello'): ?>
+          <?php if (
+            strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
+            strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
+          ): ?>
             <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
           <?php endif; ?>
         </div>
