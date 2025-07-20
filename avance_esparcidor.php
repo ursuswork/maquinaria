@@ -12,12 +12,23 @@ if ($id_maquinaria <= 0) die("❌ ID inválido");
 $maq = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 if (!$maq) die("❌ Maquinaria no encontrada.");
 
+$etapas_tanque = [
+  "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
+  "Trazar, cortar, rolar cuerpo" => 5,
+  "Armar cuerpo" => 5,
+  "Armar chasis" => 5,
+  "Armar flux" => 5,
+  "Colocar chasis y flux" => 5,
+  "Colocar tapas y tubulares" => 5,
+  "Colocar fibra de vidrio y lámina A.I" => 10,
+  "Colocar accesorios" => 5
+];
 $etapas_esparcidor = [
   "Armar cajas negras y de controles" => 55,
   "Armar chasis" => 60,
   "Cortar, doblar y armar tolva" => 65,
   "Doblar, armar y colocar cabezal" => 70,
-  "Doblar,armar,probar y colocar tanque de aceite" => 75,
+  "Doblar, armar, probar y colocar tanque de aceite" => 75,
   "Armar bomba" => 80,
   "Armar transportadores" => 83,
   "Pintar" => 85,
@@ -26,6 +37,7 @@ $etapas_esparcidor = [
   "Colocar accesorios finales" => 95,
   "Prueba de equipo final" => 100
 ];
+$secciones = ['ARMAR TANQUE' => $etapas_tanque, 'ESPARCIDOR' => $etapas_esparcidor];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
@@ -45,20 +57,23 @@ while ($r = $res->fetch_assoc()) {
   $completadas[] = $r['etapa'];
 }
 
-$total = array_sum($etapas_esparcidor);
-$hecho = 0;
-foreach ($etapas_esparcidor as $etapa => $peso) {
-  if (in_array($etapa, $completadas)) {
-    $hecho += $peso;
+$peso_total = 0;
+$peso_hecho = 0;
+foreach ($secciones as $grupo) {
+  foreach ($grupo as $nombre => $peso) {
+    $peso_total += $peso;
+    if (in_array($nombre, $completadas)) {
+      $peso_hecho += $peso;
+    }
   }
 }
-$porcentaje = $total > 0 ? round(($hecho / $total) * 100) : 0;
+$porcentaje = $peso_total > 0 ? round(($peso_hecho / $peso_total) * 100) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Avance Esparcidor</title>
+  <title>Avance Técnico</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #121212; color: #ffffff; }
@@ -87,16 +102,19 @@ $porcentaje = $total > 0 ? round(($hecho / $total) * 100) : 0;
     </div>
   </div>
   <form method="POST">
-    <div class="row">
-      <?php foreach ($etapas_esparcidor as $etapa => $peso): ?>
-        <div class="col-md-6">
-          <button type="submit" name="etapa" value="<?= $etapa ?>"
-            class="btn w-100 btn-outline-light btn-etapa <?= in_array($etapa, $completadas) ? 'btn-completada' : '' ?>">
-            <?= in_array($etapa, $completadas) ? "✅ $etapa ($peso%)" : "$etapa ($peso%)" ?>
-          </button>
-        </div>
-      <?php endforeach; ?>
-    </div>
+    <?php foreach ($secciones as $titulo => $etapas): ?>
+      <h5 class="mt-4"><?= $titulo ?></h5>
+      <div class="row">
+        <?php foreach ($etapas as $etapa => $peso): ?>
+          <div class="col-md-6">
+            <button type="submit" name="etapa" value="<?= $etapa ?>"
+              class="btn w-100 btn-outline-light btn-etapa <?= in_array($etapa, $completadas) ? 'btn-completada' : '' ?>">
+              <?= in_array($etapa, $completadas) ? "✅ $etapa ($peso%)" : "$etapa ($peso%)" ?>
+            </button>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
   </form>
   <div class="mt-4 text-center">
     <a href="inventario.php" class="btn btn-outline-secondary">← Volver al Inventario</a>
