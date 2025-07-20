@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -39,11 +38,46 @@ $resultado = $conn->query($sql);
     }
     .progress { background-color: #333; }
     .progress-bar { font-weight: bold; }
+    .btn, .nav-link {
+      border-radius: 10px;
+    }
+    .etiqueta-nueva {
+      background-color: #007bff;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    .nav-tabs .nav-link.active {
+      background-color: #007bff;
+      color: white;
+    }
+    .nav-tabs .nav-link {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 <div class="container py-4">
-  <h3 class="text-light mb-4">Inventario de Maquinaria</h3>
+  <div class="d-flex justify-content-between mb-3">
+    <h3 class="text-light">Inventario de Maquinaria</h3>
+    <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
+  </div>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
+    </li>
+  </ul>
+  <form class="mb-4" method="GET">
+    <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
+    <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
+  </form>
   <div class="row">
     <?php while ($fila = $resultado->fetch_assoc()): ?>
       <div class="col-md-4 mb-4">
@@ -54,8 +88,14 @@ $resultado = $conn->query($sql);
           <h5><?= htmlspecialchars($fila['nombre']) ?></h5>
           <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($fila['modelo']) ?></p>
           <p class="mb-1"><strong>Ubicación:</strong> <?= htmlspecialchars($fila['ubicacion']) ?></p>
-          <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($fila['tipo_maquinaria']) ?></p>
-          <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
+          <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($fila['tipo_maquinaria']) ?>
+            <?php if ($fila['tipo_maquinaria'] == 'nueva'): ?>
+              <span class="etiqueta-nueva">Nueva</span>
+            <?php endif; ?>
+          </p>
+          <?php if (!empty($fila['subtipo'])): ?>
+            <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
+          <?php endif; ?>
 
           <?php
           $porc_avance = 0;
@@ -63,41 +103,44 @@ $resultado = $conn->query($sql);
             strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
             strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
           ) {
-            $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = { $fila['id'] }");
-            $etapas = [];
+            $avance_result = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = {$fila['id']}");
+            $etapas_realizadas = [];
             while ($row = $avance_result->fetch_assoc()) {
-              $etapas[] = $row['etapa'];
+              $etapas_realizadas[] = $row['etapa'];
             }
+
             $etapas = [
-  "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
-  "Trazar, cortar, rolar cuerpo" => 5,
-  "Armar cuerpo" => 5,
-  "Armar chasis" => 60,
-  "Armar flux" => 5,
-  "Colocar chasis y flux" => 5,
-  "Colocar tapas y tubulares" => 5,
-  "Colocar fibra de vidrio y lámina A.I" => 10,
-  "Colocar accesorios" => 5,
-  "Armar cajas negras y de controles" => 55,
-  "Cortar, doblar y armar tolva" => 65,
-  "Doblar, armar y colocar cabezal" => 70,
-  "Doblar, armar, probar y colocar tanque de aceite" => 75,
-  "Armar bomba" => 80,
-  "Armar transportadores" => 83,
-  "Pintar" => 85,
-  "Colocar hidráulico y neumático" => 89,
-  "Conectar eléctrico" => 92,
-  "Colocar accesorios finales" => 95,
-  "Prueba de equipo final" => 100,
-];
+              "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
+              "Trazar, cortar, rolar cuerpo" => 5,
+              "Armar cuerpo" => 5,
+              "Armar chasis" => 5,
+              "Armar flux" => 5,
+              "Colocar chasis y flux" => 5,
+              "Colocar tapas y tubulares" => 5,
+              "Colocar fibra de vidrio y lámina A.I" => 10,
+              "Colocar accesorios" => 5,
+              "Armar cajas negras y de controles" => 55,
+              "Cortar, doblar y armar tolva" => 65,
+              "Doblar, armar y colocar cabezal" => 70,
+              "Doblar, armar, probar y colocar tanque de aceite" => 75,
+              "Armar bomba" => 80,
+              "Armar transportadores" => 83,
+              "Pintar" => 85,
+              "Colocar hidráulico y neumático" => 89,
+              "Conectar eléctrico" => 92,
+              "Colocar accesorios finales" => 95,
+              "Prueba de equipo final" => 100,
+            ];
+
             $peso_total = array_sum($etapas);
             $peso_completado = 0;
-            foreach ($etapas as $nombre => $peso) {
-              if (in_array($nombre, $etapas)) $peso_completado += $peso;
+            foreach ($etapas_realizadas as $et) {
+              if (isset($etapas[$et])) $peso_completado += $etapas[$et];
             }
             $porc_avance = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
           }
           ?>
+
           <?php if ($porc_avance > 0): ?>
             <div class="progress mb-2" style="height: 25px;">
               <div class="progress-bar bg-info" style="width: <?= $porc_avance ?>%;">
@@ -105,7 +148,21 @@ $resultado = $conn->query($sql);
               </div>
             </div>
           <?php endif; ?>
-          <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-info mt-2 w-100">🛠️ Ver Avance</a>
+
+          <div class="d-flex justify-content-between">
+            <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+            <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
+          </div>
+
+          <?php if (strtolower(trim($fila['tipo_maquinaria'])) == 'usada'): ?>
+            <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
+          <?php endif; ?>
+          <?php if (
+            strtolower(trim($fila['tipo_maquinaria'])) == 'nueva' &&
+            strtolower(trim($fila['subtipo'])) == 'esparcidor de sello'
+          ): ?>
+            <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
+          <?php endif; ?>
         </div>
       </div>
     <?php endwhile; ?>
