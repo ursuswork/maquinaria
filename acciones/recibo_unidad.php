@@ -71,7 +71,7 @@ $secciones = [
       padding-bottom: .5rem;
     }
     .form-label {
-      color: #0872a7ff;
+      color: #ffc107;
       font-weight: bold;
     }
     .form-control, .form-select {
@@ -87,7 +87,7 @@ $secciones = [
       color: #000;
     }
     .progress-bar {
-      background-color: #ffc107 !important;
+      background-color: #07c1ffff !important;
       color: #000;
       font-weight: bold;
     }
