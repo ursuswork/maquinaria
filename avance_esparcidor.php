@@ -99,10 +99,10 @@ foreach ($etapas as $grupo) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #1a2fd2ff; color: #f1f1f1; }
+    body { background-color: #050e57ff; color: #f1f1f1; }
     .btn-toggle { min-width: 200px; margin-bottom: 8px; }
     .completed { background-color: #249bceff !important; color: white !important; }
-    .progress { height: 20px; }
+    .progress { height: 30px; }
     .progress-bar { font-weight: bold; }
   </style>
 </head>
