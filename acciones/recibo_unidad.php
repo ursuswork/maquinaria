@@ -7,7 +7,6 @@ if (!isset($_SESSION['usuario'])) {
 include '../conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Aquí puedes procesar el guardado si lo deseas
   header("Location: ../inventario.php");
   exit;
 }
@@ -44,8 +43,8 @@ function botonOpciones($nombre, $valor_existente) {
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
-  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "COPLES", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)", "SENSORES"],
   "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
@@ -88,22 +87,23 @@ $secciones = [
     }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
     .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
-    .progress-bar { background-color: #ffc107 !important; color: #000; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="container py-4">
     <h3 class="text-center">Recibo de Unidad</h3>
+
     <?php if (isset($recibo_existente['condicion_estimada'])): ?>
-      <div class="my-3 text-center">
-        <label class="form-label fw-bold">Condición Estimada</label>
-        <div class="progress" style="height: 30px;">
-          <div class="progress-bar" role="progressbar" style="width: <?=$recibo_existente['condicion_estimada']?>%;" aria-valuenow="<?=$recibo_existente['condicion_estimada']?>" aria-valuemin="0" aria-valuemax="100">
-            <?=$recibo_existente['condicion_estimada']?>%
+      <div class="my-3">
+        <label class="form-label">Condición Estimada</label>
+        <div class="progress" style="height: 25px;">
+          <div class="progress-bar bg-info" role="progressbar" style="width: <?= $recibo_existente['condicion_estimada'] ?>%;">
+            <?= $recibo_existente['condicion_estimada'] ?>%
           </div>
         </div>
       </div>
     <?php endif; ?>
+
     <form method="POST">
       <div class="row mb-3">
         <div class="col-md-4">
@@ -130,9 +130,9 @@ $secciones = [
         <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
-      <div class="mt-4">
+      <div class="mb-3">
         <label class="form-label">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
+        <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
       </div>
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
