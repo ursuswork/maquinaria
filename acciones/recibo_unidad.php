@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -52,66 +53,42 @@ $secciones = [
   <title>Recibo de Unidad</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    @media print {
-      body * { visibility: hidden; }
-      .formulario-recibo, .formulario-recibo * { visibility: visible; }
-      .formulario-recibo { position: absolute; top: 0; left: 0; width: 100%; }
-      .btn, .navbar, .no-imprimir { display: none !important; }
+    body {
+      background-color: #001f3f;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
     }
+    .container {
+      background-color: #002b5c;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 1200px;
+      margin: auto;
+      box-shadow: 0 0 20px #000;
+    }
+    h3, h4, h5 {
+      color: #ffffff;
+      border-bottom: 2px solid #ffc107;
+      padding-bottom: .5rem;
+    }
+    .form-label {
+      color: #ffc107;
+      font-weight: bold;
+    }
+    .form-control, .form-select {
+      background-color: #003366;
+      color: #ffffff;
+      border: 1px solid #0059b3;
+      margin-bottom: 1rem;
+    }
+    .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
+    .btn-success { background-color: #28a745; border: none; font-weight: bold; }
+    .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
   </style>
-
-<style>
-  body {
-    background-color: #001f3f;
-    color: #ffffff;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  .container {
-    background-color: #002b5c;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 1200px;
-    margin: auto;
-    box-shadow: 0 0 20px #000;
-  }
-  h3, h4, h5 {
-    color: #ffffff;
-    border-bottom: 2px solid #ffc107;
-    padding-bottom: .5rem;
-  }
-  .form-label {
-    color: #ffc107;
-    font-weight: bold;
-  }
-  .form-control, .form-select {
-    background-color: #003366;
-    color: #ffffff;
-    border: 1px solid #0059b3;
-    margin-bottom: 1rem;
-  }
-  .btn-primary {
-    background-color: #0056b3;
-    border: none;
-    font-weight: bold;
-  }
-  .btn-success {
-    background-color: #28a745;
-    border: none;
-    font-weight: bold;
-  }
-  .btn-warning {
-    background-color: #ffc107;
-    border: none;
-    font-weight: bold;
-    color: #000;
-  }
-</style>
-
 </head>
-<body class="bg-light">
+<body>
   <div class="container py-4 formulario-recibo">
     <h3 class="text-center text-primary mb-4">Recibo de Unidad</h3>
-
     <?php if (isset($recibo_existente['condicion_estimada'])): ?>
       <div class="my-3 text-center">
         <label class="form-label fw-bold">Condición Estimada</label>
@@ -131,10 +108,8 @@ $secciones = [
         </div>
       </div>
     <?php endif; ?>
-
     <form method="POST" action="guardar_recibo.php">
       <input type="hidden" name="id_maquinaria" value="<?=$id_maquinaria?>">
-
       <div class="row mb-3">
         <div class="col-md-6">
           <label class="form-label">Empresa Origen</label>
@@ -145,52 +120,31 @@ $secciones = [
           <input type="text" name="empresa_destino" class="form-control" value="<?=htmlspecialchars($recibo_existente['empresa_destino'] ?? '')?>">
         </div>
       </div>
-
       <div class="row mb-3">
-        <div class="col-md-4">
-          <label class="form-label">Equipo</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Marca</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Modelo</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly>
-        </div>
+        <div class="col-md-4"><label class="form-label">Equipo</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly></div>
+        <div class="col-md-4"><label class="form-label">Marca</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly></div>
+        <div class="col-md-4"><label class="form-label">Modelo</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly></div>
       </div>
-
       <?php foreach ($secciones as $titulo => $componentes): ?>
         <hr>
         <h5 class="text-secondary fw-bold border-bottom pb-1 mt-4">Sección: <?=htmlspecialchars($titulo)?></h5>
-        <div class="row">
-          <?php
-          $unicos = array_unique($componentes);
-          foreach ($unicos as $comp): ?>
-            <div class="col-md-6">
-              <?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?>
-            </div>
-          <?php endforeach; ?>
-        </div>
+        <div class="row"><?php foreach (array_unique($componentes) as $comp): ?>
+          <div class="col-md-6"><?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?></div>
+        <?php endforeach; ?></div>
       <?php endforeach; ?>
-
       <div class="mt-4">
         <label class="form-label">Observaciones</label>
         <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
       </div>
-
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-success">💾 Guardar</button>
         <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Recibo</button>
       </div>
-    
       <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
         <a href="../inventario.php" class="btn btn-warning">← Volver al Inventario</a>
         <a href="exportar_excel_recibo.php?id=<?= $id_maquinaria ?>" class="btn btn-success">📤 Exportar a Excel</a>
       </div>
-
-</form>
+    </form>
   </div>
 </body>
 </html>

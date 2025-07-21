@@ -1,93 +1,69 @@
+
 <?php
 session_start();
+if (!isset($_SESSION['usuario'])) {
+  header("Location: ../index.php");
+  exit;
+}
 include '../conexion.php';
 
-function convertir_valor($valor) {
-    return match (strtolower($valor)) {
-        'bueno' => 100,
-        'regular' => 70,
-        'malo' => 40,
-        default => 0
-    };
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $id_maquinaria = intval($_POST['id_maquinaria']);
+  $empresa_origen = $conn->real_escape_string($_POST['empresa_origen'] ?? '');
+  $empresa_destino = $conn->real_escape_string($_POST['empresa_destino'] ?? '');
+  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+  $componentes = $_POST['componentes'] ?? [];
 
-function normalizar_campo($cadena) {
-    $sin_acentos = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);
-    return strtolower(preg_replace('/[^a-z0-9_]/', '_', $sin_acentos));
-}
+  // Definir secciones y pesos
+  $secciones = [
+    "MOTOR" => 15,
+    "SISTEMA MECÁNICO" => 15,
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
+    "SISTEMA HIDRÁULICO" => 30,
+    "ESTÉTICO" => 5,
+    "CONSUMIBLES" => 10
+  ];
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_maquinaria = intval($_POST['id_maquinaria']);
-    $empresa_origen = $_POST['empresa_origen'] ?? '';
-    $empresa_destino = $_POST['empresa_destino'] ?? '';
-    $observaciones = $_POST['observaciones'] ?? '';
-    $componentes = $_POST['componentes'] ?? [];
+  // Componentes por sección
+  $lista_componentes = [
+    "MOTOR" => ["CILINDROS","PISTONES","ANILLOS","INYECTORES","BLOCK","CABEZA","VARILLAS","RESORTES","PUNTERIAS","CIGÜEÑAL","ARBOL DE ELEVAS","RETENES","LIGAS","SENSORES","POLEAS","CONCHA","CREMAYERA","CLUTCH","COPLES","BOMBA DE INYECCION","JUNTAS","MARCHA","TUBERIA","ALTERNADOR","FILTROS","BASES","SOPORTES","TURBO","ESCAPE","CHICOTES"],
+    "SISTEMA MECÁNICO" => ["TRANSMISIÓN","DIFERENCIALES","CARDÁN"],
+    "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS","BOMBAS DE TRANSITO","BOMBAS DE PRECARGA","BOMBAS DE ACCESORIOS","COPLES","CLUTCH HIDRÁULICO","GATOS DE LEVANTE","GATOS DE DIRECCIÓN","GATOS DE ACCESORIOS","MANGUERAS","MOTORES HIDRÁULICOS","ORBITROL","TORQUES HUV (SATÉLITES)","VÁLVULAS DE RETENCIÓN","REDUCTORES"],
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS","ARNESES","BOBINAS","BOTONES","CABLES","CABLES DE SENSORES","CONECTORES","ELECTRO VÁLVULAS","FUSIBLES","PORTA FUSIBLES","INDICADORES","PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO","LUCES","MÓDULOS","TORRETA","RELEVADORES","SWITCH (LLAVE)","SENSORES"],
+    "ESTÉTICO" => ["PINTURA","CALCOMANIAS","ASIENTO","TAPICERIA","TOLVAS","CRISTALES","ACCESORIOS","SISTEMA DE RIEGO"],
+    "CONSUMIBLES" => ["PUNTAS","PORTA PUNTAS","GARRAS","CUCHILLAS","CEPILLOS","SEPARADORES","LLANTAS","RINES","BANDAS / ORUGAS"]
+  ];
 
-    $pesos = [
-        'MOTOR' => 15,
-        'SISTEMA MECÁNICO' => 15,
-        'SISTEMA HIDRÁULICO' => 30,
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => 25,
-        'ESTÉTICO' => 5,
-        'CONSUMIBLES' => 10
-    ];
-
-    $secciones = [
-        'MOTOR' => ["Cilindros", "Pistones", "Anillos", "Inyectores", "Block", "Cabeza", "Varillas", "Resortes", "Punterías", "Cigüeñal", "Árbol de levas", "Retenes", "Ligas", "Sensores", "Poleas", "Concha", "Cremallera", "Clutch", "Coples", "Bomba de inyección", "Juntas", "Marcha", "Tubería", "Alternador", "Filtros", "Bases", "Soportes", "Turbo", "Escape", "Chicotes"],
-        'SISTEMA MECÁNICO' => ["Transmisión", "Diferenciales", "Cardán"],
-        'SISTEMA HIDRÁULICO' => ["Banco de válvulas", "Bombas de tránsito", "Bombas de precarga", "Bombas de accesorios", "Coples", "Clutch hidráulico", "Gatos de levante", "Gatos de dirección", "Gatos de accesorios", "Mangueras", "Motores hidráulicos", "Orbitrol", "Torques HUV (Satélites)", "Válvulas de retención", "Reductores"],
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => ["Alarmas", "Arneses", "Bobinas", "Botones", "Cables", "Cables de sensores", "Conectores", "Electro válvulas", "Fusibles", "Porta fusibles", "Indicadores", "Presión/Agua/Temperatura/Voltímetro", "Luces", "Módulos", "Torreta", "Relevadores", "Switch (llave)", "Sensores"],
-        'ESTÉTICO' => ["Pintura", "Calcomanías", "Asiento", "Tapicería", "Tolvas", "Cristales", "Accesorios", "Sistema de riego"],
-        'CONSUMIBLES' => ["Puntas", "Porta puntas", "Garras", "Cuchillas", "Cepillos", "Separadores", "Llantas", "Rines", "Bandas / Orugas"]
-    ];
-
-    $total = 0;
-    foreach ($secciones as $nombre => $campos) {
-        $suma = 0;
-        $cuenta = 0;
-        foreach ($campos as $c) {
-            if (isset($componentes[$c])) {
-                $suma += convertir_valor($componentes[$c]);
-                $cuenta++;
-            }
-        }
-        if ($cuenta > 0) {
-            $prom = $suma / $cuenta;
-            $total += $prom * ($pesos[$nombre] / 100);
-        }
+  // Calcular condición
+  $total_porcentaje = 0;
+  foreach ($secciones as $seccion => $peso) {
+    $componentes_seccion = $lista_componentes[$seccion];
+    $total = count($componentes_seccion);
+    $acumulado = 0;
+    foreach ($componentes_seccion as $nombre) {
+      $estado = $componentes[$nombre] ?? 'regular';
+      $valor = ($estado === 'bueno') ? 1 : (($estado === 'regular') ? 0.5 : 0);
+      $acumulado += $valor;
     }
-    $condicion = round($total);
+    $porcentaje_seccion = ($acumulado / $total) * $peso;
+    $total_porcentaje += $porcentaje_seccion;
+  }
 
-    $nuevos_componentes = [];
-    foreach ($componentes as $campo => $valor) {
-        if (trim($campo) === '') continue;
-        $col = $conn->real_escape_string(normalizar_campo($campo));
-        if ($col === '') continue;
-        $nuevos_componentes[$col] = $valor;
+  // Verificar si ya existe
+  $existe = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
+  $query = $existe ?
+    "UPDATE recibo_unidad SET empresa_origen='$empresa_origen', empresa_destino='$empresa_destino', observaciones='$observaciones', condicion_estimada=$total_porcentaje WHERE id_maquinaria=$id_maquinaria"
+    :
+    "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, observaciones, condicion_estimada) VALUES ($id_maquinaria, '$empresa_origen', '$empresa_destino', '$observaciones', $total_porcentaje)";
+  $conn->query($query);
 
-        $existe = $conn->query("SHOW COLUMNS FROM recibo_unidad LIKE '$col'");
-        if ($existe->num_rows === 0) {
-            $conn->query("ALTER TABLE recibo_unidad ADD COLUMN `$col` ENUM('bueno','regular','malo') DEFAULT NULL");
-        }
-    }
+  foreach ($componentes as $nombre => $valor) {
+    $conn->query("UPDATE recibo_unidad SET `$nombre` = '{$conn->real_escape_string($valor)}' WHERE id_maquinaria = $id_maquinaria");
+  }
 
-    $cols = "";
-    $vals = "";
-    $datos = [];
-    foreach ($nuevos_componentes as $campo => $valor) {
-        $cols .= ", `$campo`";
-        $vals .= ", ?";
-        $datos[] = $valor;
-    }
+  $conn->query("UPDATE maquinaria SET condicion_estimada = $total_porcentaje WHERE id = $id_maquinaria");
 
-    $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada $cols) VALUES (?, ?, ?, NOW(), ?, ? $vals)";
-    $stmt = $conn->prepare($sql);
-    $tipos = "isssi" . str_repeat("s", count($datos));
-    $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $datos));
-    $stmt->execute();
-
-    $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
-    header("Location: ../inventario.php?guardado=1");
-    exit;
+  header("Location: recibo_unidad.php?id=$id_maquinaria");
+  exit;
 }
 ?>
