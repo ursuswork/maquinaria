@@ -11,6 +11,11 @@ if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
 }
 
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
+if (!$maquinaria) {
+  die("❌ Maquinaria no encontrada.");
+}
+
 $etapas = [
   "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
   "Trazar,cortar,rolar cuerpo" => 5,
@@ -59,106 +64,87 @@ foreach ($etapas as $nombre => $peso) {
 }
 $porcentaje = round(($peso_completado / $peso_total) * 100);
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Avance Bachadora</title>
-<style>
-  body {
-    background-color: #001f3f;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  .ficha {
-    background-color: #002b5c;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 1000px;
-    margin: 2rem auto;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  }
-  .btn-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-  }
-  .btn-etapa {
-    min-width: 180px;
-  }
-  .progress-bar.bg-warning {
-    background-color: #ffc107 !important;
-  }
-</style>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #121212; color: #fff; }
-    .etapa-btn { width: 100%; margin-bottom: 10px; }
-    .completada { background-color: #198754; color: white; font-weight: bold; }
+    body {
+      background-color: #001f3f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .ficha {
+      background-color: #012a5c;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 1100px;
+      margin: 2rem auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    h3, h5 {
+      color: #ffc107;
+      text-align: center;
+    }
+    .progress {
+      height: 35px;
+      background-color: #2c3e50;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background-color: #ffc107 !important;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .btn-toggle {
+      min-width: 280px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+    }
+    .completed {
+      background-color: #0056b3 !important;
+      color: white !important;
+      font-weight: bold;
+    }
+    .btn-outline-light:hover {
+      background-color: #ffc107;
+      color: #000;
+      font-weight: bold;
+    }
   </style>
-
-<style>
-  body {
-    background-color: #001f3f;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  .ficha {
-    background-color: #002b5c;
-    padding: 2rem;
-    border-radius: 1rem;
-    max-width: 1000px;
-    margin: 2rem auto;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  }
-  .btn-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-  }
-  .btn-etapa {
-    min-width: 180px;
-  }
-  .progress-bar.bg-warning {
-    background-color: #ffc107 !important;
-    color: black;
-    font-weight: bold;
-  }
-  .etapa-btn {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  .completada {
-    background-color: #004080;
-    color: white;
-    font-weight: bold;
-    border: 2px solid #ffc107;
-  }
-</style>
-
 </head>
-<body><div class="ficha">
-  <div class="ficha text-center">
-<h3 class="mb-4 text-warning">Avance: Bachadora</h3>
-<p class="fs-5 text-warning">Modelo: <?=$maquinaria['modelo']?> — Avance: <?=$porcentaje?>%</p><p class="text-light fw-bold">Modelo: <?= htmlspecialchars($modelo) ?></p>
-  <div class="progress mb-4 ficha" style="height: 30px;">
-    <div class="progress-bar bg-warning" style="width: <?= $porcentaje ?>%;">
-      <?= $porcentaje ?>%
+<body>
+  <div class="ficha">
+    <h3>Avance de Bachadora</h3>
+    <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+
+    <div class="mb-4">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <form method="post">
+        <?php foreach ($etapas as $etapa => $peso): ?>
+          <div class="col-md-6 col-lg-4 text-center">
+            <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+              <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+            </button>
+          </div>
+        <?php endforeach; ?>
+      </form>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
     </div>
   </div>
-  <form method="post">
-    <?php foreach ($etapas as $etapa => $peso): ?>
-      <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn etapa-btn <?= in_array($etapa, $realizadas) ? 'completada' : 'btn-outline-light' ?>">
-        <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-      </button>
-    <?php endforeach; ?>
-  </form>
-  <a href="inventario.php" class="btn btn-secondary mt-4">Volver al Inventario</a>
-</div></body>
+</body>
 </html>
