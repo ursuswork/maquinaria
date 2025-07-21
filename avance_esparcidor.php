@@ -21,7 +21,6 @@ if (strtolower(trim($maquinaria['tipo_maquinaria'])) !== 'nueva' || strtolower(t
     die("⚠️ Solo disponible para maquinaria nueva de subtipo 'esparcidor de sello'.");
 }
 
-// Etapas y pesos
 $etapas = [
     "ARMAR TANQUE" => [
         "Trazar, cortar, rolar y hacer ceja a tapas" => 5,
@@ -50,18 +49,14 @@ $etapas = [
     ]
 ];
 
-// Crear tabla si no existe
-$conn->query("
-    CREATE TABLE IF NOT EXISTS avance_esparcidor (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        id_maquinaria INT NOT NULL,
-        etapa VARCHAR(255) NOT NULL,
-        completado BOOLEAN DEFAULT FALSE,
-        UNIQUE KEY (id_maquinaria, etapa)
-    )
-");
+$conn->query("CREATE TABLE IF NOT EXISTS avance_esparcidor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_maquinaria INT NOT NULL,
+    etapa VARCHAR(255) NOT NULL,
+    completado BOOLEAN DEFAULT FALSE,
+    UNIQUE KEY (id_maquinaria, etapa)
+)");
 
-// Guardar cambios si se envió POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $etapa = $_POST['etapa'] ?? '';
     $accion = $_POST['accion'] ?? '';
@@ -74,14 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Leer avances marcados
 $completados = [];
 $res = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = $id_maquinaria AND completado = 1");
 while ($row = $res->fetch_assoc()) {
     $completados[] = $row['etapa'];
 }
 
-// Calcular porcentaje
 $total = 0;
 foreach ($etapas as $grupo) {
     foreach ($grupo as $nombre => $peso) {
@@ -99,34 +92,64 @@ foreach ($etapas as $grupo) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #050e57ff; color: #f1f1f1; }
-    .btn-toggle { min-width: 200px; margin-bottom: 8px; }
-    .completed { background-color: #249bceff !important; color: white !important; }
-    .progress { height: 30px; }
-    .progress-bar { font-weight: bold; }
+    body {
+        background-color: #001f3f;
+        color: #f1f1f1;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .ficha {
+        background-color: #002b5c;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 1000px;
+        margin: 2rem auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    h3 {
+        color: #ffc107;
+    }
+    .progress {
+        height: 35px;
+        background-color: #333;
+    }
+    .progress-bar {
+        background-color: #ffc107 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    .btn-toggle {
+        min-width: 240px;
+        margin: 6px;
+    }
+    .completed {
+        background-color: #0056b3 !important;
+        color: white !important;
+        font-weight: bold;
+    }
   </style>
 </head>
-<body class="p-4">
-  <div class="container">
-    <h3 class="mb-4">Avance de Esparcidor de Sello – <?= htmlspecialchars($maquinaria['nombre']) ?></h3>
+<body>
+  <div class="ficha">
+    <h3 class="text-center mb-3">Avance de Esparcidor de Sello</h3>
+    <h5 class="text-center mb-4 text-warning"><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
     <div class="mb-4">
       <div class="progress">
-        <div class="progress-bar bg-success" role="progressbar" style="width: <?= $total ?>%;" aria-valuenow="<?= $total ?>" aria-valuemin="0" aria-valuemax="100"><?= $total ?>%</div>
+        <div class="progress-bar" role="progressbar" style="width: <?= $total ?>%;" aria-valuenow="<?= $total ?>" aria-valuemin="0" aria-valuemax="100"><?= $total ?>%</div>
       </div>
     </div>
 
     <?php foreach ($etapas as $seccion => $items): ?>
-      <h5 class="mt-4 text-primary"><?= $seccion ?></h5>
+      <h5 class="mt-4 text-info"><?= $seccion ?></h5>
       <div class="row">
         <?php foreach ($items as $etapa => $peso): 
           $ya = in_array($etapa, $completados);
         ?>
           <div class="col-md-6">
-            <form method="POST" class="d-inline-block w-100">
+            <form method="POST" class="d-inline-block w-100 text-center">
               <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
               <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-              <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'btn-success completed' : 'btn-outline-light' ?>">
+              <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'completed' : 'btn-outline-light' ?>">
                 <?= $etapa ?> (<?= $peso ?>%)
               </button>
             </form>
@@ -135,7 +158,9 @@ foreach ($etapas as $grupo) {
       </div>
     <?php endforeach; ?>
 
-    <a href="inventario.php" class="btn btn-secondary mt-4">← Volver al Inventario</a>
+    <div class="text-center mt-4">
+      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
+    </div>
   </div>
 </body>
 </html>
