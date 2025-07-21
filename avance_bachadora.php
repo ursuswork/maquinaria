@@ -1,4 +1,3 @@
-<?php $modelo = $conn->query("SELECT modelo FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc()['modelo'] ?? ''; ?>
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
