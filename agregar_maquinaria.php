@@ -12,26 +12,10 @@ if (!isset($_SESSION['usuario'])) {
   <title>Agregar Maquinaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #001f3f;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .contenedor-formulario {
-      background-color: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      width: 100%;
-      max-width: 600px;
-    }
-  </style>
+  
+  <link rel="stylesheet" href="estilos_colores.css">
 </head>
-<body>
+<body class="bg-dark text-white">
 
   <div class="contenedor-formulario">
     <h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
@@ -92,3 +76,4 @@ if (!isset($_SESSION['usuario'])) {
 
 </body>
 </html>
+
