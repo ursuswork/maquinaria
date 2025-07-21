@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -95,43 +94,47 @@ foreach ($etapas as $grupo) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #121212; color: #f1f1f1; }
-    .btn-toggle { min-width: 200px; margin-bottom: 8px; }
-    .completed { background-color: #198754 !important; color: white !important; }
-    .progress { height: 30px; }
-    .progress-bar { font-weight: bold; }
+    body { background-color: #050e57; color: #fff; }
+    h3, h5 { color: #ffc107; }
+    .btn-toggle { min-width: 250px; margin-bottom: 10px; }
+    .completed { background-color: #249bce !important; color: white !important; }
+    .progress { height: 32px; background-color: #ddd; }
+    .progress-bar { background-color: #ffc107 !important; font-weight: bold; font-size: 16px; }
   </style>
 </head>
 <body class="p-4">
   <div class="container">
-    <h3 class="mb-4">Avance de Petrolizadora – <?= htmlspecialchars($maquinaria['nombre']) ?></h3>
-
-    <div class="mb-4">
-      <div class="progress">
-        <div class="progress-bar bg-success" role="progressbar" style="width: <?= $total ?>%;" aria-valuenow="<?= $total ?>" aria-valuemin="0" aria-valuemax="100"><?= $total ?>%</div>
-      </div>
-    </div>
-
-    <?php foreach ($etapas as $seccion => $items): ?>
-      <h5 class="mt-4 text-primary"><?= $seccion ?></h5>
-      <div class="row">
-        <?php foreach ($items as $etapa => $peso): 
-          $ya = in_array($etapa, $completados);
-        ?>
-          <div class="col-md-6">
-            <form method="POST" class="d-inline-block w-100">
-              <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
-              <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-              <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'btn-success completed' : 'btn-outline-light' ?>">
-                <?= $etapa ?> (<?= $peso ?>%)
-              </button>
-            </form>
+    <div class="bg-dark p-4 rounded shadow">
+      <h3 class="mb-3">Avance de Petrolizadora – <?= htmlspecialchars($maquinaria['nombre']) ?> (<?= htmlspecialchars($maquinaria['modelo']) ?>)</h3>
+      <div class="mb-4">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: <?= $total ?>%;" aria-valuenow="<?= $total ?>" aria-valuemin="0" aria-valuemax="100">
+            <?= $total ?>%
           </div>
-        <?php endforeach; ?>
+        </div>
       </div>
-    <?php endforeach; ?>
 
-    <a href="inventario.php" class="btn btn-secondary mt-4">← Volver al Inventario</a>
+      <?php foreach ($etapas as $seccion => $items): ?>
+        <h5 class="mt-4"><?= $seccion ?></h5>
+        <div class="row">
+          <?php foreach ($items as $etapa => $peso): 
+            $ya = in_array($etapa, $completados);
+          ?>
+            <div class="col-md-6">
+              <form method="POST" class="d-inline-block w-100">
+                <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
+                <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
+                <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'btn-success completed' : 'btn-outline-light' ?>">
+                  <?= $etapa ?> (<?= $peso ?>%)
+                </button>
+              </form>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endforeach; ?>
+
+      <a href="inventario.php" class="btn btn-secondary mt-4">&larr; Volver al Inventario</a>
+    </div>
   </div>
 </body>
 </html>
