@@ -69,7 +69,7 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
   <style>
     body { background-color: #121212; color: #fff; }
     .etapa-btn { width: 100%; margin-bottom: 10px; }
-    .completada { background-color: #2f1fc0ff; color: white; font-weight: bold; }
+    .completada { background-color: #198754; color: white; font-weight: bold; }
   </style>
 </head>
 <body class="container py-4">
