@@ -1,4 +1,3 @@
-
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -34,15 +33,25 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #210778ff; color: #ffffff; }
-    .card-maquinaria { background-color: #f6e71aff; border: 1px solid #333; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-    .progress { background-color: #333; }
-    .progress-bar { font-weight: bold; }
+    body { background-color: #001f3f; color: #ffffff; }
+    .card-maquinaria { background-color: #002b5c; border: 1px solid #004080; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .progress { background-color: #003366; }
+    .progress-bar { background-color: #ffc107; color: #001f3f; font-weight: bold; }
     .btn, .nav-link { border-radius: 10px; }
+    .btn-outline-primary { color: #007bff; border-color: #007bff; }
+    .btn-outline-primary:hover { background-color: #007bff; color: white; }
+    .btn-outline-success { color: #ffc107; border-color: #ffc107; }
+    .btn-outline-success:hover { background-color: #ffc107; color: #001f3f; }
+    .btn-outline-danger { color: #dc3545; border-color: #dc3545; }
+    .btn-outline-danger:hover { background-color: #dc3545; color: white; }
+    .btn-outline-secondary { color: #ffc107; border-color: #ffc107; }
+    .btn-outline-secondary:hover { background-color: #ffc107; color: #001f3f; }
+    .btn-success { background-color: #007bff; border-color: #007bff; }
+    .btn-success:hover { background-color: #0056b3; }
     .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
-    .nav-tabs .nav-link.active { background-color: #0f275bff; color: white; }
-    .nav-tabs .nav-link { color: #ccc; }
-  </style>
+    .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
+    .nav-tabs .nav-link { color: #ffffff; }
+</style>
 </head>
 <body>
 <div class="container py-4">
