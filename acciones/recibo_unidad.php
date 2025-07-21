@@ -6,6 +6,11 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  header("Location: ../inventario.php");
+  exit;
+}
+
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) {
   die("❌ ID de maquinaria inválido.");
@@ -38,8 +43,8 @@ function botonOpciones($nombre, $valor_existente) {
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
-  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "COPLES", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)", "SENSORES"],
+  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
   "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
@@ -80,38 +85,14 @@ $secciones = [
       border: 1px solid #0059b3;
       margin-bottom: 1rem;
     }
-    .btn-warning {
-      background-color: #ffc107;
-      border: none;
-      font-weight: bold;
-      color: #000;
-    }
-    .btn-check:checked + .btn-warning {
-      background-color: #007bff;
-      color: #fff;
-    }
-    .progress-bar {
-      background-color: #ffc107 !important;
-      color: #000;
-      font-weight: bold;
-    }
+    .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
+    .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
   </style>
 </head>
 <body>
-  <div class="container py-4 formulario-recibo">
-    <h3 class="text-center mb-4">Recibo de Unidad</h3>
-    <?php if (isset($recibo_existente['condicion_estimada'])): ?>
-      <div class="my-3 text-center">
-        <label class="form-label fw-bold">Condición Estimada</label>
-        <div class="progress" style="height: 30px;">
-          <div class="progress-bar" role="progressbar" style="width: <?=$recibo_existente['condicion_estimada']?>%;" aria-valuenow="<?=$recibo_existente['condicion_estimada']?>" aria-valuemin="0" aria-valuemax="100">
-            <?=$recibo_existente['condicion_estimada']?>%
-          </div>
-        </div>
-      </div>
-    <?php endif; ?>
-    <form method="POST" action="guardar_recibo.php">
-      <input type="hidden" name="id_maquinaria" value="<?=$id_maquinaria?>">
+  <div class="container py-4">
+    <h3 class="text-center">Recibo de Unidad</h3>
+    <form method="POST">
       <div class="row mb-3">
         <div class="col-md-4">
           <label class="form-label">Equipo</label>
@@ -127,21 +108,18 @@ $secciones = [
         </div>
       </div>
       <?php foreach ($secciones as $titulo => $componentes): ?>
-        <h5 class="mt-4">Sección: <?=htmlspecialchars($titulo)?></h5>
+        <hr>
+        <h5><?=htmlspecialchars($titulo)?></h5>
         <div class="row">
-          <?php foreach ($componentes as $comp): ?>
-            <div class="col-md-6">
-              <?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?>
-            </div>
-          <?php endforeach; ?>
+        <?php foreach ($componentes as $comp): ?>
+          <div class="col-md-6">
+            <?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?>
+          </div>
+        <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
-      <div class="mt-4">
-        <label class="form-label">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
-      </div>
       <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success">💾 Guardar</button>
+        <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
       </div>
     </form>
   </div>
