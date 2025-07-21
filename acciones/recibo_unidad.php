@@ -59,6 +59,54 @@ $secciones = [
       .btn, .navbar, .no-imprimir { display: none !important; }
     }
   </style>
+
+<style>
+  body {
+    background-color: #001f3f;
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .container {
+    background-color: #002b5c;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 1200px;
+    margin: auto;
+    box-shadow: 0 0 20px #000;
+  }
+  h3, h4, h5 {
+    color: #ffffff;
+    border-bottom: 2px solid #ffc107;
+    padding-bottom: .5rem;
+  }
+  .form-label {
+    color: #ffc107;
+    font-weight: bold;
+  }
+  .form-control, .form-select {
+    background-color: #003366;
+    color: #ffffff;
+    border: 1px solid #0059b3;
+    margin-bottom: 1rem;
+  }
+  .btn-primary {
+    background-color: #0056b3;
+    border: none;
+    font-weight: bold;
+  }
+  .btn-success {
+    background-color: #28a745;
+    border: none;
+    font-weight: bold;
+  }
+  .btn-warning {
+    background-color: #ffc107;
+    border: none;
+    font-weight: bold;
+    color: #000;
+  }
+</style>
+
 </head>
 <body class="bg-light">
   <div class="container py-4 formulario-recibo">
@@ -136,7 +184,13 @@ $secciones = [
         <button type="submit" class="btn btn-success">💾 Guardar</button>
         <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Recibo</button>
       </div>
-    </form>
+    
+      <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+        <a href="../inventario.php" class="btn btn-warning">← Volver al Inventario</a>
+        <a href="exportar_excel_recibo.php?id=<?= $id_maquinaria ?>" class="btn btn-success">📤 Exportar a Excel</a>
+      </div>
+
+</form>
   </div>
 </body>
 </html>
