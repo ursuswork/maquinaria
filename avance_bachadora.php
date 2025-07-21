@@ -1,3 +1,4 @@
+<?php $modelo = $conn->query("SELECT modelo FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc()['modelo'] ?? ''; ?>
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -100,11 +101,54 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     .etapa-btn { width: 100%; margin-bottom: 10px; }
     .completada { background-color: #198754; color: white; font-weight: bold; }
   </style>
+
+<style>
+  body {
+    background-color: #001f3f;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .ficha {
+    background-color: #002b5c;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+  .btn-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .btn-etapa {
+    min-width: 180px;
+  }
+  .progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+    color: black;
+    font-weight: bold;
+  }
+  .etapa-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .completada {
+    background-color: #004080;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #ffc107;
+  }
+</style>
+
 </head>
-<body class="container py-4">
-  <h3 class="mb-4">Avance: Bachadora</h3>
-  <div class="progress mb-4" style="height: 30px;">
-    <div class="progress-bar bg-info" style="width: <?= $porcentaje ?>%;">
+<body><div class="ficha">
+  <div class="ficha text-center">
+<h3 class="mb-4">Avance: Bachadora</h3><p class="text-light fw-bold">Modelo: <?= htmlspecialchars($modelo) ?></p>
+  <div class="progress mb-4 ficha" style="height: 30px;">
+    <div class="progress-bar bg-warning" style="width: <?= $porcentaje ?>%;">
       <?= $porcentaje ?>%
     </div>
   </div>
@@ -116,5 +160,5 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     <?php endforeach; ?>
   </form>
   <a href="inventario.php" class="btn btn-secondary mt-4">Volver al Inventario</a>
-</body>
+</div></body>
 </html>
