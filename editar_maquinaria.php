@@ -11,11 +11,11 @@ if ($id <= 0) {
   die("❌ ID inválido.");
 }
 
-$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")-&gt;fetch_assoc();
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
 if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
-?&gt;
+?>
 <!DOCTYPE html>
 
 <html lang="es">
@@ -62,40 +62,40 @@ if (!$maquinaria) {
 <div class="contenedor-editar">
 <h4 class="text-center mb-4 text-primary">Editar Maquinaria</h4>
 <form action="procesar_editar.php" enctype="multipart/form-data" method="POST">
-<input class="form-control mb-3" name="id" type="hidden" value="&lt;?= $maquinaria['id'] ?&gt;"/>
+<input class="form-control mb-3" name="id" type="hidden" value="<?= $maquinaria['id'] ?>"/>
 <div class="mb-3">
 <label class="form-label form-label text-warning">Nombre</label>
-<input class="form-control form-control mb-3" name="nombre" required="" type="text" value="&lt;?= htmlspecialchars($maquinaria['nombre']) ?&gt;"/>
+<input class="form-control form-control mb-3" name="nombre" required="" type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label form-label text-warning">Modelo</label>
-<input class="form-control form-control mb-3" name="modelo" required="" type="text" value="&lt;?= htmlspecialchars($maquinaria['modelo']) ?&gt;"/>
+<input class="form-control form-control mb-3" name="modelo" required="" type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label form-label text-warning">Ubicación</label>
-<input class="form-control form-control mb-3" name="ubicacion" required="" type="text" value="&lt;?= htmlspecialchars($maquinaria['ubicacion']) ?&gt;"/>
+<input class="form-control form-control mb-3" name="ubicacion" required="" type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label form-label text-warning">Tipo</label>
 <select class="form-select form-control mb-3" id="tipo" name="tipo_maquinaria" required="">
-<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="nueva" ?="" value="nueva">&gt;Nueva</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="usada" ?="" value="usada">&gt;Usada</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="nueva" ?="" value="nueva">>Nueva</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="usada" ?="" value="usada">>Usada</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo-container" style="display: none;">
 <label class="form-label form-label text-warning">Subtipo</label>
 <select class="form-select form-control mb-3" name="subtipo">
 <option value="">Selecciona una opción</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="petrolizadora" ?="" value="petrolizadora">&gt;Petrolizadora</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="esparcidor de sello" ?="" value="esparcidor de sello">&gt;Esparcidor de sello</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="tanque de almacen" ?="" value="tanque de almacen">&gt;Tanque de almacén</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="bachadora" ?="" value="bachadora">&gt;Bachadora</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="planta de mezcla en frio" ?="" value="planta de mezcla en frio">&gt;Planta de mezcla en frío</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="petrolizadora" ?="" value="petrolizadora">>Petrolizadora</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="esparcidor de sello" ?="" value="esparcidor de sello">>Esparcidor de sello</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="tanque de almacen" ?="" value="tanque de almacen">>Tanque de almacén</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="bachadora" ?="" value="bachadora">>Bachadora</option>
+<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="planta de mezcla en frio" ?="" value="planta de mezcla en frio">>Planta de mezcla en frío</option>
 </select>
 </div>
 <?php if (!empty($maquinaria['imagen'])): ?>
 <label class="form-label form-label text-warning">Imagen actual:</label>
-<img class="preview" src="imagenes/&lt;?= $maquinaria['imagen'] ?&gt;"/>
+<img class="preview" src="imagenes/<?= $maquinaria['imagen'] ?>"/>
 <?php endif; ?>
 <div class="mb-3">
 <label class="form-label form-label text-warning">Nueva imagen (opcional)</label>
