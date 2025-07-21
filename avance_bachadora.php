@@ -1,3 +1,4 @@
+<?php $modelo = $conn->query("SELECT modelo FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc()['modelo'] ?? ''; ?>
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
@@ -75,7 +76,7 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     background-color: #002b5c;
     padding: 2rem;
     border-radius: 1rem;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 2rem auto;
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
   }
@@ -111,7 +112,7 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     background-color: #002b5c;
     padding: 2rem;
     border-radius: 1rem;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 2rem auto;
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
   }
@@ -145,7 +146,8 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
 </head>
 <body><div class="ficha">
   <div class="ficha text-center">
-<h3 class="mb-4">Avance: Bachadora</h3><p class="text-light fw-bold">Modelo: <?= htmlspecialchars($modelo) ?></p>
+<h3 class="mb-4 text-warning">Avance: Bachadora</h3>
+<p class="fs-5 text-warning">Modelo: <?=$maquinaria['modelo']?> — Avance: <?=$porcentaje?>%</p><p class="text-light fw-bold">Modelo: <?= htmlspecialchars($modelo) ?></p>
   <div class="progress mb-4 ficha" style="height: 30px;">
     <div class="progress-bar bg-warning" style="width: <?= $porcentaje ?>%;">
       <?= $porcentaje ?>%
