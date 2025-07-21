@@ -6,40 +6,17 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  header("Location: ../inventario.php");
-  exit;
-}
-
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) {
   die("❌ ID de maquinaria inválido.");
 }
+
 $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
-$recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
-
-function botonOpciones($nombre, $valor_existente) {
-  return "
-    <div class='mb-2'>
-      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . "</label><br>
-      <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
-        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_bueno'>Bueno</label>
-
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
-        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_regular'>Regular</label>
-
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
-        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_malo'>Malo</label>
-      </div>
-    </div>
-  ";
-}
-
+// Secciones y componentes
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
@@ -48,13 +25,86 @@ $secciones = [
   "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
+
+$recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
+
+// Guardar
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $componentes = $_POST['componentes'] ?? [];
+  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+
+  $pesos = [
+    "MOTOR" => 15,
+    "SISTEMA MECÁNICO" => 15,
+    "SISTEMA HIDRÁULICO" => 30,
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
+    "ESTÉTICO" => 5,
+    "CONSUMIBLES" => 10
+  ];
+  $puntajes = ["bueno" => 100, "regular" => 50, "malo" => 0];
+  $total = 0;
+
+  foreach ($secciones as $seccion => $items) {
+    $suma = 0;
+    foreach ($items as $item) {
+      $val = $componentes[$item] ?? 'regular';
+      $suma += $puntajes[$val];
+    }
+    $promedio = $suma / count($items);
+    $total += $promedio * ($pesos[$seccion] / 100);
+  }
+
+  $condicion_estimada = round($total, 2);
+  $existe = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
+
+  if ($existe) {
+    $sql = "UPDATE recibo_unidad SET condicion_estimada = $condicion_estimada, observaciones = '$observaciones'";
+    foreach ($componentes as $clave => $valor) {
+      $sql .= ", `$clave` = '" . $conn->real_escape_string($valor) . "'";
+    }
+    $sql .= " WHERE id_maquinaria = $id_maquinaria";
+  } else {
+    $campos = "`id_maquinaria`, `condicion_estimada`, `observaciones`";
+    $valores = "$id_maquinaria, $condicion_estimada, '$observaciones'";
+    foreach ($componentes as $clave => $valor) {
+      $campos .= ", `$clave`";
+      $valores .= ", '" . $conn->real_escape_string($valor) . "'";
+    }
+    $sql = "INSERT INTO recibo_unidad ($campos) VALUES ($valores)";
+  }
+
+  $conn->query($sql);
+  $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion_estimada WHERE id = $id_maquinaria");
+  header("Location: ../inventario.php");
+  exit;
+}
+
+// Función de botones
+function botonOpciones($nombre, $valor_existente) {
+  return "
+    <div class='mb-2'>
+      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . "</label><br>
+      <div class='btn-group' role='group'>
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$nombre}_bueno'>Bueno</label>
+
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$nombre}_regular'>Regular</label>
+
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$nombre}_malo'>Malo</label>
+      </div>
+    </div>
+  ";
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recibo de Unidad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -74,6 +124,7 @@ $secciones = [
       color: #ffc107;
       border-bottom: 2px solid #ffc107;
       padding-bottom: .5rem;
+      margin-bottom: 1rem;
     }
     .form-label {
       color: #ffc107;
@@ -87,6 +138,11 @@ $secciones = [
     }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
     .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
+
+    @media print {
+      .btn, textarea, input[type="radio"], label.btn { display: none !important; }
+      body { background: #fff; color: #000; }
+    }
   </style>
 </head>
 <body>
@@ -108,36 +164,41 @@ $secciones = [
       <div class="row mb-3">
         <div class="col-md-4">
           <label class="form-label">Equipo</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly>
+          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['nombre']) ?>" readonly>
         </div>
         <div class="col-md-4">
           <label class="form-label">Marca</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly>
+          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['marca']) ?>" readonly>
         </div>
         <div class="col-md-4">
           <label class="form-label">Modelo</label>
-          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly>
+          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
         </div>
       </div>
+
       <?php foreach ($secciones as $titulo => $componentes): ?>
         <hr>
-        <h5><?=htmlspecialchars($titulo)?></h5>
+        <h5><?= htmlspecialchars($titulo) ?></h5>
         <div class="row">
-        <?php foreach ($componentes as $comp): ?>
-          <div class="col-md-6">
-            <?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?>
-          </div>
-        <?php endforeach; ?>
+          <?php foreach ($componentes as $comp): ?>
+            <div class="col-md-6">
+              <?= botonOpciones($comp, $recibo_existente[$comp] ?? '') ?>
+            </div>
+          <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
+
       <div class="mb-3">
         <label class="form-label">Observaciones</label>
         <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
       </div>
+
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
+        <button type="button" onclick="window.print()" class="btn btn-primary px-4 py-2 ms-2">Imprimir</button>
       </div>
     </form>
   </div>
 </body>
 </html>
+
