@@ -93,24 +93,27 @@ foreach ($etapas as $grupo) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-        background-color: #001f3f;
+        background: linear-gradient(135deg, #001933, #004080);
         color: #f1f1f1;
         font-family: 'Segoe UI', sans-serif;
     }
     .ficha {
-        background-color: #002b5c;
-        padding: 2rem;
-        border-radius: 1rem;
-        max-width: 1000px;
+        background-color: #012a5c;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        max-width: 1100px;
         margin: 2rem auto;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     }
-    h3 {
+    h3, h5 {
         color: #ffc107;
+        text-align: center;
     }
     .progress {
         height: 35px;
-        background-color: #333;
+        background-color: #2c3e50;
+        border-radius: 1rem;
+        overflow: hidden;
     }
     .progress-bar {
         background-color: #ffc107 !important;
@@ -118,20 +121,28 @@ foreach ($etapas as $grupo) {
         font-size: 1.2rem;
     }
     .btn-toggle {
-        min-width: 240px;
-        margin: 6px;
+        min-width: 280px;
+        margin: 10px auto;
+        display: block;
+        border-radius: 1rem;
+        font-size: 0.95rem;
     }
     .completed {
         background-color: #0056b3 !important;
         color: white !important;
         font-weight: bold;
     }
+    .btn-outline-light:hover {
+        background-color: #ffc107;
+        color: #000;
+        font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="ficha">
-    <h3 class="text-center mb-3">Avance de Esparcidor de Sello</h3>
-    <h5 class="text-center mb-4 text-warning"><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+    <h3>Avance de Esparcidor de Sello</h3>
+    <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
     <div class="mb-4">
       <div class="progress">
@@ -140,13 +151,13 @@ foreach ($etapas as $grupo) {
     </div>
 
     <?php foreach ($etapas as $seccion => $items): ?>
-      <h5 class="mt-4 text-info"><?= $seccion ?></h5>
-      <div class="row">
+      <h5 class="mt-4 text-info text-center"><?= $seccion ?></h5>
+      <div class="row justify-content-center">
         <?php foreach ($items as $etapa => $peso): 
           $ya = in_array($etapa, $completados);
         ?>
-          <div class="col-md-6">
-            <form method="POST" class="d-inline-block w-100 text-center">
+          <div class="col-md-6 col-lg-4">
+            <form method="POST" class="text-center">
               <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
               <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
               <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'completed' : 'btn-outline-light' ?>">
