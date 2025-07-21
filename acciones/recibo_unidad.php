@@ -71,7 +71,7 @@ $secciones = [
       padding-bottom: .5rem;
     }
     .form-label {
-      color: #ffc107;
+      color: #0872a7ff;
       font-weight: bold;
     }
     .form-control, .form-select {
