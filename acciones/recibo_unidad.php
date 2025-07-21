@@ -7,6 +7,7 @@ if (!isset($_SESSION['usuario'])) {
 include '../conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Aquí puedes procesar el guardado si lo deseas
   header("Location: ../inventario.php");
   exit;
 }
@@ -87,11 +88,22 @@ $secciones = [
     }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
     .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
+    .progress-bar { background-color: #ffc107 !important; color: #000; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="container py-4">
     <h3 class="text-center">Recibo de Unidad</h3>
+    <?php if (isset($recibo_existente['condicion_estimada'])): ?>
+      <div class="my-3 text-center">
+        <label class="form-label fw-bold">Condición Estimada</label>
+        <div class="progress" style="height: 30px;">
+          <div class="progress-bar" role="progressbar" style="width: <?=$recibo_existente['condicion_estimada']?>%;" aria-valuenow="<?=$recibo_existente['condicion_estimada']?>" aria-valuemin="0" aria-valuemax="100">
+            <?=$recibo_existente['condicion_estimada']?>%
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
     <form method="POST">
       <div class="row mb-3">
         <div class="col-md-4">
@@ -118,6 +130,10 @@ $secciones = [
         <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
+      <div class="mt-4">
+        <label class="form-label">Observaciones</label>
+        <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
+      </div>
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
       </div>
