@@ -34,8 +34,8 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #2d08a8ff; color: #ffffff; }
-    .card-maquinaria { background-color: #fbfafcff; border: 1px solid #333; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    body { background-color: #210778ff; color: #ffffff; }
+    .card-maquinaria { background-color: #3d0971ff; border: 1px solid #333; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .progress { background-color: #333; }
     .progress-bar { font-weight: bold; }
     .btn, .nav-link { border-radius: 10px; }
