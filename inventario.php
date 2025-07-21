@@ -35,12 +35,12 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #210778ff; color: #ffffff; }
-    .card-maquinaria { background-color: #f0ecf4ff; border: 1px solid #333; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .card-maquinaria { background-color: #881af6ff; border: 1px solid #333; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .progress { background-color: #333; }
     .progress-bar { font-weight: bold; }
     .btn, .nav-link { border-radius: 10px; }
     .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
-    .nav-tabs .nav-link.active { background-color: #ccff00ff; color: white; }
+    .nav-tabs .nav-link.active { background-color: #0f275bff; color: white; }
     .nav-tabs .nav-link { color: #ccc; }
   </style>
 </head>
