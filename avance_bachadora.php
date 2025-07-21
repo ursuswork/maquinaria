@@ -65,6 +65,35 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
 <head>
   <meta charset="UTF-8">
   <title>Avance Bachadora</title>
+<style>
+  body {
+    background-color: #001f3f;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .ficha {
+    background-color: #002b5c;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+  .btn-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .btn-etapa {
+    min-width: 180px;
+  }
+  .progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+  }
+</style>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #121212; color: #fff; }
