@@ -87,7 +87,7 @@ $secciones = [
       color: #000;
     }
     .progress-bar {
-      background-color: #07c1ffff !important;
+      background-color: #ffc107 !important;
       color: #000;
       font-weight: bold;
     }
@@ -106,43 +106,6 @@ $secciones = [
         </div>
       </div>
     <?php endif; ?>
-    <form method="POST" action="guardar_recibo.php">
-      <input type="hidden" name="id_maquinaria" value="<?=$id_maquinaria?>">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label class="form-label">Empresa Origen</label>
-          <input type="text" name="empresa_origen" class="form-control" value="<?=htmlspecialchars($recibo_existente['empresa_origen'] ?? '')?>">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Empresa Destino</label>
-          <input type="text" name="empresa_destino" class="form-control" value="<?=htmlspecialchars($recibo_existente['empresa_destino'] ?? '')?>">
-        </div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-md-4"><label class="form-label">Equipo</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly></div>
-        <div class="col-md-4"><label class="form-label">Marca</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly></div>
-        <div class="col-md-4"><label class="form-label">Modelo</label><input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly></div>
-      </div>
-      <?php foreach ($secciones as $titulo => $componentes): ?>
-        <hr>
-        <h5 class="text-secondary fw-bold border-bottom pb-1 mt-4">Sección: <?=htmlspecialchars($titulo)?></h5>
-        <div class="row"><?php foreach (array_unique($componentes) as $comp): ?>
-          <div class="col-md-6"><?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?></div>
-        <?php endforeach; ?></div>
-      <?php endforeach; ?>
-      <div class="mt-4">
-        <label class="form-label">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
-      </div>
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success">💾 Guardar</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Recibo</button>
-      </div>
-      <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-        <a href="../inventario.php" class="btn btn-warning">← Volver al Inventario</a>
-        <a href="exportar_excel_recibo.php?id=<?= $id_maquinaria ?>" class="btn btn-success">📤 Exportar a Excel</a>
-      </div>
-    </form>
   </div>
 </body>
 </html>
