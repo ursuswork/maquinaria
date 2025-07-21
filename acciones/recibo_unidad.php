@@ -22,13 +22,13 @@ function botonOpciones($nombre, $valor_existente) {
     <div class='mb-2'>
       <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . "</label><br>
       <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno' " . ($valor_existente == 'bueno' ? 'checked' : '') . ">
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
         <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_bueno'>Bueno</label>
 
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular' " . ($valor_existente == 'regular' ? 'checked' : '') . ">
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
         <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_regular'>Regular</label>
 
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo' " . ($valor_existente == 'malo' ? 'checked' : '') . ">
+        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
         <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_malo'>Malo</label>
       </div>
     </div>
@@ -86,6 +86,10 @@ $secciones = [
       font-weight: bold;
       color: #000;
     }
+    .btn-check:checked + .btn-warning {
+      background-color: #007bff;
+      color: #fff;
+    }
     .progress-bar {
       background-color: #ffc107 !important;
       color: #000;
@@ -106,6 +110,40 @@ $secciones = [
         </div>
       </div>
     <?php endif; ?>
+    <form method="POST" action="guardar_recibo.php">
+      <input type="hidden" name="id_maquinaria" value="<?=$id_maquinaria?>">
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Equipo</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['nombre'])?>" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marca</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['marca'])?>" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Modelo</label>
+          <input type="text" class="form-control" value="<?=htmlspecialchars($maquinaria['modelo'])?>" readonly>
+        </div>
+      </div>
+      <?php foreach ($secciones as $titulo => $componentes): ?>
+        <h5 class="mt-4">Sección: <?=htmlspecialchars($titulo)?></h5>
+        <div class="row">
+          <?php foreach ($componentes as $comp): ?>
+            <div class="col-md-6">
+              <?=botonOpciones($comp, $recibo_existente[$comp] ?? '')?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endforeach; ?>
+      <div class="mt-4">
+        <label class="form-label">Observaciones</label>
+        <textarea name="observaciones" class="form-control" rows="3"><?=htmlspecialchars($recibo_existente['observaciones'] ?? '')?></textarea>
+      </div>
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+      </div>
+    </form>
   </div>
 </body>
 </html>
