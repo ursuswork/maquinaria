@@ -23,13 +23,13 @@ function botonOpciones($nombre, $valor_existente) {
       <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . "</label><br>
       <div class='btn-group' role='group'>
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno' " . ($valor_existente == 'bueno' ? 'checked' : '') . ">
-        <label class='btn btn-primary btn-md px-4 py-2' for='{$nombre}_bueno'>Bueno</label>
+        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_bueno'>Bueno</label>
 
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular' " . ($valor_existente == 'regular' ? 'checked' : '') . ">
-        <label class='btn btn-primary btn-md px-4 py-2' for='{$nombre}_regular'>Regular</label>
+        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_regular'>Regular</label>
 
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo' " . ($valor_existente == 'malo' ? 'checked' : '') . ">
-        <label class='btn btn-primary btn-md px-4 py-2' for='{$nombre}_malo'>Malo</label>
+        <label class='btn btn-warning btn-md px-4 py-2' for='{$nombre}_malo'>Malo</label>
       </div>
     </div>
   ";
@@ -79,16 +79,6 @@ $secciones = [
       color: #ffffff;
       border: 1px solid #0059b3;
       margin-bottom: 1rem;
-    }
-    .btn-primary {
-      background-color: #0056b3;
-      border: none;
-      font-weight: bold;
-    }
-    .btn-success {
-      background-color: #28a745;
-      border: none;
-      font-weight: bold;
     }
     .btn-warning {
       background-color: #ffc107;
