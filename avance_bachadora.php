@@ -16,7 +16,7 @@ if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
-$etapas = [
+$etapas_arma = [
   "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
   "Trazar,cortar,rolar cuerpo" => 5,
   "Armar cuerpo" => 5,
@@ -28,6 +28,9 @@ $etapas = [
   "Colocar accesorios" => 5,
   "Armar ejes" => 5,
   "Armar jalon" => 5,
+];
+
+$etapas_bachadora = [
   "Armar barra" => 5,
   "Armar chasis de bomba y motor" => 5,
   "Armar accesorios" => 5,
@@ -38,6 +41,8 @@ $etapas = [
   "Checar y tapar fugas" => 5,
   "Probar equipo" => 5,
 ];
+
+$etapas = $etapas_arma + $etapas_bachadora;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
@@ -130,17 +135,29 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       </div>
     </div>
 
-    <div class="row justify-content-center">
-      <form method="post">
-        <?php foreach ($etapas as $etapa => $peso): ?>
+    <form method="post">
+      <h5 class="mt-4 text-info text-center">ARMAR TANQUE</h5>
+      <div class="row justify-content-center">
+        <?php foreach ($etapas_arma as $etapa => $peso): ?>
           <div class="col-md-6 col-lg-4 text-center">
             <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
               <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
             </button>
           </div>
         <?php endforeach; ?>
-      </form>
-    </div>
+      </div>
+
+      <h5 class="mt-4 text-info text-center">BACHADORA</h5>
+      <div class="row justify-content-center">
+        <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+          <div class="col-md-6 col-lg-4 text-center">
+            <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+              <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+            </button>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </form>
 
     <div class="text-center mt-4">
       <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
