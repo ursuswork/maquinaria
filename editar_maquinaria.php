@@ -78,19 +78,20 @@ if (!$maquinaria) {
 <div class="mb-3">
 <label class="form-label form-label text-warning">Tipo</label>
 <select class="form-select form-control mb-3" id="tipo" name="tipo_maquinaria" required="">
-<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="nueva" ?="" value="nueva">>Nueva</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['tipo_maquinaria']" =="usada" ?="" value="usada">>Usada</option>
+<option value="nueva" <?= $maquinaria['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
+<option value="usada" <?= $maquinaria['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo-container" style="display: none;">
 <label class="form-label form-label text-warning">Subtipo</label>
 <select class="form-select form-control mb-3" name="subtipo">
 <option value="">Selecciona una opción</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="petrolizadora" ?="" value="petrolizadora">>Petrolizadora</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="esparcidor de sello" ?="" value="esparcidor de sello">>Esparcidor de sello</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="tanque de almacen" ?="" value="tanque de almacen">>Tanque de almacén</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="bachadora" ?="" value="bachadora">>Bachadora</option>
-<option ''="" 'selected'="" :="" <?="$maquinaria['subtipo']" =="planta de mezcla en frio" ?="" value="planta de mezcla en frio">>Planta de mezcla en frío</option>
+<option value="">Selecciona una opción</option>
+<option value="petrolizadora" <?= $maquinaria['subtipo'] == 'petrolizadora' ? 'selected' : '' ?>>Petrolizadora</option>
+<option value="esparcidor de sello" <?= $maquinaria['subtipo'] == 'esparcidor de sello' ? 'selected' : '' ?>>Esparcidor de sello</option>
+<option value="tanque de almacen" <?= $maquinaria['subtipo'] == 'tanque de almacen' ? 'selected' : '' ?>>Tanque de almacén</option>
+<option value="bachadora" <?= $maquinaria['subtipo'] == 'bachadora' ? 'selected' : '' ?>>Bachadora</option>
+<option value="planta de mezcla en frio" <?= $maquinaria['subtipo'] == 'planta de mezcla en frio' ? 'selected' : '' ?>>Planta de mezcla en frío</option>
 </select>
 </div>
 <?php if (!empty($maquinaria['imagen'])): ?>
