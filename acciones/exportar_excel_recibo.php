@@ -1,75 +1,70 @@
 <?php
-require '../vendor/autoload.php';
+session_start();
+if (!isset($_SESSION['usuario'])) {
+    header("Location: ../index.php");
+    exit;
+}
 include '../conexion.php';
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
-$id_maquinaria = intval($_GET['id'] ?? 0);
-if ($id_maquinaria <= 0) {
-  die("ID inválido.");
+$id = intval($_GET['id'] ?? 0);
+if ($id <= 0) {
+    die("❌ ID inválido.");
 }
 
-$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
-$recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id")->fetch_assoc();
+$recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id")->fetch_assoc();
 
 if (!$maquinaria || !$recibo) {
-  die("Datos no encontrados.");
+    die("❌ Datos no encontrados.");
 }
 
-$spreadsheet = new Spreadsheet();
-$sheet = $spreadsheet->getActiveSheet();
-$sheet->setTitle("Recibo Unidad");
+// Cabeceras para Excel
+header("Content-Type: application/vnd.ms-excel");
+header("Content-Disposition: attachment; filename=recibo_maquinaria_{$id}.xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 
-// Encabezados principales
-$sheet->setCellValue('A1', 'Recibo de Unidad');
-$sheet->mergeCells('A1:D1');
-$sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+// Columnas
+echo "<table border='1'>";
+echo "<tr><th colspan='2'>Datos Generales</th></tr>";
+echo "<tr><td><b>Equipo</b></td><td>{$maquinaria['nombre']}</td></tr>";
+echo "<tr><td><b>Marca</b></td><td>{$maquinaria['marca']}</td></tr>";
+echo "<tr><td><b>Modelo</b></td><td>{$maquinaria['modelo']}</td></tr>";
+echo "<tr><td><b>Empresa Origen</b></td><td>{$recibo['empresa_origen']}</td></tr>";
+echo "<tr><td><b>Empresa Destino</b></td><td>{$recibo['empresa_destino']}</td></tr>";
+echo "<tr><td><b>Condición Estimada</b></td><td>{$recibo['condicion_estimada']}%</td></tr>";
+echo "</table><br>";
 
-// Datos generales
-$sheet->setCellValue('A3', 'Equipo');
-$sheet->setCellValue('B3', $maquinaria['nombre']);
-$sheet->setCellValue('A4', 'Marca');
-$sheet->setCellValue('B4', $maquinaria['marca'] ?? '');
-$sheet->setCellValue('A5', 'Modelo');
-$sheet->setCellValue('B5', $maquinaria['modelo']);
-$sheet->setCellValue('A6', 'Empresa Origen');
-$sheet->setCellValue('B6', $recibo['empresa_origen']);
-$sheet->setCellValue('A7', 'Empresa Destino');
-$sheet->setCellValue('B7', $recibo['empresa_destino']);
-$sheet->setCellValue('A8', 'Condición Estimada');
-$sheet->setCellValue('B8', $recibo['condicion_estimada'] . '%');
+$secciones = [
+  "MOTOR" => [...],
+  "SISTEMA MECÁNICO" => [...],
+  "SISTEMA HIDRÁULICO" => [...],
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => [...],
+  "ESTÉTICO" => [...],
+  "CONSUMIBLES" => [...]
+];
 
-// Componentes
-$fila = 10;
-$sheet->setCellValue("A{$fila}", "Componente");
-$sheet->setCellValue("B{$fila}", "Estado");
-$sheet->getStyle("A{$fila}:B{$fila}")->getFont()->setBold(true);
-$fila++;
+// Componentes de cada sección
+$secciones["MOTOR"] = ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"];
+$secciones["SISTEMA MECÁNICO"] = ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"];
+$secciones["SISTEMA HIDRÁULICO"] = ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "COPLES", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"];
+$secciones["SISTEMA ELÉCTRICO Y ELECTRÓNICO"] = ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)", "SENSORES"];
+$secciones["ESTÉTICO"] = ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"];
+$secciones["CONSUMIBLES"] = ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"];
 
-foreach ($recibo as $clave => $valor) {
-    if (!in_array($clave, ['id', 'id_maquinaria', 'empresa_origen', 'empresa_destino', 'observaciones', 'condicion_estimada'])) {
-        $sheet->setCellValue("A{$fila}", $clave);
-        $sheet->setCellValue("B{$fila}", ucfirst($valor));
-        $fila++;
+// Mostrar componentes
+foreach ($secciones as $titulo => $componentes) {
+    echo "<table border='1'>";
+    echo "<tr><th colspan='2'>{$titulo}</th></tr>";
+    foreach ($componentes as $componente) {
+        $valor = $recibo[$componente] ?? '';
+        echo "<tr><td>{$componente}</td><td>{$valor}</td></tr>";
     }
+    echo "</table><br>";
 }
 
 // Observaciones
-$fila += 1;
-$sheet->setCellValue("A{$fila}", "Observaciones");
-$sheet->mergeCells("A{$fila}:D{$fila}");
-$sheet->getStyle("A{$fila}")->getFont()->setBold(true);
-$fila++;
-$sheet->setCellValue("A{$fila}", $recibo['observaciones'] ?? '');
-$sheet->mergeCells("A{$fila}:D{$fila}");
-
-// Descarga
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="recibo_unidad_' . $id_maquinaria . '.xlsx"');
-header('Cache-Control: max-age=0');
-
-$writer = new Xlsx($spreadsheet);
-$writer->save('php://output');
-exit;
-?>
+echo "<table border='1'>";
+echo "<tr><th>Observaciones</th></tr>";
+echo "<tr><td>" . nl2br(htmlspecialchars($recibo['observaciones'] ?? '')) . "</td></tr>";
+echo "</table>";
