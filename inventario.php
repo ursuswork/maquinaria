@@ -13,16 +13,20 @@ include 'conexion.php';
 $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = $_GET['tipo'] ?? 'todas';
 
-$sql = "SELECT * FROM maquinaria";
+$sql = "
+  SELECT m.*, r.condicion_estimada 
+  FROM maquinaria m
+  LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
+";
 if (!empty($busqueda)) {
-  $sql .= " WHERE (nombre LIKE '%$busqueda%' OR modelo LIKE '%$busqueda%' OR numero_serie LIKE '%$busqueda%')";
+  $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'nueva'";
+  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'nueva'";
 } elseif ($tipo_filtro === 'usada') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "tipo_maquinaria = 'usada'";
+  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'usada'";
 }
-$sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
+$sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 $resultado = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -51,7 +55,7 @@ $resultado = $conn->query($sql);
     .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
     .nav-tabs .nav-link { color: #ffffff; }
-</style>
+  </style>
 </head>
 <body>
 <div class="container py-4">
@@ -163,50 +167,58 @@ $resultado = $conn->query($sql);
       }
     }
   ?>
-  <div class="col-md-4 mb-4">
-    <div class="card card-maquinaria p-3 text-light">
-      <?php if (!empty($fila['imagen'])): ?>
-        <img src="imagenes/<?= $fila['imagen'] ?>" class="img-fluid rounded mb-2" style="max-height:200px; object-fit:contain;">
+<div class="col-md-4 mb-4">
+  <div class="card card-maquinaria p-3 text-light">
+    <?php if (!empty($fila['imagen'])): ?>
+      <img src="imagenes/<?= $fila['imagen'] ?>" class="img-fluid rounded mb-2" style="max-height:200px; object-fit:contain;">
+    <?php endif; ?>
+    <h5><?= htmlspecialchars($fila['nombre']) ?></h5>
+    <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($fila['modelo']) ?></p>
+    <p class="mb-1"><strong>Ubicación:</strong> <?= htmlspecialchars($fila['ubicacion']) ?></p>
+    <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($fila['tipo_maquinaria']) ?>
+      <?php if ($fila['tipo_maquinaria'] == 'nueva'): ?>
+        <span class="etiqueta-nueva">Nueva</span>
       <?php endif; ?>
-      <h5><?= htmlspecialchars($fila['nombre']) ?></h5>
-      <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($fila['modelo']) ?></p>
-      <p class="mb-1"><strong>Ubicación:</strong> <?= htmlspecialchars($fila['ubicacion']) ?></p>
-      <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($fila['tipo_maquinaria']) ?>
-        <?php if ($fila['tipo_maquinaria'] == 'nueva'): ?>
-          <span class="etiqueta-nueva">Nueva</span>
-        <?php endif; ?>
-      </p>
-      <?php if (!empty($fila['subtipo'])): ?>
-        <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
-      <?php endif; ?>
-      <?php if ($porc_avance > 0): ?>
-        <div class="progress mb-2" style="height: 25px;">
-          <div class="progress-bar bg-info" style="width: <?= $porc_avance ?>%;"><?= $porc_avance ?>%</div>
+    </p>
+    <?php if (!empty($fila['subtipo'])): ?>
+      <p class="mb-1"><strong>Subtipo:</strong> <?= htmlspecialchars($fila['subtipo']) ?></p>
+    <?php endif; ?>
+
+    <?php if ($tipo == 'nueva' && $porc_avance > 0): ?>
+      <div class="progress mb-2" style="height: 25px;">
+        <div class="progress-bar bg-success text-white" style="width: <?= $porc_avance ?>%;">
+          <?= $porc_avance ?>%
         </div>
-      <?php endif; ?>
-      <div class="d-flex justify-content-between">
-        <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
-        <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
       </div>
-      <?php if (strtolower(trim($fila['tipo_maquinaria'] ?? '')) == 'usada'): ?>
-        <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
-      <?php elseif ($tipo == 'nueva'): ?>
-        <?php
-          $archivo_avance = match ($subtipo) {
-            'esparcidor de sello' => 'avance_esparcidor',
-            'bachadora' => 'avance_bachadora',
-            'petrolizadora' => 'avance_petrolizadora',
-            default => ''
-          };
-        ?>
-        <?php if ($archivo_avance): ?>
-          <a href="<?= $archivo_avance ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
-        <?php endif; ?>
-      <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if ($fila['tipo_maquinaria'] === 'usada' && isset($fila['condicion_estimada'])): ?>
+      <div class="progress mb-2" style="height: 25px;">
+        <div class="progress-bar bg-warning text-dark" style="width: <?= $fila['condicion_estimada'] ?>%;">
+          <?= $fila['condicion_estimada'] ?>%
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <div class="d-flex justify-content-between">
+      <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+      <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
     </div>
-  </div>
-<?php endwhile; ?>
+
+    <?php if ($tipo == 'usada'): ?>
+      <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-secondary mt-2 w-100">📋 Recibo de Unidad</a>
+    <?php elseif ($tipo == 'nueva'): ?>
+      <?php
+        $archivo_avance = match ($subtipo) {
+          'esparcidor de sello' => 'avance_esparcidor',
+          'petrolizadora' => 'avance_petrolizadora',
+          'bachadora' => 'avance_bachadora',
+          default => ''
+        };
+      ?>
+      <?php if ($archivo_avance): ?>
+        <a href="<?= $archivo_avance ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success mt-2 w-100">🛠️ Ver Avance</a>
+      <?php endif; ?>
+    <?php endif; ?>
   </div>
 </div>
-</body>
-</html>
