@@ -69,7 +69,7 @@ $resultado = $conn->query($sql);
     <h3 class="text-light">Inventario de Maquinaria</h3>
     <div class="d-flex gap-2">
       <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
-      <a href="exportar_excel.php" class="btn btn-warning">📁 Exportar Excel</a>
+      <a href="exportar_excel.php?busqueda=<?= urlencode($busqueda) ?>&tipo=<?= urlencode($tipo_filtro) ?>" class="btn btn-warning">📁 Exportar Excel</a>
       <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
     </div>
   </div>
