@@ -69,7 +69,10 @@ $resultado = $conn->query($sql);
     <h3 class="text-light">Inventario de Maquinaria</h3>
     <div class="d-flex gap-2">
       <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
-      <a href="exportar_excel.php?busqueda=<?= urlencode($busqueda) ?>&tipo=<?= urlencode($tipo_filtro) ?>" class="btn btn-warning">📁 Exportar Excel</a>
+      <button onclick="exportTableToExcel('tablaExportable', 'inventario_maquinaria')" class="btn btn-outline-warning">
+  📁 Exportar a Excel (Vista actual)
+</button>
+
       <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
     </div>
   </div>
@@ -234,6 +237,52 @@ $resultado = $conn->query($sql);
 </div>
 <?php endwhile; ?>
   </div> <!-- row -->
-</div> <!-- container -->
+</div>
+<!-- Tabla invisible solo para exportar -->
+<table id="tablaExportable" style="display:none;">
+  <tr>
+    <th>ID</th><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Ubicación</th>
+    <th>Tipo</th><th>Subtipo</th><th>Condición Estimada</th>
+  </tr>
+  <?php
+  $resultado_export = $conn->query($sql);
+  while ($fila = $resultado_export->fetch_assoc()):
+  ?>
+  <tr>
+    <td><?= $fila['id'] ?></td>
+    <td><?= htmlspecialchars($fila['nombre']) ?></td>
+    <td><?= htmlspecialchars($fila['marca'] ?? '-') ?></td>
+    <td><?= htmlspecialchars($fila['modelo']) ?></td>
+    <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
+    <td><?= htmlspecialchars($fila['tipo_maquinaria']) ?></td>
+    <td><?= htmlspecialchars($fila['subtipo'] ?? '-') ?></td>
+    <td><?= isset($fila['condicion_estimada']) ? $fila['condicion_estimada'] . "%" : '-' ?></td>
+  </tr>
+  <?php endwhile; ?>
+</table>
 </body>
+<script>
+function exportTableToExcel(tableID, filename = '') {
+  const dataType = 'application/vnd.ms-excel';
+  const table = document.getElementById(tableID);
+  let tableHTML = '\uFEFF' + table.outerHTML;
+
+  const fecha = new Date().toISOString().slice(0, 10);
+  filename = filename ? `${filename}_${fecha}.xls` : `inventario_${fecha}.xls`;
+
+  const downloadLink = document.createElement("a");
+  document.body.appendChild(downloadLink);
+
+  if (navigator.msSaveOrOpenBlob) {
+    const blob = new Blob([tableHTML], { type: dataType });
+    navigator.msSaveOrOpenBlob(blob, filename);
+  } else {
+    downloadLink.href = 'data:' + dataType + ',' + encodeURIComponent(tableHTML);
+    downloadLink.download = filename;
+    downloadLink.click();
+  }
+
+  document.body.removeChild(downloadLink);
+}
+</script>
 </html>
