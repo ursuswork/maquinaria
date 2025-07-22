@@ -222,3 +222,8 @@ $resultado = $conn->query($sql);
     <?php endif; ?>
   </div>
 </div>
+<?php endwhile; ?>
+  </div> <!-- row -->
+</div> <!-- container -->
+</body>
+</html>
