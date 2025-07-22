@@ -10,7 +10,7 @@ $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda
 $tipo_filtro = $_GET['tipo'] ?? 'todas';
 
 $sql = "
-  SELECT m.*, r.condicion_estimada 
+  SELECT m.*, r.condicion_estimada, r.observaciones 
   FROM maquinaria m
   LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 ";
