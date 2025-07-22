@@ -245,7 +245,7 @@ $resultado = $conn->query($sql);
 <table id="tablaExportable" style="display:none;">
   <tr>
     <th>ID</th><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Ubicación</th>
-    <th>Tipo</th><th>Subtipo</th><th>Condición Estimada</th><th>Observaciones</th>
+    <th>Tipo</th><th>Subtipo</th><th>Condición Estimada</th><th>Avance Producción</th><th>Observaciones</th>
   </tr>
   <?php
   $resultado_export = $conn->query($sql);
@@ -259,14 +259,11 @@ $resultado = $conn->query($sql);
     <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
     <td><?= htmlspecialchars($fila['tipo_maquinaria']) ?></td>
     <td><?= htmlspecialchars($fila['subtipo'] ?? '-') ?></td>
-    <td><?= isset($fila['condicion_estimada']) ? $fila['condicion_estimada'] . "%" : '-' ?></td>
-    <td>
-  <?= ($fila['tipo_maquinaria'] === 'usada' && !empty($fila['observaciones'])) 
-      ? htmlspecialchars($fila['observaciones']) 
-      : '' ?>
-</td>
-  </tr>
-  <?php endwhile; ?>
+    <td><?= ($fila['tipo_maquinaria'] === 'usada' && isset($fila['condicion_estimada'])) ? $fila['condicion_estimada'] . "%" : '-' ?></td>
+    <td><?= ($fila['tipo_maquinaria'] === 'nueva' && $porc_avance !== '') ? $porc_avance . "%" : '-' ?></td>
+    <td><?= ($fila['tipo_maquinaria'] === 'usada' && !empty($fila['observaciones'])) ? htmlspecialchars($fila['observaciones']) : '' ?></td>
+</tr>
+<?php endwhile; ?>
 </table>
 </body>
 <button onclick="exportTableToExcel('tablaExportable', 'inventario_maquinaria')" 
