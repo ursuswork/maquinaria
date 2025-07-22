@@ -28,6 +28,9 @@ if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
   $extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
   $nombre_imagen = time() . '_' . uniqid() . '.' . $extension;
 
+  if (!is_dir('imagenes')) {
+  mkdir('imagenes', 0775, true);
+}
   if (!move_uploaded_file($_FILES['imagen']['tmp_name'], 'imagenes/' . $nombre_imagen)) {
     echo "❌ Error al subir la imagen.";
     exit;
