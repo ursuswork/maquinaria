@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
@@ -38,10 +34,19 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #001f3f; color: #ffffff; }
-    .card-maquinaria { background-color: #002b5c; border: 1px solid #004080; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .container { max-width: 1140px; margin: auto; padding: 20px; }
+    .card-maquinaria {
+      background-color: #002b5c;
+      border: 1px solid #004080;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 20px;
+      font-size: 1.05rem;
+    }
+    h5 { font-size: 1.25rem; }
     .progress { background-color: #003366; }
     .progress-bar { background-color: #007bff; color: #ffffff; font-weight: bold; }
-    .btn, .nav-link { border-radius: 10px; }
+    .btn, .nav-link { border-radius: 10px; font-size: 1rem; padding: 10px 16px; }
     .btn-outline-primary { color: #007bff; border-color: #007bff; }
     .btn-outline-primary:hover { background-color: #007bff; color: white; }
     .btn-outline-success { color: #ffc107; border-color: #ffc107; }
@@ -55,7 +60,7 @@ $resultado = $conn->query($sql);
     .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
     .nav-tabs .nav-link { color: #ffffff; }
-    .container { max-width: 960px; margin: auto; }
+    form input[type="text"] { font-size: 1rem; padding: 10px; }
   </style>
 </head>
 <body>
