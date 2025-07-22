@@ -260,7 +260,11 @@ $resultado = $conn->query($sql);
     <td><?= htmlspecialchars($fila['tipo_maquinaria']) ?></td>
     <td><?= htmlspecialchars($fila['subtipo'] ?? '-') ?></td>
     <td><?= isset($fila['condicion_estimada']) ? $fila['condicion_estimada'] . "%" : '-' ?></td>
-    <td><?= htmlspecialchars($fila['observaciones'] ?? '-') ?></td>  
+    <td>
+  <?= ($fila['tipo_maquinaria'] === 'usada' && !empty($fila['observaciones'])) 
+      ? htmlspecialchars($fila['observaciones']) 
+      : '' ?>
+</td>
   </tr>
   <?php endwhile; ?>
 </table>
