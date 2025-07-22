@@ -55,17 +55,18 @@ $resultado = $conn->query($sql);
     .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
     .nav-tabs .nav-link { color: #ffffff; }
+    .container { max-width: 960px; margin: auto; }
   </style>
 </head>
 <body>
 <div class="container py-4">
-  <div class="d-flex justify-content-between mb-3">
+  <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
     <h3 class="text-light">Inventario de Maquinaria</h3>
-    <a href="agregar_maquinaria.php" class="btn btn-success me-2">+ Agregar Maquinaria</a>
-    <a href="exportar_excel.php" class="btn btn-warning me-2">📁 Exportar Excel</a>
-    <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
-</div>
-
+    <div class="d-flex gap-2">
+      <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
+      <a href="exportar_excel.php" class="btn btn-warning">📁 Exportar Excel</a>
+      <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
+    </div>
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
