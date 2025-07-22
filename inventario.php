@@ -61,7 +61,11 @@ $resultado = $conn->query($sql);
 <div class="container py-4">
   <div class="d-flex justify-content-between mb-3">
     <h3 class="text-light">Inventario de Maquinaria</h3>
-    <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
+    <a href="agregar_maquinaria.php" class="btn btn-success me-2">+ Agregar Maquinaria</a>
+    <a href="exportar_excel.php" class="btn btn-warning me-2">📁 Exportar Excel</a>
+    <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
+</div>
+
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
