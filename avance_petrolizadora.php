@@ -223,3 +223,5 @@ $resultado = $conn->query($sql);
     <?php endif; ?>
   </div>
 </div>
+</body>
+</html>

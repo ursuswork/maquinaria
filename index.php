@@ -12,10 +12,33 @@ if (isset($_SESSION['usuario'])) {
   <title>Iniciar sesión</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #001f3f;
+      color: #0056b3;
+    }
+    .card {
+      background-color: white;
+      border: 1px solid #004080;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .btn-primary {
+      background-color: #0056b3;
+      border: none;
+      font-weight: bold;
+    }
+    .btn-primary:hover {
+      background-color: #004080;
+    }
+    h4 {
+      color: #ffc107;
+    }
+  </style>
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+<body class="d-flex justify-content-center align-items-center vh-100">
   <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
-    <h4 class="text-center mb-4 text-primary">Iniciar Sesión</h4>
+    <h4 class="text-center mb-4">Iniciar Sesión</h4>
     <?php if (isset($_GET['error'])): ?>
       <div class="alert alert-danger text-center">Usuario o contraseña incorrectos.</div>
     <?php endif; ?>
