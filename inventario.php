@@ -209,11 +209,13 @@ $resultado = $conn->query($sql);
       <div class="progress mb-2" style="height: 25px;">
         <div class="progress-bar bg-warning text-dark" style="width: <?= $fila['condicion_estimada'] ?>%;">
           <?= $fila['condicion_estimada'] ?>%
-        </div>
-      </div>
-    <?php endif; ?>
-
-    <div class="d-flex justify-content-between">
+          <?php if ($fila['tipo_maquinaria'] === 'usada' && !empty($fila['observaciones'])): ?>
+  <div class="mt-2 p-2 bg-light border rounded text-dark small">
+    <strong>📝 Observaciones:</strong><br>
+    <?= nl2br(htmlspecialchars($fila['observaciones'])) ?>
+  </div>
+<?php endif; ?>
+         <div class="d-flex justify-content-between">
       <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
       <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
     </div>
