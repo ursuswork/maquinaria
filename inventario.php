@@ -70,7 +70,7 @@ $resultado = $conn->query($sql);
     <div class="d-flex gap-2">
       <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
       <button onclick="exportTableToExcel('tablaExportable', 'inventario_maquinaria')" class="btn btn-outline-warning">
-  📁 Exportar a Excel (Vista actual)
+  📁 Exportar a Excel
 </button>
 
       <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
