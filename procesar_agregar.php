@@ -9,6 +9,7 @@ include 'conexion.php';
 
 // Recoger datos
 $nombre = trim($_POST['nombre']);
+$marca = trim($_POST['marca']);  // Agregado
 $modelo = trim($_POST['modelo']);
 $ubicacion = trim($_POST['ubicacion']);
 $tipo_maquinaria = $_POST['tipo_maquinaria'];
@@ -22,9 +23,9 @@ if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
   move_uploaded_file($_FILES['imagen']['tmp_name'], 'imagenes/' . $nombre_imagen);
 }
 
-// Insertar en base de datos
-$stmt = $conn->prepare("INSERT INTO maquinaria (nombre, modelo, ubicacion, tipo_maquinaria, subtipo, imagen) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $nombre, $modelo, $ubicacion, $tipo_maquinaria, $subtipo, $nombre_imagen);
+// Insertar en base de datos (con marca)
+$stmt = $conn->prepare("INSERT INTO maquinaria (nombre, marca, modelo, ubicacion, tipo_maquinaria, subtipo, imagen) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssss", $nombre, $marca, $modelo, $ubicacion, $tipo_maquinaria, $subtipo, $nombre_imagen);
 
 if ($stmt->execute()) {
   header("Location: inventario.php");
