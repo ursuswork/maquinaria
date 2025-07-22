@@ -35,7 +35,7 @@ $etapas = [
     ],
     "ESPARCIDOR" => [
         "Armar cajas negras y de controles" => 5,
-        "Armar chasis" => 5,
+        "Armar chasis 2" => 5,
         "Cortar, doblar y armar tolva" => 5,
         "Doblar, armar y colocar cabezal" => 5,
         "Doblar, armar, probar y colocar tanque de aceite" => 5,
