@@ -261,6 +261,11 @@ $resultado = $conn->query($sql);
   <?php endwhile; ?>
 </table>
 </body>
+<button onclick="exportTableToExcel('tablaExportable', 'inventario_maquinaria')" 
+  class="btn btn-warning shadow rounded-pill position-fixed" 
+  style="bottom: 20px; right: 20px; z-index: 999;">
+  📁 Exportar Excel
+</button>
 <script>
 function exportTableToExcel(tableID, filename = '') {
   const dataType = 'application/vnd.ms-excel';
