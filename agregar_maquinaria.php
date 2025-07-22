@@ -6,7 +6,6 @@ if (!isset($_SESSION['usuario'])) {
 }
 ?>
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
@@ -56,6 +55,10 @@ if (!isset($_SESSION['usuario'])) {
 <input class="form-control form-control mb-3" name="nombre" required="" type="text"/>
 </div>
 <div class="mb-3">
+<label class="form-label form-label text-warning">Marca</label>
+<input class="form-control form-control mb-3" name="marca" required="" type="text"/>
+</div>
+<div class="mb-3">
 <label class="form-label form-label text-warning">Modelo</label>
 <input class="form-control form-control mb-3" name="modelo" required="" type="text"/>
 </div>
@@ -96,6 +99,6 @@ if (!isset($_SESSION['usuario'])) {
       const subtipo = document.getElementById('subtipo_contenedor');
       subtipo.style.display = (tipo === 'nueva') ? 'block' : 'none';
     }
-  </script>
+</script>
 </div></body>
 </html>
