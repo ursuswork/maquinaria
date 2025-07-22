@@ -216,6 +216,7 @@ $resultado = $conn->query($sql);
      <?= nl2br(htmlspecialchars($fila['observaciones'])) ?>
   </div>
 <?php endif; ?>
+<?php endif; ?>
          <div class="d-flex justify-content-between">
       <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
       <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta maquinaria?')">🗑️ Eliminar</a>
