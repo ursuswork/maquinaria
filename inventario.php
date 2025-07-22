@@ -40,7 +40,7 @@ $resultado = $conn->query($sql);
     body { background-color: #001f3f; color: #ffffff; }
     .card-maquinaria { background-color: #002b5c; border: 1px solid #004080; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .progress { background-color: #003366; }
-    .progress-bar { background-color: #ffc107; color: #001f3f; font-weight: bold; }
+    .progress-bar { background-color: #007bff; color: #ffffff; font-weight: bold; }
     .btn, .nav-link { border-radius: 10px; }
     .btn-outline-primary { color: #007bff; border-color: #007bff; }
     .btn-outline-primary:hover { background-color: #007bff; color: white; }
