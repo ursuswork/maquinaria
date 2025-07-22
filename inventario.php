@@ -37,29 +37,24 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #001f3f; color: #001f3f; }
-    .card-maquinaria { background-color: #ffffff; border: 1px solid #004080; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); color: #001f3f; }
-    .progress { background-color: #cce5ff; }
-    .progress-bar { background-color: #007bff; color: #ffffff; font-weight: bold; }
+    body { background-color: #001f3f; color: #ffffff; }
+    .card-maquinaria { background-color: #002b5c; border: 1px solid #004080; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .progress { background-color: #003366; }
+    .progress-bar { background-color: #ffc107; color: #001f3f; font-weight: bold; }
     .btn, .nav-link { border-radius: 10px; }
     .btn-outline-primary { color: #007bff; border-color: #007bff; }
     .btn-outline-primary:hover { background-color: #007bff; color: white; }
-    .btn-outline-success { color: #0056b3; border-color: #0056b3; }
-    .btn-outline-success:hover { background-color: #0056b3; color: white; }
+    .btn-outline-success { color: #ffc107; border-color: #ffc107; }
+    .btn-outline-success:hover { background-color: #ffc107; color: #001f3f; }
     .btn-outline-danger { color: #dc3545; border-color: #dc3545; }
     .btn-outline-danger:hover { background-color: #dc3545; color: white; }
-    .btn-outline-secondary { color: #0056b3; border-color: #0056b3; }
-    .btn-outline-secondary:hover { background-color: #0056b3; color: white; }
-    .btn-success { background-color: #0056b3; border-color: #0056b3; }
-    .btn-success:hover { background-color: #003f7f; }
-    .btn-warning { background-color: #ffc107; color: #001f3f; font-weight: bold; }
-    .btn-warning:hover { background-color: #e0a800; color: #001f3f; }
-    .btn-outline-light { color: #ffc107; border-color: #ffc107; }
-    .btn-outline-light:hover { background-color: #ffc107; color: #001f3f; }
-    .etiqueta-nueva { background-color: #0056b3; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+    .btn-outline-secondary { color: #ffc107; border-color: #ffc107; }
+    .btn-outline-secondary:hover { background-color: #ffc107; color: #001f3f; }
+    .btn-success { background-color: #007bff; border-color: #007bff; }
+    .btn-success:hover { background-color: #0056b3; }
+    .etiqueta-nueva { background-color: #007bff; color: white; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
     .nav-tabs .nav-link { color: #ffffff; }
-    h3, h5, p, label, strong { color: #0056b3; }
   </style>
 </head>
 <body>
@@ -67,8 +62,6 @@ $resultado = $conn->query($sql);
   <div class="d-flex justify-content-between mb-3">
     <h3 class="text-light">Inventario de Maquinaria</h3>
     <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
-     <a href="exportar_excel.php" class="btn btn-warning me-2">📁 Exportar Excel</a>
-    <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
