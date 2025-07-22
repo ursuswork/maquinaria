@@ -19,7 +19,7 @@ $sql = "
   LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 ";
 if (!empty($busqueda)) {
-  $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
+  $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'nueva') {
   $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'nueva'";
