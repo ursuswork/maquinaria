@@ -11,20 +11,31 @@ if (!isset($_SESSION['usuario'])) {
 
 include 'conexion.php';
 
-// Obtener filtros desde URL
+$usuario = $_SESSION['usuario'];  // Usuario activo
+$fecha_actual = date('Y-m-d');
+$hora_actual = date('H:i:s');
+
+// Filtros desde la URL
 $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = $_GET['tipo'] ?? 'todas';
 
-// Encabezados para exportar Excel
+// Encabezados Excel
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=inventario_maquinaria.xls");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// BOM para Excel (para evitar errores con acentos)
+// BOM para UTF-8
 echo "\xEF\xBB\xBF";
 
-// Encabezado de la tabla
+// Mostrar metadatos
+echo "<table>";
+echo "<tr><td colspan='8'><strong>Exportado por:</strong> " . htmlspecialchars($usuario) . "</td></tr>";
+echo "<tr><td colspan='8'><strong>Fecha:</strong> $fecha_actual &nbsp;&nbsp;&nbsp;&nbsp; <strong>Hora:</strong> $hora_actual</td></tr>";
+echo "<tr><td colspan='8'>&nbsp;</td></tr>"; // Espacio
+echo "</table>";
+
+// Encabezado de tabla
 echo "<table border='1'>";
 echo "<tr>
   <th>ID</th>
@@ -37,7 +48,7 @@ echo "<tr>
   <th>Condición Estimada</th>
 </tr>";
 
-// Construir consulta con filtros
+// Consulta con filtros
 $sql = "
   SELECT m.*, r.condicion_estimada 
   FROM maquinaria m
@@ -57,7 +68,7 @@ if ($tipo_filtro === 'nueva') {
 $sql .= " ORDER BY m.id DESC";
 $resultado = $conn->query($sql);
 
-// Cuerpo de la tabla
+// Cuerpo de tabla
 while ($fila = $resultado->fetch_assoc()) {
   echo "<tr>";
   echo "<td>{$fila['id']}</td>";
