@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
@@ -14,41 +10,31 @@ include 'conexion.php';
 $usuario = $_SESSION['usuario'];
 $fecha_actual = date('Y-m-d');
 $hora_actual = date('H:i:s');
-
 $busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = $_GET['tipo'] ?? 'todas';
 
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=inventario_maquinaria.xls");
+header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+header("Content-Disposition: attachment; filename=inventario_maquinaria_$fecha_actual.xls");
 header("Pragma: no-cache");
 header("Expires: 0");
+
 echo "\xEF\xBB\xBF";
 
-// Metadatos
 echo "<table>";
-echo "<tr><td colspan='8'><strong>Exportado por:</strong> " . htmlspecialchars($usuario) . "</td></tr>";
+echo "<tr><td colspan='8'><strong>Exportado por:</strong> $usuario</td></tr>";
 echo "<tr><td colspan='8'><strong>Fecha:</strong> $fecha_actual &nbsp;&nbsp;&nbsp;&nbsp; <strong>Hora:</strong> $hora_actual</td></tr>";
 echo "<tr><td colspan='8'>&nbsp;</td></tr>";
 echo "</table>";
 
-// Tabla de datos
 echo "<table border='1'>";
 echo "<tr>
-  <th>ID</th>
-  <th>Nombre</th>
-  <th>Marca</th>
-  <th>Modelo</th>
-  <th>Ubicación</th>
-  <th>Tipo</th>
-  <th>Subtipo</th>
-  <th>Condición Estimada</th>
+  <th>ID</th><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Ubicación</th>
+  <th>Tipo</th><th>Subtipo</th><th>Condición Estimada</th>
 </tr>";
 
-$sql = "
-  SELECT m.*, r.condicion_estimada 
-  FROM maquinaria m
-  LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
-";
+$sql = "SELECT m.*, r.condicion_estimada 
+        FROM maquinaria m 
+        LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria";
 
 if (!empty($busqueda)) {
   $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
@@ -62,7 +48,6 @@ if ($tipo_filtro === 'nueva') {
 $sql .= " ORDER BY m.id DESC";
 $resultado = $conn->query($sql);
 
-// Contador y filas
 $contador = 0;
 while ($fila = $resultado->fetch_assoc()) {
   echo "<tr>";
@@ -78,10 +63,6 @@ while ($fila = $resultado->fetch_assoc()) {
   $contador++;
 }
 
-// Total resaltado
-echo "<tr style='background-color: #e0e0e0; font-weight: bold;'>
-        <td colspan='8'>Total de registros exportados: $contador</td>
-      </tr>";
-
+echo "<tr style='background-color:#e0e0e0; font-weight:bold;'><td colspan='8'>Total de registros exportados: $contador</td></tr>";
 echo "</table>";
 ?>
