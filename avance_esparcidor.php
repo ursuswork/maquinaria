@@ -17,7 +17,7 @@ if (!$maquinaria) {
     die("❌ Maquinaria no encontrada.");
 }
 
-if (strtolower(trim($maquinaria['tipo_maquinaria'])) !== 'nueva' || strtolower(trim($maquinaria['subtipo'])) !== 'esparcidor de sello') {
+if (strtolower(trim($maquinaria['tipo_maquinaria'])) !== 'produccion nueva' || strtolower(trim($maquinaria['subtipo'])) !== 'esparcidor de sello') {
     die("⚠️ Solo disponible para maquinaria nueva de subtipo 'esparcidor de sello'.");
 }
 
