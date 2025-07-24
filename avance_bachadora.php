@@ -98,11 +98,15 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       overflow: hidden;
     }
     .progress-bar {
+      transition: width 0.6s ease;
+      box-shadow: 0 4px 10px rgba(255, 193, 7, 0.5);
       background-color: #ffc107 !important;
       font-weight: bold;
       font-size: 1.2rem;
     }
     .btn-toggle {
+      background-color: #012a5c;
+      color: white;
       text-align: center;
       color: white;
       background-color: #012a5c;
@@ -115,6 +119,11 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       font-weight: bold;
     }
     .completed {
+      background-color: #28a745 !important;
+      color: white !important;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      transform: scale(1.05);
       background-color: #28a745 !important;
       color: white !important;
     }
