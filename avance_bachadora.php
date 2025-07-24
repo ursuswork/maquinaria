@@ -104,11 +104,11 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       background-color: #ffc107 !important;
       font-weight: bold;
       font-size: 1.2rem;
+      border-radius: 1rem;
     }
     .btn-toggle {
-      min-width: 280px;
-      margin: 10px auto;
-      display: block;
+      width: 100%;
+      margin: 0.4rem 0;
       border-radius: 1rem;
       font-size: 0.95rem;
     }
@@ -137,30 +137,22 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
 
     <form method="post">
       <h5 class="mt-4 text-info text-center">ARMAR TANQUE</h5>
-      <div class="row justify-content-center">
-        <?php foreach ($etapas_arma as $etapa => $peso): ?>
-          <div class="col-md-6 col-lg-4 text-center">
-            <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
-              <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-            </button>
-          </div>
-        <?php endforeach; ?>
-      </div>
+      <?php foreach ($etapas_arma as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
 
       <h5 class="mt-4 text-info text-center">BACHADORA</h5>
-      <div class="row justify-content-center">
-        <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-          <div class="col-md-6 col-lg-4 text-center">
-            <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
-              <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-            </button>
-          </div>
-        <?php endforeach; ?>
-      </div>
+      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
     </form>
 
     <div class="text-center mt-4">
-      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
+      <a href="inventario.php" class="btn btn-outline-light">&larr; Volver al Inventario</a>
     </div>
   </div>
 </body>
