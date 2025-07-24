@@ -80,19 +80,16 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     body {
       background-color: #001f3f;
       color: white;
-      font-family: 'Segoe UI', sans-serif;
     }
-    .ficha {
-      background-color: #012a5c;
-      padding: 2rem;
-      border-radius: 1.5rem;
+    .container {
       max-width: 1100px;
       margin: 2rem auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      padding: 2rem;
+      background-color: #012a5c;
+      border-radius: 1rem;
     }
     h3, h5 {
       color: #ffc107;
-      text-align: center;
     }
     .progress {
       height: 35px;
@@ -108,51 +105,50 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     .btn-toggle {
       width: 100%;
       margin-bottom: 10px;
-      border-radius: 1rem;
-      font-size: 0.95rem;
+      border-radius: 0.5rem;
+      background-color: white;
+      color: black;
+      font-weight: bold;
     }
     .completed {
-      background-color: #28a745 !important; /* verde */
+      background-color: #28a745 !important;
       color: white !important;
-      font-weight: bold;
     }
-    .btn-outline-light:hover {
-      background-color: #ffc107;
-      color: #000;
-      font-weight: bold;
+    .btn-toggle:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-  <div class="ficha">
-    <h3>Avance de Bachadora</h3>
-    <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+<div class="container">
+  <h3 class="text-center">Avance de Bachadora</h3>
+  <h5 class="text-center"><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
-    <div class="mb-4">
-      <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
-      </div>
-    </div>
-
-    <form method="post">
-      <h5 class="mt-4 text-info text-center">ARMAR TANQUE</h5>
-      <?php foreach ($etapas_arma as $etapa => $peso): ?>
-        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-        </button>
-      <?php endforeach; ?>
-
-      <h5 class="mt-4 text-info text-center">BACHADORA</h5>
-      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle btn-sm <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-        </button>
-      <?php endforeach; ?>
-    </form>
-
-    <div class="text-center mt-4">
-      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
+  <div class="my-4">
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
     </div>
   </div>
+
+  <form method="post">
+    <h5>ARMAR TANQUE</h5>
+    <?php foreach ($etapas_arma as $etapa => $peso): ?>
+      <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+        <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+      </button>
+    <?php endforeach; ?>
+
+    <h5 class="mt-4">BACHADORA</h5>
+    <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+      <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+        <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+      </button>
+    <?php endforeach; ?>
+  </form>
+
+  <div class="text-center mt-4">
+    <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
+  </div>
+</div>
 </body>
 </html>
