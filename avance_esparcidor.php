@@ -83,7 +83,6 @@ foreach ($etapas as $grupo) {
 $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
 ?>
 
-<!-- HTML -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -93,82 +92,80 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-        background: linear-gradient(135deg, #001933, #004080);
-        color: #f1f1f1;
+        background-color: #001933;
+        color: #fff;
         font-family: 'Segoe UI', sans-serif;
     }
-    .ficha {
-        background-color: #012a5c;
-        padding: 2.5rem;
-        border-radius: 1.5rem;
-        max-width: 1100px;
+    .contenedor {
+        max-width: 960px;
         margin: 2rem auto;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        padding: 2rem;
+        background-color: #012a5c;
+        border-radius: 1rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
     h3, h5 {
-        color: #ffc107;
         text-align: center;
+        color: #ffc107;
     }
     .progress {
-        height: 35px;
+        height: 30px;
+        border-radius: 15px;
         background-color: #2c3e50;
-        border-radius: 1rem;
-        overflow: hidden;
+        margin-bottom: 2rem;
     }
     .progress-bar {
-        background-color: #ffc107 !important;
+        background-color: #ffc107;
         font-weight: bold;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
     .btn-toggle {
         width: 100%;
-        margin: 6px auto; border: 1px solid #0d274d; padding: 0.3rem;
-        display: block;
+        margin: 6px 0;
         border-radius: 1rem;
         font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+        text-align: center;
+        border: 1px solid #204060;
     }
     .completed {
-        background-color: #0056b3 !important;
+        background-color: #28a745 !important;
         color: white !important;
         font-weight: bold;
     }
+    .btn-outline-light {
+        color: white;
+        border: 1px solid #ccc;
+    }
     .btn-outline-light:hover {
         background-color: #ffc107;
-        color: #000;
+        color: black;
         font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="ficha">
+  <div class="contenedor">
     <h3>Avance Petrolizadora</h3>
     <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
-    <div class="mb-4">
-      <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100">
-          <?= $porcentaje ?>%
-        </div>
-      </div>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
     </div>
 
-    <?php foreach ($etapas as $seccion => $pasos): ?>
-      <h5 class="mt-4 text-info text-center"><?= $seccion ?></h5>
-      <div class="row justify-content-center">
-        <?php foreach ($pasos as $nombre => $peso): 
-          $ya = in_array($nombre, $completadas);
-        ?>
-          <div class="col-12">
-            <form method="POST" class="text-center">
-              <input type="hidden" name="etapa" value="<?= htmlspecialchars($nombre) ?>">
-              <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-              <button type="submit" class="btn btn-toggle btn-sm <?= $ya ? 'completed' : 'btn-outline-light' ?>">
-                <?= $nombre ?> (<?= $peso ?>%)
-              </button>
-            </form>
-          </div>
-        <?php endforeach; ?>
-      </div>
+    <?php foreach ($etapas as $grupo => $pasos): ?>
+      <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
+      <?php foreach ($pasos as $etapa => $peso):
+        $ya = in_array($etapa, $completadas);
+      ?>
+        <form method="POST" class="mb-2">
+          <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
+          <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
+          <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
+            <?= $etapa ?> (<?= $peso ?>%)
+          </button>
+        </form>
+      <?php endforeach; ?>
     <?php endforeach; ?>
 
     <div class="text-center mt-4">
