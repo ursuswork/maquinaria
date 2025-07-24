@@ -53,7 +53,7 @@ $resultado = $conn->query($sql);
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'produccion nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
   </ul>
   <form class="mb-3" method="GET">
@@ -82,7 +82,7 @@ $resultado = $conn->query($sql);
         $porc_avance = 0;
         $etapas_realizadas = [];
         $etapas = [];
-        if ($tipo === 'nueva') {
+        if ($tipo === 'produccion nueva') {
           $avance_tabla = '';
           switch ($subtipo) {
             case 'esparcidor de sello': $avance_tabla = 'avance_esparcidor'; break;
