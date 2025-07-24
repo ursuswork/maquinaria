@@ -122,19 +122,20 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       font-size: 1.2rem;
     }
     .btn-toggle {
-      width: 95%;
-      margin: 6px auto;
-      display: block;
-      border-radius: 0.75rem;
-      font-size: 0.8rem;
-      padding: 6px 8px;
-      text-align: center;
-      color: white;
-      background-color: #012a5c;
-      border: 1px solid #004080;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      transition: all 0.2s ease-in-out;
-    }
+  width: 90%;
+  margin: 4px auto;
+  display: block;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  text-align: center;
+  color: white;
+  background-color: #012a5c;
+  border: 2px solid #004080;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.2s ease-in-out;
+  line-height: 1.1;
+}
     .btn-toggle:hover {
       background-color: #003366;
       border-color: #0059b3;
