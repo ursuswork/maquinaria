@@ -120,32 +120,31 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       font-size: 1.2rem;
     }
     .btn-toggle {
-  width: 90%;
-  margin: 8px auto;
-  display: block;
-  border-radius: 1rem;
-  font-size: 0.9rem;
-  padding: 12px;
-  text-align: center;
-  color: white;
-  background-color: #012a5c;
-  border: 2px solid #004080;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: all 0.2s ease-in-out;
-}
-.btn-toggle:hover {
-  background-color: #003366;
-  border-color: #0059b3;
-}
-.completed {
-  background-color: #28a745 !important;
-  color: white !important;
-  font-weight: bold;
-  border: 2px solid #1c7c35 !important;
-}
-    @keyframes scaleUp {
-      from { transform: scale(0.95); }
-      to { transform: scale(1); }
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  margin: 5px auto;
+      width: 90%;
+      margin: 8px auto;
+      display: block;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      padding: 12px;
+      text-align: center;
+      color: white;
+      background-color: #012a5c;
+      border: 2px solid #004080;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-toggle:hover {
+      background-color: #003366;
+      border-color: #0059b3;
+    }
+    .completed {
+      background-color: #28a745 !important;
+      color: white !important;
+      font-weight: bold;
+      border: 2px solid #1c7c35 !important;
     }
   </style>
 </head>
