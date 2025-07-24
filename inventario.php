@@ -33,19 +33,24 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #001f3f; color: #ffffff; }
-    .table-dark th, .table-dark td { vertical-align: middle; }
+    body { background-color: #eaf2fb; color: #000000; }
+    .table thead th { background-color: #0074cc; color: #ffffff; }
+    .table tbody tr:nth-child(even) { background-color: #f2f6fc; }
+    .table tbody tr:nth-child(odd) { background-color: #ffffff; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 5px 10px; border-radius: 5px; }
     .progress { height: 20px; }
     .progress-bar { font-weight: bold; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
-    .nav-tabs .nav-link { color: #ffffff; }
+    .nav-tabs .nav-link { color: #0074cc; }
+    .btn-outline-primary { color: #0074cc; border-color: #0074cc; }
+    .btn-outline-primary:hover { background-color: #0074cc; color: white; }
+    .btn-outline-danger:hover { background-color: #dc3545; color: white; }
   </style>
 </head>
 <body>
 <div class="container py-4">
   <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
-    <h3 class="text-light">Inventario de Maquinaria</h3>
+    <h3 class="text-dark">Inventario de Maquinaria</h3>
     <div class="d-flex gap-2">
       <a href="agregar_maquinaria.php" class="btn btn-primary">+ Agregar Maquinaria</a>
       <a href="logout.php" class="btn btn-secondary">Cerrar sesión</a>
@@ -53,7 +58,7 @@ $resultado = $conn->query($sql);
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'produccion nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
   </ul>
   <form class="mb-3" method="GET">
@@ -62,7 +67,7 @@ $resultado = $conn->query($sql);
       <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
     </div>
   </form>
-  <table class="table table-dark table-striped">
+  <table class="table table-bordered">
     <thead>
       <tr>
         <th>Nombre</th>
