@@ -18,7 +18,7 @@ if (!empty($busqueda)) {
   $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'nueva'";
+  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'produccion nueva'";
 } elseif ($tipo_filtro === 'usada') {
   $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'usada'";
 }
@@ -76,7 +76,7 @@ $resultado = $conn->query($sql);
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Produccion Nueva</a></li>
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
   </ul>
   <form class="mb-4" method="GET">
@@ -187,8 +187,8 @@ $resultado = $conn->query($sql);
     <p class="mb-1"><strong>Modelo:</strong> <?= htmlspecialchars($fila['modelo']) ?></p>
     <p class="mb-1"><strong>Ubicación:</strong> <?= htmlspecialchars($fila['ubicacion']) ?></p>
     <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($fila['tipo_maquinaria']) ?>
-      <?php if ($fila['tipo_maquinaria'] == 'nueva'): ?>
-        <span class="etiqueta-nueva">Nueva</span>
+      <?php if ($fila['tipo_maquinaria'] == 'produccion nueva'): ?>
+        <span class="etiqueta-produccion nueva">Produccion Nueva</span>
       <?php endif; ?>
     </p>
     <?php if (!empty($fila['subtipo'])): ?>
@@ -354,7 +354,7 @@ $resultado = $conn->query($sql);
     }
   }
 ?>
-    <td><?= ($fila['tipo_maquinaria'] === 'nueva' && $porc_avance !== '') ? $porc_avance . "%" : '-' ?></td>
+    <td><?= ($fila['tipo_maquinaria'] === ' produccion nueva' && $porc_avance !== '') ? $porc_avance . "%" : '-' ?></td>
     <td><?= ($fila['tipo_maquinaria'] === 'usada' && !empty($fila['observaciones'])) ? htmlspecialchars($fila['observaciones']) : '' ?></td>
 </tr>
 <?php endwhile; ?>
