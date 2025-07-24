@@ -121,8 +121,8 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
         font-size: 1.2rem;
     }
     .btn-toggle {
-        min-width: 280px;
-        margin: 10px auto;
+        width: 100%;
+        margin: 6px auto; border: 1px solid #0d274d; padding: 0.3rem;
         display: block;
         border-radius: 1rem;
         font-size: 0.95rem;
@@ -158,7 +158,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
         <?php foreach ($pasos as $nombre => $peso): 
           $ya = in_array($nombre, $completadas);
         ?>
-          <div class="col-md-6 col-lg-4">
+          <div class="col-12">
             <form method="POST" class="text-center">
               <input type="hidden" name="etapa" value="<?= htmlspecialchars($nombre) ?>">
               <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
