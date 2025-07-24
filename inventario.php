@@ -41,7 +41,7 @@ $resultado = $conn->query($sql);
     .table td, .table th { padding: 1rem 1.2rem; vertical-align: middle; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; }
+    .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; border-radius: 20px; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; border-radius: 0.375rem 0.375rem 0 0; }
     .nav-tabs .nav-link { color: #ffffff; margin-right: 0.5rem; }
     .btn-outline-primary { color: #0074cc; border-color: #0074cc; transition: all 0.2s; }
@@ -77,9 +77,28 @@ $resultado = $conn->query($sql);
       transition: transform 0.3s ease-in-out;
     }
     .imagen-thumbnail:hover {
-      transform: scale(1.5);
+      transform: scale(1.1);
       z-index: 999;
     }
+    .modal-img {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.9);
+    }
+    .modal-img-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 90%;
+    }
+    .modal-img:hover { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -120,7 +139,7 @@ $resultado = $conn->query($sql);
       <tr>
         <td>
           <?php if (!empty($fila['imagen'])): ?>
-            <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" alt="Imagen" class="imagen-thumbnail">
+            <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" alt="Imagen" class="imagen-thumbnail" onclick="ampliarImagen(this)">
           <?php else: ?>
             <span class="text-muted">Sin imagen</span>
           <?php endif; ?>
@@ -136,14 +155,10 @@ $resultado = $conn->query($sql);
           <?php
             if ($fila['tipo_maquinaria'] == 'usada') {
               $cond = intval($fila['condicion_estimada']);
-              echo "<div class='progress'>
-                      <div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div>
-                    </div>";
+              echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div></div>";
             } else {
               $avance = 0;
-              echo "<div class='progress'>
-                      <div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div>
-                    </div>";
+              echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div></div>";
             }
           ?>
         </td>
@@ -160,5 +175,21 @@ $resultado = $conn->query($sql);
   </table>
 </div>
 <a href="exportar_excel.php" class="btn-flotante" title="Exportar a Excel">📥 Exportar Excel</a>
+
+<div id="modalImg" class="modal-img" onclick="cerrarImagen()">
+  <img class="modal-img-content" id="imagenAmpliada">
+</div>
+
+<script>
+  function ampliarImagen(img) {
+    var modal = document.getElementById("modalImg");
+    var modalImg = document.getElementById("imagenAmpliada");
+    modal.style.display = "block";
+    modalImg.src = img.src;
+  }
+  function cerrarImagen() {
+    document.getElementById("modalImg").style.display = "none";
+  }
+</script>
 </body>
 </html>
