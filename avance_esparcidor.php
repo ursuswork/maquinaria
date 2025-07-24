@@ -22,19 +22,21 @@ $etapas = [
     "Colocar chasis y flux" => 5,
     "Colocar tapas y tubulares" => 5,
     "Colocar fibra de vidrio y lamina A.I" => 10,
-    "Colocar accesorios tanque" => 5,
+    "Colocar accesorios" => 5,
   ],
-  "PETROLIZADORA" => [
-    "Armar y colocar barra" => 5,
-    "Armar y colocar chasis p/bomba y motor" => 5,
-    "Armar,alinear motor y bomba" => 5,
-    "Montar alinear motor" => 5,
-    "Armar tuberia interna y externa" => 5,
-    "Alinear y colocar tuberias" => 5,
-    "Colocar accesorios petrolizadora" => 5,
-    "Pintura" => 5,
-    "Intalacion electrica" => 5,
-    "Probar y checar fugas" => 5
+  "ESPARCIDOR" => [
+    "Armar cajas negras y de controles" => 5,
+    "Armar chasis" => 5,
+    "Cortar, doblar y armar tolva" => 5,
+    "Doblar, armar y colocar cabezal" => 5,
+    "Doblar,armar,probar y colocar tanque de aceite" => 5,
+    "Armar bomba" => 5,
+    "Armar transportadores" => 3,
+    "Pintar" => 2,
+    "Colocar hidráulico y neumático" => 4,
+    "Conectar eléctrico" => 3,
+    "Colocar accesorios finales" => 3,
+    "Prueba de equipo final" => 5
   ]
 ];
 
@@ -44,16 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $accion = $_POST['accion'];
 
   if ($accion === 'marcar') {
-    $stmt = $conn->prepare("INSERT IGNORE INTO avance_petrolizadora (id_maquinaria, etapa) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT IGNORE INTO avance_esparcidor (id_maquinaria, etapa) VALUES (?, ?)");
     $stmt->bind_param("is", $id_maquinaria, $etapa);
     $stmt->execute();
   } elseif ($accion === 'desmarcar') {
-    $stmt = $conn->prepare("DELETE FROM avance_petrolizadora WHERE id_maquinaria = ? AND etapa = ?");
+    $stmt = $conn->prepare("DELETE FROM avance_esparcidor WHERE id_maquinaria = ? AND etapa = ?");
     $stmt->bind_param("is", $id_maquinaria, $etapa);
     $stmt->execute();
   }
 
-  header("Location: avance_petrolizadora.php?id=$id_maquinaria");
+  header("Location: avance_esparcidor.php?id=$id_maquinaria");
   exit;
 }
 
@@ -63,7 +65,7 @@ if (!$maquinaria) die("Maquinaria no encontrada");
 
 // Etapas completadas
 $completadas = [];
-$res = $conn->query("SELECT etapa FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria");
+$res = $conn->query("SELECT etapa FROM avance_esparcidor WHERE id_maquinaria = $id_maquinaria");
 while ($row = $res->fetch_assoc()) {
   $completadas[] = $row['etapa'];
 }
@@ -87,7 +89,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Avance Petrolizadora</title>
+  <title>Avance Esparcidor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -121,16 +123,16 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
     }
     .btn-toggle {
       width: 90%;
-      margin: 6px auto;
+      margin: 4px auto;
       display: block;
-      border-radius: 0.7rem;
-      font-size: 0.85rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
       padding: 8px;
       text-align: center;
       color: white;
       background-color: #012a5c;
-      border: 1px solid #004080;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      border: 2px solid #004080;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       transition: all 0.2s ease-in-out;
     }
     .btn-toggle:hover {
@@ -141,13 +143,13 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       background-color: #28a745 !important;
       color: white !important;
       font-weight: bold;
-      border: 1px solid #1c7c35 !important;
+      border: 2px solid #1c7c35 !important;
     }
   </style>
 </head>
 <body>
   <div class="contenedor">
-    <h3>Avance Petrolizadora</h3>
+    <h3>Avance Esparcidor</h3>
     <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
     <div class="progress">
