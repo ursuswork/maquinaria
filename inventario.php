@@ -33,15 +33,15 @@ $resultado = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #eaf2fb; color: #000000; }
-    .table thead th { background-color: #0074cc; color: #ffffff; }
-    .table tbody tr:nth-child(even) { background-color: #f2f6fc; }
-    .table tbody tr:nth-child(odd) { background-color: #ffffff; }
+    body { background-color: #001f3f; color: #ffffff; }
+    .table thead th { background-color: #004080; color: #ffffff; }
+    .table tbody tr:nth-child(even) { background-color: #003366; }
+    .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 5px 10px; border-radius: 5px; }
     .progress { height: 20px; }
     .progress-bar { font-weight: bold; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
-    .nav-tabs .nav-link { color: #0074cc; }
+    .nav-tabs .nav-link { color: #ffffff; }
     .btn-outline-primary { color: #0074cc; border-color: #0074cc; }
     .btn-outline-primary:hover { background-color: #0074cc; color: white; }
     .btn-outline-danger:hover { background-color: #dc3545; color: white; }
@@ -50,7 +50,7 @@ $resultado = $conn->query($sql);
 <body>
 <div class="container py-4">
   <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
-    <h3 class="text-dark">Inventario de Maquinaria</h3>
+    <h3 class="text-white">Inventario de Maquinaria</h3>
     <div class="d-flex gap-2">
       <a href="agregar_maquinaria.php" class="btn btn-primary">+ Agregar Maquinaria</a>
       <a href="logout.php" class="btn btn-secondary">Cerrar sesión</a>
