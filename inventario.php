@@ -17,8 +17,8 @@ $sql = "
 if (!empty($busqueda)) {
   $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%')";
 }
-if ($tipo_filtro === 'nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'nueva'";
+if ($tipo_filtro === 'produccion nueva') {
+  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'produccion nueva'";
 } elseif ($tipo_filtro === 'usada') {
   $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'usada'";
 }
@@ -110,7 +110,7 @@ $resultado = $conn->query($sql);
   </div>
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'produccion nueva' ? 'active' : '' ?>" href="?tipo=produccion nueva">Producción Nueva</a></li>
     <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
   </ul>
   <form class="mb-3" method="GET">
@@ -146,7 +146,7 @@ $resultado = $conn->query($sql);
         <td><?= htmlspecialchars($fila['modelo']) ?></td>
         <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
         <td>
-          <?= $fila['tipo_maquinaria'] == 'nueva' ? '<span class="badge-nueva">Producción Nueva</span>' : 'Usada' ?>
+          <?= $fila['tipo_maquinaria'] == 'produccion nueva' ? '<span class="badge-nueva">Producción Nueva</span>' : 'Usada' ?>
         </td>
         <td><?= htmlspecialchars($fila['subtipo']) ?></td>
         <td>
@@ -170,7 +170,7 @@ $resultado = $conn->query($sql);
               'petrolizadora' => 'avance_petrolizadora.php',
               'bachadora' => 'avance_bachadora.php'
             ];
-            if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
+            if ($fila['tipo_maquinaria'] == 'produccion nueva' && isset($mapa_avance[$subtipo])):
           ?>
           <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance">📊</a>
           <?php endif; ?>
