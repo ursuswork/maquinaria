@@ -41,14 +41,12 @@ $resultado = $conn->query($sql);
     .table td, .table th { padding: 1rem 1.2rem; vertical-align: middle; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; border-radius: 20px; }
+    .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; border-radius: 20px; transition: width 0.4s ease; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; border-radius: 0.375rem 0.375rem 0 0; }
     .nav-tabs .nav-link { color: #ffffff; margin-right: 0.5rem; }
-    .btn-outline-primary { color: #0074cc; border-color: #0074cc; transition: all 0.2s; }
+    .btn-outline-primary, .btn-outline-danger, .btn-outline-success { transition: all 0.2s; }
     .btn-outline-primary:hover { background-color: #0074cc; color: white; transform: scale(1.05); }
-    .btn-outline-danger { transition: all 0.2s; }
     .btn-outline-danger:hover { background-color: #dc3545; color: white; transform: scale(1.05); }
-    .btn-outline-success { transition: all 0.2s; }
     .btn-outline-success:hover { background-color: #28a745; color: white; transform: scale(1.05); }
     .table-hover tbody tr:hover { background-color: #004d80; }
     .btn-flotante {
@@ -165,8 +163,16 @@ $resultado = $conn->query($sql);
         <td>
           <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar">🖉</a>
           <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')">🗑️</a>
-          <?php if ($fila['tipo_maquinaria'] == 'nueva' && in_array($fila['subtipo'], ['esparcidor de sello', 'petrolizadora', 'bachadora'])): ?>
-          <a href="avance_<?= str_replace(' ', '_', strtolower($fila['subtipo'])) ?>.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance">📊</a>
+          <?php
+            $subtipo = strtolower(trim($fila['subtipo']));
+            $mapa_avance = [
+              'esparcidor de sello' => 'avance_esparcidor.php',
+              'petrolizadora' => 'avance_petrolizadora.php',
+              'bachadora' => 'avance_bachadora.php'
+            ];
+            if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
+          ?>
+          <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance">📊</a>
           <?php endif; ?>
         </td>
       </tr>
