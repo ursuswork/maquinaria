@@ -40,8 +40,8 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .table td, .table th { padding: 1rem 1.2rem; vertical-align: middle; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; }
-    .progress { height: 22px; border-radius: 10px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar { font-weight: bold; }
+    .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
+    .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; }
     .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; border-radius: 0.375rem 0.375rem 0 0; }
     .nav-tabs .nav-link { color: #ffffff; margin-right: 0.5rem; }
     .btn-outline-primary { color: #0074cc; border-color: #0074cc; transition: all 0.2s; }
@@ -70,6 +70,16 @@ $resultado = $conn->query($sql);
       background-color: #e0a800;
       color: white;
     }
+    .imagen-thumbnail {
+      max-width: 80px;
+      max-height: 80px;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out;
+    }
+    .imagen-thumbnail:hover {
+      transform: scale(1.5);
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
@@ -95,6 +105,7 @@ $resultado = $conn->query($sql);
   <table class="table table-hover table-bordered">
     <thead>
       <tr>
+        <th>Imagen</th>
         <th>Nombre</th>
         <th>Modelo</th>
         <th>Ubicación</th>
@@ -107,6 +118,13 @@ $resultado = $conn->query($sql);
     <tbody>
       <?php while ($fila = $resultado->fetch_assoc()): ?>
       <tr>
+        <td>
+          <?php if (!empty($fila['imagen'])): ?>
+            <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" alt="Imagen" class="imagen-thumbnail">
+          <?php else: ?>
+            <span class="text-muted">Sin imagen</span>
+          <?php endif; ?>
+        </td>
         <td><?= htmlspecialchars($fila['nombre']) ?></td>
         <td><?= htmlspecialchars($fila['modelo']) ?></td>
         <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
@@ -119,12 +137,12 @@ $resultado = $conn->query($sql);
             if ($fila['tipo_maquinaria'] == 'usada') {
               $cond = intval($fila['condicion_estimada']);
               echo "<div class='progress'>
-                      <div class='progress-bar bg-success' role='progressbar' style='width: {$cond}%'>{$cond}%</div>
+                      <div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div>
                     </div>";
             } else {
               $avance = 0;
               echo "<div class='progress'>
-                      <div class='progress-bar bg-info' role='progressbar' style='width: {$avance}%'>{$avance}%</div>
+                      <div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div>
                     </div>";
             }
           ?>
