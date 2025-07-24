@@ -104,6 +104,9 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     }
     .btn-toggle {
       text-align: center;
+      color: white;
+      background-color: #012a5c;
+
       width: 100%;
       margin-bottom: 10px;
       border-radius: 0.5rem;
