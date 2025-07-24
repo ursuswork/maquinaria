@@ -109,7 +109,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       text-align: center;
     }
     .progress {
-      height: 35px;
+      height: 30px;
       background-color: #2c3e50;
       border-radius: 1rem;
       overflow: hidden;
@@ -117,23 +117,19 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
     .progress-bar {
       background-color: #ffc107 !important;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
     .btn-toggle {
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  margin: 5px auto;
-      width: 90%;
-      margin: 8px auto;
+      width: 95%;
+      margin: 6px auto;
       display: block;
-      border-radius: 1rem;
-      font-size: 0.9rem;
-      padding: 12px;
+      border-radius: 0.75rem;
+      font-size: 0.85rem;
+      padding: 8px;
       text-align: center;
       color: white;
       background-color: #012a5c;
-      border: 2px solid #004080;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 1px solid #375a7f;
       transition: all 0.2s ease-in-out;
     }
     .btn-toggle:hover {
@@ -144,16 +140,16 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       background-color: #28a745 !important;
       color: white !important;
       font-weight: bold;
-      border: 2px solid #1c7c35 !important;
+      border: 1px solid #1c7c35 !important;
     }
   </style>
 </head>
 <body>
-  <div class="contenedor">
+  <div class="ficha">
     <h3>Avance Petrolizadora</h3>
     <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
-    <div class="progress">
+    <div class="progress mb-4">
       <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
     </div>
 
@@ -162,7 +158,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       <?php foreach ($pasos as $etapa => $peso):
         $ya = in_array($etapa, $completadas);
       ?>
-        <form method="POST" class="mb-2">
+        <form method="POST" class="mb-1">
           <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
           <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
           <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
