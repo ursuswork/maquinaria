@@ -92,55 +92,60 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-        background-color: #001933;
-        color: #fff;
-        font-family: 'Segoe UI', sans-serif;
+      background-color: #001f3f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
     }
-    .contenedor {
-        max-width: 960px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: #012a5c;
-        border-radius: 1rem;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    .ficha {
+      background-color: #012a5c;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
     h3, h5 {
-        text-align: center;
-        color: #ffc107;
+      color: #ffc107;
+      text-align: center;
     }
     .progress {
-        height: 30px;
-        border-radius: 15px;
-        background-color: #2c3e50;
-        margin-bottom: 2rem;
+      height: 35px;
+      background-color: #2c3e50;
+      border-radius: 1rem;
+      overflow: hidden;
     }
     .progress-bar {
-        background-color: #ffc107;
-        font-weight: bold;
-        font-size: 1.1rem;
+      background-color: #ffc107 !important;
+      font-weight: bold;
+      font-size: 1.2rem;
     }
     .btn-toggle {
-        width: 100%;
-        margin: 6px 0;
-        border-radius: 1rem;
-        font-size: 0.95rem;
-        padding: 0.6rem 1rem;
-        text-align: center;
-        border: 1px solid #204060;
-    }
-    .completed {
-        background-color: #28a745 !important;
-        color: white !important;
-        font-weight: bold;
-    }
-    .btn-outline-light {
-        color: white;
-        border: 1px solid #ccc;
-    }
-    .btn-outline-light:hover {
-        background-color: #ffc107;
-        color: black;
-        font-weight: bold;
+  width: 90%;
+  margin: 8px auto;
+  display: block;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  padding: 12px;
+  text-align: center;
+  color: white;
+  background-color: #012a5c;
+  border: 2px solid #004080;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-toggle:hover {
+  background-color: #003366;
+  border-color: #0059b3;
+}
+.completed {
+  background-color: #28a745 !important;
+  color: white !important;
+  font-weight: bold;
+  border: 2px solid #1c7c35 !important;
+}
+    @keyframes scaleUp {
+      from { transform: scale(0.95); }
+      to { transform: scale(1); }
     }
   </style>
 </head>
