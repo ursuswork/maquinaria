@@ -38,6 +38,8 @@ $resultado = $conn->query($sql);
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 5px 10px; border-radius: 5px; }
     .progress { height: 20px; }
     .progress-bar { font-weight: bold; }
+    .nav-tabs .nav-link.active { background-color: #ffc107; color: #001f3f; }
+    .nav-tabs .nav-link { color: #ffffff; }
   </style>
 </head>
 <body>
@@ -49,6 +51,11 @@ $resultado = $conn->query($sql);
       <a href="logout.php" class="btn btn-secondary">Cerrar sesión</a>
     </div>
   </div>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a></li>
+    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
+  </ul>
   <form class="mb-3" method="GET">
     <div class="input-group">
       <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
@@ -86,7 +93,6 @@ $resultado = $conn->query($sql);
             $avance_result = $conn->query("SELECT etapa FROM $avance_tabla WHERE id_maquinaria = {$fila['id']}");
             if ($avance_result) {
               while ($row = $avance_result->fetch_assoc()) $etapas_realizadas[] = $row['etapa'];
-              // peso estimado simple
               $peso_total = count($etapas_realizadas) * 5;
               $peso_completado = count($etapas_realizadas) * 5;
               $porc_avance = $peso_total > 0 ? round(($peso_completado / $peso_total) * 100) : 0;
@@ -127,6 +133,56 @@ $resultado = $conn->query($sql);
       <?php endwhile; ?>
     </tbody>
   </table>
+  <button onclick="exportTableToExcel('tablaExportable', 'inventario_maquinaria')" 
+    class="btn btn-warning shadow rounded-pill position-fixed" 
+    style="bottom: 20px; right: 20px; z-index: 999;">
+    📁 Exportar Excel
+  </button>
+  <table id="tablaExportable" style="display:none;">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nombre</th><th>Modelo</th><th>Ubicación</th><th>Tipo</th><th>Subtipo</th><th>Condición</th>
+      </tr>
+    </thead>
+    <tbody>
+    <?php $export_result = $conn->query($sql);
+    while ($row = $export_result->fetch_assoc()): ?>
+      <tr>
+        <td><?= $row['id'] ?></td>
+        <td><?= htmlspecialchars($row['nombre']) ?></td>
+        <td><?= htmlspecialchars($row['modelo']) ?></td>
+        <td><?= htmlspecialchars($row['ubicacion']) ?></td>
+        <td><?= $row['tipo_maquinaria'] === 'nueva' ? 'Producción Nueva' : 'Usada' ?></td>
+        <td><?= htmlspecialchars($row['subtipo']) ?></td>
+        <td><?= $row['tipo_maquinaria'] === 'usada' ? $row['condicion_estimada'] . '%' : '-' ?></td>
+      </tr>
+    <?php endwhile; ?>
+    </tbody>
+  </table>
 </div>
+<script>
+function exportTableToExcel(tableID, filename = '') {
+  const dataType = 'application/vnd.ms-excel';
+  const table = document.getElementById(tableID);
+  let tableHTML = '\uFEFF' + table.outerHTML;
+
+  const fecha = new Date().toISOString().slice(0, 10);
+  filename = filename ? `${filename}_${fecha}.xls` : `inventario_${fecha}.xls`;
+
+  const downloadLink = document.createElement("a");
+  document.body.appendChild(downloadLink);
+
+  if (navigator.msSaveOrOpenBlob) {
+    const blob = new Blob([tableHTML], { type: dataType });
+    navigator.msSaveOrOpenBlob(blob, filename);
+  } else {
+    downloadLink.href = 'data:' + dataType + ',' + encodeURIComponent(tableHTML);
+    downloadLink.download = filename;
+    downloadLink.click();
+  }
+
+  document.body.removeChild(downloadLink);
+}
+</script>
 </body>
 </html>
