@@ -70,7 +70,7 @@ if (!isset($_SESSION['usuario'])) {
 <label class="form-label form-label text-warning">Tipo</label>
 <select class="form-select form-control mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
 <option value="">Seleccionar</option>
-<option value="nueva">Nueva</option>
+<option value="nueva">Produccion Nueva</option>
 <option value="usada">Usada</option>
 </select>
 </div>
