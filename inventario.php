@@ -18,7 +18,7 @@ if (!empty($busqueda)) {
   $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'produccion nueva') {
-  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'produccion nueva'";
+  $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'nueva'";
 } elseif ($tipo_filtro === 'usada') {
   $sql .= (str_contains($sql, "WHERE") ? " AND " : " WHERE ") . "m.tipo_maquinaria = 'usada'";
 }
@@ -146,7 +146,7 @@ $resultado = $conn->query($sql);
         <td><?= htmlspecialchars($fila['modelo']) ?></td>
         <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
         <td>
-          <?= $fila['tipo_maquinaria'] == 'produccion nueva' ? '<span class="badge-nueva">Producción Nueva</span>' : 'Usada' ?>
+          <?= $fila['tipo_maquinaria'] == 'nueva' ? '<span class="badge-nueva">Producción Nueva</span>' : 'Usada' ?>
         </td>
         <td><?= htmlspecialchars($fila['subtipo']) ?></td>
         <td>
@@ -170,7 +170,7 @@ $resultado = $conn->query($sql);
               'petrolizadora' => 'avance_petrolizadora.php',
               'bachadora' => 'avance_bachadora.php'
             ];
-            if ($fila['tipo_maquinaria'] == 'produccion nueva' && isset($mapa_avance[$subtipo])):
+            if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
           ?>
           <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance">📊</a>
           <?php endif; ?>
