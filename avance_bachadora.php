@@ -112,7 +112,7 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       font-weight: bold;
     }
     .completed {
-      background-color: #ffc107 !important;
+      background-color: #28a745 !important;
       color: white !important;
     }
     .btn-toggle:hover {
