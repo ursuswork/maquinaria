@@ -80,16 +80,19 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
     body {
       background-color: #001f3f;
       color: white;
+      font-family: 'Segoe UI', sans-serif;
     }
-    .container {
+    .ficha {
+      background-color: #012a5c;
+      padding: 2rem;
+      border-radius: 1.5rem;
       max-width: 1100px;
       margin: 2rem auto;
-      padding: 2rem;
-      background-color: #012a5c;
-      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
     h3, h5 {
       color: #ffc107;
+      text-align: center;
     }
     .progress {
       height: 35px;
@@ -98,70 +101,70 @@ $porcentaje = round(($peso_completado / $peso_total) * 100);
       overflow: hidden;
     }
     .progress-bar {
-      transition: width 0.6s ease;
-      box-shadow: 0 4px 10px rgba(255, 193, 7, 0.5);
       background-color: #ffc107 !important;
       font-weight: bold;
       font-size: 1.2rem;
     }
     .btn-toggle {
-      background-color: #012a5c;
-      color: white;
-      text-align: center;
-      color: white;
-      background-color: #012a5c;
-
       width: 100%;
-      margin-bottom: 10px;
-      border-radius: 0.5rem;
-      background-color: white;
-      color: black;
+      margin: 8px 0;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-outline-light {
+      background-color: #012a5c;
+      color: white;
+      border: none;
+      font-weight: bold;
+    }
+    .btn-outline-light:hover {
+      background-color: #004080;
+      color: #fff;
       font-weight: bold;
     }
     .completed {
       background-color: #28a745 !important;
       color: white !important;
       font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      transform: scale(1.05);
-      background-color: #28a745 !important;
-      color: white !important;
+      animation: scaleUp 0.2s ease-in-out;
     }
-    .btn-toggle:hover {
-      opacity: 0.9;
+    @keyframes scaleUp {
+      from { transform: scale(0.95); }
+      to { transform: scale(1); }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h3 class="text-center">Avance de Bachadora</h3>
-  <h5 class="text-center"><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+  <div class="ficha">
+    <h3>Avance de Bachadora</h3>
+    <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
 
-  <div class="my-4">
-    <div class="progress">
-      <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
+    <div class="mb-4">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
+      </div>
+    </div>
+
+    <form method="post">
+      <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
+      <?php foreach ($etapas_arma as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
+
+      <h5 class="mt-4 text-white text-center">BACHADORA</h5>
+      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : 'btn-outline-light' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
+    </form>
+
+    <div class="text-center mt-4">
+      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
     </div>
   </div>
-
-  <form method="post">
-    <h5>ARMAR TANQUE</h5>
-    <?php foreach ($etapas_arma as $etapa => $peso): ?>
-      <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-        <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-      </button>
-    <?php endforeach; ?>
-
-    <h5 class="mt-4">BACHADORA</h5>
-    <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-      <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-        <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-      </button>
-    <?php endforeach; ?>
-  </form>
-
-  <div class="text-center mt-4">
-    <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
-  </div>
-</div>
 </body>
 </html>
