@@ -9,7 +9,6 @@ include 'conexion.php';
 $busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
-$subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
 $sql = "
   SELECT m.*, r.condicion_estimada, r.observaciones 
