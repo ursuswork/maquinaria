@@ -141,7 +141,7 @@ $resultado = $conn->query($sql);
         $avance = 0;
         if ($fila['tipo_maquinaria'] === 'nueva') {
           if ($subtipo === 'bachadora') {
-            $q = $conn->query("SELECT avance FROM avance_total_bachadora WHERE id_maquinaria = $id");
+            $q = $conn->query("SELECT avance FROM avance_bachadora WHERE id_maquinaria = $id");
             if ($q && $r = $q->fetch_assoc()) $avance = intval($r['avance']);
           }
         }
