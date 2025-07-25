@@ -17,12 +17,12 @@ if (!$maquinaria) {
 }
 
 $secciones = [
-  "MOTOR" => [...],
-  "SISTEMA MECÁNICO" => [...],
-  "SISTEMA HIDRÁULICO" => [...],
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => [...],
-  "ESTÉTICO" => [...],
-  "CONSUMIBLES" => [...]
+  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+  "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
+  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+  "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
+  "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
 
 $pesos = [
@@ -33,6 +33,14 @@ $pesos = [
   "ESTÉTICO" => 5,
   "CONSUMIBLES" => 10
 ];
+
+$porcentajes = [];
+foreach ($secciones as $seccion => $componentes) {
+  $porcentaje_por_componente = round($pesos[$seccion] / count($componentes), 2);
+  foreach ($componentes as $comp) {
+    $porcentajes[$comp] = $porcentaje_por_componente;
+  }
+}
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
 
@@ -54,7 +62,6 @@ function botonOpciones($nombre, $valor_existente, $porcentaje) {
   ";
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
