@@ -95,6 +95,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       background-color: #001f3f;
       color: white;
       font-family: 'Segoe UI', sans-serif;
+      font-size: 1rem;
     }
     .ficha {
       background-color: #012a5c;
@@ -107,9 +108,10 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
     h3, h5 {
       color: #ffc107;
       text-align: center;
+      font-size: 1.4rem;
     }
     .progress {
-      height: 30px;
+      height: 35px;
       background-color: #2c3e50;
       border-radius: 1rem;
       overflow: hidden;
@@ -117,19 +119,20 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
     .progress-bar {
       background-color: #ffc107 !important;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
     .btn-toggle {
-      width: 95%;
+      width: 90%;
       margin: 6px auto;
       display: block;
-      border-radius: 0.75rem;
-      font-size: 0.85rem;
-      padding: 8px;
+      border-radius: 1rem;
+      font-size: 1rem;
+      padding: 10px;
       text-align: center;
       color: white;
       background-color: #012a5c;
-      border: 1px solid #375a7f;
+      border: 2px solid #004080;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       transition: all 0.2s ease-in-out;
     }
     .btn-toggle:hover {
@@ -140,7 +143,7 @@ $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
       background-color: #28a745 !important;
       color: white !important;
       font-weight: bold;
-      border: 1px solid #1c7c35 !important;
+      border: 2px solid #1c7c35 !important;
     }
   </style>
 </head>
