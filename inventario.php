@@ -63,11 +63,37 @@ $resultado = $conn->query($sql);
   </div>
 
   <!-- Pestañas -->
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro==='todas'?'active':''?>" href="?tipo=todas">Todas</a></li>
-    <li class="nav-item"><a class="nav-link <?= ($tipo_filtro==='produccion nueva'||$tipo_filtro==='nueva')?'active':''?>" href="?tipo=produccion nueva">Producción Nueva</a></li>
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro==='usada'?'active':''?>" href="?tipo=usada">Usada</a></li>
-  </ul>
+  <!-- Pestañas de filtro principal -->
+<ul class="nav nav-tabs mb-2">
+  <li class="nav-item">
+    <a class="nav-link <?= $tipo_filtro==='todas'?'active':''?>" href="?tipo=todas">Todas</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= ($tipo_filtro==='produccion nueva'||$tipo_filtro==='nueva')?'active':''?>" href="?tipo=produccion nueva">Producción Nueva</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $tipo_filtro==='usada'?'active':''?>" href="?tipo=usada">Usada</a>
+  </li>
+</ul>
+
+<!-- Subpestañas si tipo = produccion nueva -->
+<?php if ($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva'): ?>
+
+  <ul class="nav nav-pills mb-3 ms-3">
+  <li class="nav-item">
+    <a class="nav-link <?= $subtipo_filtro==='todos'?'active':''?>" href="?tipo=produccion nueva&subtipo=todos">Todos</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $subtipo_filtro==='bachadora'?'active':''?>" href="?tipo=produccion nueva&subtipo=bachadora">Bachadora</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $subtipo_filtro==='esparcidor de sello'?'active':''?>" href="?tipo=produccion nueva&subtipo=esparcidor de sello">Esparcidor de Sello</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $subtipo_filtro==='petrolizadora'?'active':''?>" href="?tipo=produccion nueva&subtipo=petrolizadora">Petrolizadora</a>
+  </li>
+</ul>
+<?php endif; ?>
 
   <!-- Búsqueda -->
   <form class="mb-3" method="GET">
