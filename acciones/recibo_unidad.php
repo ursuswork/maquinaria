@@ -111,18 +111,6 @@ function botonOpciones($nombre, $valor_existente, $porcentaje) {
 <body>
   <div class="container py-4">
     <h3 class="text-center">Recibo de Unidad</h3>
-
-    <?php if (isset($recibo_existente['condicion_estimada'])): ?>
-      <div class="my-3">
-        <label class="form-label">Condición Estimada</label>
-        <div class="progress" style="height: 25px;">
-          <div class="progress-bar bg-info" role="progressbar" style="width: <?= $recibo_existente['condicion_estimada'] ?>%;">
-            <?= $recibo_existente['condicion_estimada'] ?>%
-          </div>
-        </div>
-      </div>
-    <?php endif; ?>
-
     <form method="POST">
       <div class="row mb-3">
         <div class="col-md-4">
@@ -140,16 +128,23 @@ function botonOpciones($nombre, $valor_existente, $porcentaje) {
       </div>
 
       <?php foreach ($secciones as $titulo => $componentes): ?>
-        <hr>
-        <h5><?= htmlspecialchars($titulo) ?></h5>
-        <div class="row">
-         <?php foreach ($componentes as $comp): ?>
-  <div class="col-md-6">
-    <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp]) ?>
+  <hr>
+  <h5><?= htmlspecialchars($titulo) ?> (<?= $pesos[$titulo] ?>%)</h5>
+  
+  <div class="progress mb-3" style="height: 20px;">
+    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $pesos[$titulo] ?>%;">
+      <?= $pesos[$titulo] ?>%
+    </div>
+  </div>
+
+  <div class="row">
+    <?php foreach ($componentes as $comp): ?>
+      <div class="col-md-6">
+        <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp]) ?>
+      </div>
+    <?php endforeach; ?>
   </div>
 <?php endforeach; ?>
-        </div>
-      <?php endforeach; ?>
 
       <div class="mb-3">
         <label class="form-label">Observaciones</label>
