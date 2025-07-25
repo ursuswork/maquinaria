@@ -10,7 +10,6 @@ $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
 }
-
 $etapas = [
   "ARMAR TANQUE" => [
     "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
