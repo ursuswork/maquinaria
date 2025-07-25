@@ -171,20 +171,21 @@ $resultado = $conn->query($sql);
             }
           ?>
         </td>
-        <td>
-          <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="bi bi-pencil-square"></i></a>
-          <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')"><i class="bi bi-trash"></i></a>
-          <?php
-            $mapa_avance = [
-              'esparcidor de sello' => 'avance_esparcidor.php',
-              'petrolizadora' => 'avance_petrolizadora.php',
-              'bachadora' => 'avance_bachadora.php'
-            ];
-            if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
-          ?>
-          <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance"><i class="bi bi-bar-chart-line"></i></a>
-          <?php endif; ?>
-        </td>
+       <td>
+  <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="bi bi-pencil-square"></i></a>
+  <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')"><i class="bi bi-trash"></i></a>
+  <?php
+    $subtipo = strtolower(trim($fila['subtipo'])); // <-- asegúrate que esta línea esté aquí
+    $mapa_avance = [
+      'esparcidor de sello' => 'avance_esparcidor.php',
+      'petrolizadora' => 'avance_petrolizadora.php',
+      'bachadora' => 'avance_bachadora.php'
+    ];
+    if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
+  ?>
+  <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance"><i class="bi bi-bar-chart-line"></i></a>
+  <?php endif; ?>
+</td>
       </tr>
       <?php endwhile; ?>
     </tbody>
