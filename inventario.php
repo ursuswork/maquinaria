@@ -150,16 +150,29 @@ $resultado = $conn->query($sql);
         </td>
         <td><?= htmlspecialchars($fila['subtipo']) ?></td>
         <td>
-          <?php
-            if ($fila['tipo_maquinaria'] == 'usada') {
-              $cond = intval($fila['condicion_estimada']);
-              echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div></div>";
-            } else {
-              $avance = 0;
-              echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div></div>";
-            }
-          ?>
-        </td>
+  <?php
+    if ($fila['tipo_maquinaria'] == 'usada') {
+      $cond = intval($fila['condicion_estimada']);
+      echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div></div>";
+    } else {
+      // PRODUCCIÓN NUEVA - consultar avance según subtipo
+      $id = $fila['id'];
+      $subtipo = strtolower(trim($fila['subtipo']));
+      $avance = 0;
+      if ($subtipo === 'esparcidor de sello') {
+        $consulta = $conn->query("SELECT avance FROM avance_esparcidor WHERE id_maquinaria = $id");
+        if ($consulta && $fila_av = $consulta->fetch_assoc()) $avance = intval($fila_av['avance']);
+      } elseif ($subtipo === 'petrolizadora') {
+        $consulta = $conn->query("SELECT avance FROM avance_petrolizadora WHERE id_maquinaria = $id");
+        if ($consulta && $fila_av = $consulta->fetch_assoc()) $avance = intval($fila_av['avance']);
+      } elseif ($subtipo === 'bachadora') {
+        $consulta = $conn->query("SELECT avance FROM avance_bachadora WHERE id_maquinaria = $id");
+        if ($consulta && $fila_av = $consulta->fetch_assoc()) $avance = intval($fila_av['avance']);
+      }
+      echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div></div>";
+    }
+  ?>
+</td>
         <td>
           <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar">🖉</a>
           <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')">🗑️</a>
