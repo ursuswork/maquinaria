@@ -16,74 +16,30 @@ if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
-// Secciones y componentes
 $secciones = [
-  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-  "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
-  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
-  "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
-  "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
+  "MOTOR" => [...],
+  "SISTEMA MECÁNICO" => [...],
+  "SISTEMA HIDRÁULICO" => [...],
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => [...],
+  "ESTÉTICO" => [...],
+  "CONSUMIBLES" => [...]
+];
+
+$pesos = [
+  "MOTOR" => 15,
+  "SISTEMA MECÁNICO" => 15,
+  "SISTEMA HIDRÁULICO" => 30,
+  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
+  "ESTÉTICO" => 5,
+  "CONSUMIBLES" => 10
 ];
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
 
-// Guardar
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $componentes = $_POST['componentes'] ?? [];
-  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
-
-  $pesos = [
-    "MOTOR" => 15,
-    "SISTEMA MECÁNICO" => 15,
-    "SISTEMA HIDRÁULICO" => 30,
-    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
-    "ESTÉTICO" => 5,
-    "CONSUMIBLES" => 10
-  ];
-  $puntajes = ["bueno" => 100, "regular" => 50, "malo" => 0];
-  $total = 0;
-
-  foreach ($secciones as $seccion => $items) {
-    $suma = 0;
-    foreach ($items as $item) {
-      $val = $componentes[$item] ?? 'regular';
-      $suma += $puntajes[$val];
-    }
-    $promedio = $suma / count($items);
-    $total += $promedio * ($pesos[$seccion] / 100);
-  }
-
-  $condicion_estimada = round($total, 2);
-  $existe = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
-
-  if ($existe) {
-    $sql = "UPDATE recibo_unidad SET condicion_estimada = $condicion_estimada, observaciones = '$observaciones'";
-    foreach ($componentes as $clave => $valor) {
-      $sql .= ", `$clave` = '" . $conn->real_escape_string($valor) . "'";
-    }
-    $sql .= " WHERE id_maquinaria = $id_maquinaria";
-  } else {
-    $campos = "`id_maquinaria`, `condicion_estimada`, `observaciones`";
-    $valores = "$id_maquinaria, $condicion_estimada, '$observaciones'";
-    foreach ($componentes as $clave => $valor) {
-      $campos .= ", `$clave`";
-      $valores .= ", '" . $conn->real_escape_string($valor) . "'";
-    }
-    $sql = "INSERT INTO recibo_unidad ($campos) VALUES ($valores)";
-  }
-
-  $conn->query($sql);
-  $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion_estimada WHERE id = $id_maquinaria");
-  header("Location: ../inventario.php");
-  exit;
-}
-
-// Función de botones
-function botonOpciones($nombre, $valor_existente) {
+function botonOpciones($nombre, $valor_existente, $porcentaje) {
   return "
     <div class='mb-2'>
-      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . "</label><br>
+      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
       <div class='btn-group' role='group'>
         <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
         <label class='btn btn-outline-primary' for='{$nombre}_bueno'>Bueno</label>
