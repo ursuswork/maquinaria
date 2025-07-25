@@ -191,6 +191,7 @@ $resultado = $conn->query($sql);
       <div class="progress"><div class="progress-bar" style="width:<?=$avance?>%"><?=$avance?>%</div></div>
     <?php endif; ?>
   </td>
+  <td><?= nl2br(htmlspecialchars($fila['observaciones'] ?? '')) ?></td>
   <td>
     <a href="editar_maquinaria.php?id=<?=$id?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
     <a href="eliminar_maquinaria.php?id=<?=$id?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')"><i class="bi bi-trash"></i></a>
