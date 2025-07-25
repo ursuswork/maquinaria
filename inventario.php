@@ -155,7 +155,7 @@ $resultado = $conn->query($sql);
               echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$cond}%'>{$cond}%</div></div>";
             } else {
               $id = $fila['id'];
-              $subtipo = strtolower(trim($fila['subtipo']));
+              $subtipo = mb_strtolower(trim($fila['subtipo']));
               $avance = 0;
               $tabla_avance = '';
               if ($subtipo === 'esparcidor de sello') $tabla_avance = 'avance_esparcidor';
