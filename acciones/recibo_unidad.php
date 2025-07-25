@@ -143,11 +143,11 @@ function botonOpciones($nombre, $valor_existente, $porcentaje) {
         <hr>
         <h5><?= htmlspecialchars($titulo) ?></h5>
         <div class="row">
-          <?php foreach ($componentes as $comp): ?>
-            <div class="col-md-6">
-              <?= botonOpciones($comp, $recibo_existente[$comp] ?? '') ?>
-            </div>
-          <?php endforeach; ?>
+         <?php foreach ($componentes as $comp): ?>
+  <div class="col-md-6">
+    <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp]) ?>
+  </div>
+<?php endforeach; ?>
         </div>
       <?php endforeach; ?>
 
