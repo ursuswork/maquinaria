@@ -32,6 +32,7 @@ $resultado = $conn->query($sql);
   <title>Inventario de Maquinaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body { background-color: #001f3f; color: #ffffff; }
     .table thead th { background-color: #004080; color: #ffffff; border: none; }
@@ -156,25 +157,24 @@ $resultado = $conn->query($sql);
               $id = $fila['id'];
               $subtipo = strtolower(trim($fila['subtipo']));
               $avance = 0;
-              if ($subtipo === 'esparcidor de sello') {
-                $q = $conn->query("SELECT avance FROM avance_esparcidor WHERE id_maquinaria = $id");
-                if ($q && $r = $q->fetch_assoc()) $avance = intval($r['avance']);
-              } elseif ($subtipo === 'petrolizadora') {
-                $q = $conn->query("SELECT avance FROM avance_petrolizadora WHERE id_maquinaria = $id");
-                if ($q && $r = $q->fetch_assoc()) $avance = intval($r['avance']);
-              } elseif ($subtipo === 'bachadora') {
-                $q = $conn->query("SELECT avance FROM avance_bachadora WHERE id_maquinaria = $id");
+              $tabla_avance = '';
+              if ($subtipo === 'esparcidor de sello') $tabla_avance = 'avance_esparcidor';
+              elseif ($subtipo === 'petrolizadora') $tabla_avance = 'avance_petrolizadora';
+              elseif ($subtipo === 'bachadora') $tabla_avance = 'avance_bachadora';
+
+              if ($tabla_avance) {
+                $q = $conn->query("SELECT avance FROM $tabla_avance WHERE id_maquinaria = $id");
                 if ($q && $r = $q->fetch_assoc()) $avance = intval($r['avance']);
               }
+
               echo "<div class='progress'><div class='progress-bar' role='progressbar' style='width: {$avance}%'>{$avance}%</div></div>";
             }
           ?>
         </td>
         <td>
-          <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar">🖉</a>
-          <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')">🗑️</a>
+          <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary me-1" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger me-1" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta maquinaria?')"><i class="bi bi-trash"></i></a>
           <?php
-            $subtipo = strtolower(trim($fila['subtipo']));
             $mapa_avance = [
               'esparcidor de sello' => 'avance_esparcidor.php',
               'petrolizadora' => 'avance_petrolizadora.php',
@@ -182,7 +182,7 @@ $resultado = $conn->query($sql);
             ];
             if ($fila['tipo_maquinaria'] == 'nueva' && isset($mapa_avance[$subtipo])):
           ?>
-          <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance">📊</a>
+          <a href="<?= $mapa_avance[$subtipo] ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success" title="Ver Avance"><i class="bi bi-bar-chart-line"></i></a>
           <?php endif; ?>
         </td>
       </tr>
