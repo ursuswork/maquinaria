@@ -66,9 +66,8 @@ $resultado = $conn->query($sql);
       <a href="logout.php" class="btn btn-secondary">Cerrar sesión</a>
     </div>
   </div>
-
-  <!-- Pestañas -->
   <!-- Pestañas de filtro principal -->
+<!-- Pestañas de filtro principal -->
 <ul class="nav nav-tabs mb-2">
   <li class="nav-item">
     <a class="nav-link <?= $tipo_filtro==='todas'?'active':''?>" href="?tipo=todas">Todas</a>
@@ -80,15 +79,10 @@ $resultado = $conn->query($sql);
     <a class="nav-link <?= $tipo_filtro==='usada'?'active':''?>" href="?tipo=usada">Usada</a>
   </li>
 </ul>
-
-<!-- Subpestañas si tipo = produccion nueva -->
-<?php 
-if (($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') && $subtipo_filtro !== 'todos') {
-    $sql .= " AND LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
-}
-?>
-  <div class=""></div>
-  <ul class="nav nav-pills mb-3 ms-3">
+<?php if ($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva'): ?>
+  
+<!-- Subpestañas -->
+<ul class="nav nav-pills mb-3 ms-3">
   <li class="nav-item">
     <a class="nav-link <?= $subtipo_filtro==='todos'?'active':''?>" href="?tipo=produccion nueva&subtipo=todos">Todos</a>
   </li>
