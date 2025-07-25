@@ -6,11 +6,11 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// Parámetros
-$busqueda = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
+$busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
+$subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
+$subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
-// Consulta principal
 $sql = "
   SELECT m.*, r.condicion_estimada, r.observaciones 
   FROM maquinaria m
@@ -20,9 +20,15 @@ if ($busqueda !== '') {
   $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') {
-  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') . "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
-} elseif ($tipo_filtro === 'usada') {
-  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') . "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
+  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') 
+        . "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
+}
+if (($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') && $subtipo_filtro !== 'todos') {
+  $sql .= " AND LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
+}
+if ($tipo_filtro === 'usada') {
+  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') 
+        . "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
 }
 $sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 $resultado = $conn->query($sql);
