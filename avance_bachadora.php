@@ -69,7 +69,101 @@ foreach ($etapas as $nombre => $peso) {
 }
 $porcentaje = round(($peso_completado / $peso_total) * 100);
 
-// Actualiza avance total
-$conn->query("REPLACE INTO avance_total_bachadora (id_maquinaria, avance) VALUES ($id_maquinaria, $porcentaje)");
+$conn->query("REPLACE INTO avance_bachadora (id_maquinaria, avance) VALUES ($id_maquinaria, $porcentaje)");
 ?>
-<!-- HTML OMITIDO -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Avance Bachadora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #001f3f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .ficha {
+      background-color: #012a5c;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    h3, h5 {
+      color: #ffc107;
+      text-align: center;
+    }
+    .progress {
+      height: 35px;
+      background-color: #2c3e50;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background-color: #ffc107 !important;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .btn-toggle {
+      width: 90%;
+      margin: 8px auto;
+      display: block;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      padding: 12px;
+      text-align: center;
+      color: white;
+      background-color: #012a5c;
+      border: 2px solid #004080;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-toggle:hover {
+      background-color: #003366;
+      border-color: #0059b3;
+    }
+    .completed {
+      background-color: #28a745 !important;
+      color: white !important;
+      font-weight: bold;
+      border: 2px solid #1c7c35 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="ficha">
+    <h3>Avance de Bachadora</h3>
+    <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+
+    <div class="mb-4">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
+      </div>
+    </div>
+
+    <form method="post">
+      <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
+      <?php foreach ($etapas_arma as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
+
+      <h5 class="mt-4 text-white text-center">BACHADORA</h5>
+      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </button>
+      <?php endforeach; ?>
+    </form>
+
+    <div class="text-center mt-4">
+      <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
+    </div>
+  </div>
+</body>
+</html>
+
