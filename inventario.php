@@ -158,8 +158,6 @@ $resultado = $conn->query($sql);
   ) AS avance FROM avance_esparcidor WHERE id_maquinaria = $id");
   $avance = ($q && ($r = $q->fetch_assoc())) ? intval($r['avance']) : 0;
 }
-
-    }
           if ($subtipo === 'petrolizadora') {
           $q = $conn->query("SELECT SUM(
     CASE 
@@ -187,8 +185,6 @@ $resultado = $conn->query($sql);
   ) AS avance FROM avance_petrolizadora WHERE id_maquinaria = $id");
   $avance = ($q && ($r = $q->fetch_assoc())) ? intval($r['avance']) : 0;
 }
-
-    }
   }
 ?>
       <tr>
