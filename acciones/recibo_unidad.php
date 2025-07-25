@@ -126,14 +126,26 @@ function botonOpciones($nombre, $valor_existente, $porcentaje) {
           <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
         </div>
       </div>
+    <?php foreach ($secciones as $titulo => $componentes): ?>
+  <?php
+    $peso_total = $pesos[$titulo];
+    $componentes_seccion = count($componentes);
+    $peso_por_componente = $peso_total / $componentes_seccion;
 
-      <?php foreach ($secciones as $titulo => $componentes): ?>
+    $avance_actual = 0;
+    foreach ($componentes as $comp) {
+      $valor = $recibo_existente[$comp] ?? '';
+      if (in_array($valor, ['bueno', 'regular', 'malo'])) {
+        $avance_actual += $peso_por_componente;
+      }
+    }
+    $avance_actual = round($avance_actual, 2);
+  ?>
   <hr>
-  <h5><?= htmlspecialchars($titulo) ?> (<?= $pesos[$titulo] ?>%)</h5>
-  
+  <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
   <div class="progress mb-3" style="height: 20px;">
-    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $pesos[$titulo] ?>%;">
-      <?= $pesos[$titulo] ?>%
+    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $avance_actual ?>%;">
+      <?= $avance_actual ?>%
     </div>
   </div>
 
