@@ -72,7 +72,7 @@ $resultado = $conn->query($sql);
     </div>
   </div>
   <ul class="nav nav-tabs mb-3">
-    <li class="nav-item"><a class="nav-link <?= $tipo_filtro == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
+    <li class="nav-item"><a class="nav-link <?= strtolower(trim($tipo_filtro)) == 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a></li>
     <li class="nav-item"><a class="nav-link <?= strtolower($tipo_filtro) == 'produccion nueva' ? 'active' : '' ?>" href="?tipo=produccion nueva">Producción Nueva</a></li>
     <li class="nav-item"><a class="nav-link <?= strtolower($tipo_filtro) == 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a></li>
   </ul>
