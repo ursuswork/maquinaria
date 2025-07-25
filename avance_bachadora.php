@@ -70,7 +70,7 @@ foreach ($etapas as $nombre => $peso) {
 $porcentaje = round(($peso_completado / $peso_total) * 100);
 
 // Actualiza avance total
-$conn->query("REPLACE INTO avance_total_bachadora (id_maquinaria, avance) VALUES ($id_maquinaria, $porcentaje)");
+$conn->query("REPLACE INTO avance_bachadora (id_maquinaria, avance) VALUES ($id_maquinaria, $porcentaje)");
 ?>
 <!DOCTYPE html>
 <html lang="es">
