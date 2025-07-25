@@ -83,7 +83,7 @@ $resultado = $conn->query($sql);
     <thead>
       <tr>
         <th>Imagen</th><th>Nombre</th><th>Modelo</th><th>Ubicación</th>
-        <th>Tipo</th><th>Subtipo</th><th>Avance / Condición</th><th>Acciones</th>
+        <th>Tipo</th><th>Subtipo</th><th>Avance / Condición</th><th>Observaciones</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
