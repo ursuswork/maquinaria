@@ -112,14 +112,16 @@ $resultado = $conn->query($sql);
               "Cortar, doblar y armar tolva" => 5, "Doblar, armar y colocar cabezal" => 5,
               "Doblar, armar, probar y colocar tanque de aceite" => 5, "Armar bomba" => 5,
               "Armar transportadores" => 3, "Pintar" => 2, "Colocar hidráulico y neumático" => 4,
-              "Conectar eléctrico" => 3, "Colocar accesorios finales" => 2, "Prueba de equipo final" => 5
+              "Conectar eléctrico" => 3, "Colocar accesorios finales" => 3, "Prueba de equipo final" => 5
             ];
           } elseif ($subtipo === 'petrolizadora') {
             $etapas = [
-              "Armar estructura" => 10, "Montar tanque" => 10, "Instalar quemadores" => 10,
-              "Montar bomba" => 10, "Conectar sistema hidráulico" => 10,
-              "Instalar tuberías" => 10, "Pintura" => 10, "Instalar controles" => 10,
-              "Revisión eléctrica" => 10, "Prueba final" => 10
+              "Trazar,cortar,rolar y hacer ceja a tapas" => 5,"Trazar,cortar,rolar cuerpo" => 5,"Armar cuerpo" => 5,"Armar chasis" => 5,"Armar flux" => 5,
+              "Armar flux" => 5,"Colocar chasis y flux" => 5,"Colocar tapas y tubulares" => 5,"Colocar fibra de vidrio y lamina A.I" => 5,
+              "Colocar accesorios tanque" => 5,"Armar y colocar barra" => 5,"Armar y colocar chasis p/bomba y motor" => 5,
+              "Armar,alinear motor y bomba" => 5,"Montar alinear motor" => 5,"Armar tuberia interna y externa" => 5,
+              "Alinear y colocar tuberias" => 5,"Colocar accesorios petrolizadora" => 5,"Pintura" => 5,"Intalacion electrica" => 5,
+              "Probar y checar fugas" => 5
             ];
           }
 
