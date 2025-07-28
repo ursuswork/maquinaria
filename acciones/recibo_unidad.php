@@ -78,6 +78,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
     .form-control, .form-select { background-color: #003366; color: #ffffff; border: 1px solid #0059b3; margin-bottom: 1rem; }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
     .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000000; }
+    .progress-bar { transition: width 0.4s ease; background-color: #28a745 !important; }
     @media print {
       .btn, textarea, input[type="radio"], label.btn { display: none !important; }
       body { background: #ffffff; color: #000000; }
@@ -119,8 +120,8 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   ?>
   <hr>
   <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
-  <div class="progress mb-3" style="height: 20px;">
-    <div class="progress-bar bg-success" id="<?= $barra_id ?>" role="progressbar" style="width: <?= $avance_actual ?>%;">
+  <div class="progress mb-3" style="height: 20px; width: <?= $peso_total ?>%; max-width: 100%;">
+    <div class="progress-bar" id="<?= $barra_id ?>" role="progressbar" style="width: <?= $avance_actual ?>%;">
       <?= $avance_actual ?>%
     </div>
   </div>
