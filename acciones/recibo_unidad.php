@@ -120,8 +120,8 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   ?>
   <hr>
   <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
-  <div class="progress mb-3" style="height: 20px; width: <?= $peso_total ?>%; max-width: 100%;">
-    <div class="progress-bar" id="<?= $barra_id ?>" role="progressbar" style="width: <?= $avance_actual ?>%;">
+  <div class="progress mb-3" style="height: 20px; width: 100%;">
+    <div class="progress-bar" id="<?= $barra_id ?>" role="progressbar" style="width: <?= ($avance_actual / $peso_total * 100) ?>%;">
       <?= $avance_actual ?>%
     </div>
   </div>
@@ -158,8 +158,10 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
         for (const [seccion, avance] of Object.entries(secciones)) {
           const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
           const barra = document.getElementById(id);
-          if (barra) {
-            barra.style.width = avance + '%';
+          const pesoTotal = <?= json_encode($pesos) ?>[seccion];
+          if (barra && pesoTotal) {
+            const porcentaje = (avance / pesoTotal * 100).toFixed(2);
+            barra.style.width = porcentaje + '%';
             barra.innerText = avance.toFixed(2) + '%';
           }
         }
