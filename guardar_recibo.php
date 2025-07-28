@@ -18,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $observaciones   = $_POST['observaciones'] ?? '';
     $componentes     = $_POST['componentes'] ?? [];
 
-    // Pesos de cada sección
     $pesos = [
         'MOTOR' => 15,
         'SISTEMA MECÁNICO' => 15,
@@ -28,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'CONSUMIBLES' => 10
     ];
 
-    // Componentes unificados (igual que en el formulario)
     $secciones = [
         "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
         "SISTEMA MECÁNICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
@@ -38,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
     ];
 
-    // Calcular porcentaje de condición
     $total = 0;
     foreach ($secciones as $seccion => $lista) {
         $sum = 0;
@@ -56,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $condicion = round($total);
 
-    // Guardar en recibo_unidad
     $campos_extra = "";
     $marcadores = "";
     $valores = [];
@@ -68,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
-    if ($check->num_rows > 0) {
+    if ($check && $check->num_rows > 0) {
         $sets = "empresa_origen=?, empresa_destino=?, fecha=NOW(), observaciones=?, condicion_estimada=?";
         foreach ($componentes as $clave => $valor) {
             $sets .= ", `" . $conn->real_escape_string($clave) . "` = ?";
@@ -83,13 +79,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $tipos = "isssi" . str_repeat("s", count($valores));
         $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
     }
-    $stmt->execute();
 
-    // Actualizar condición estimada en maquinaria
-    $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
-
-    // Redirigir al inventario
-    header("Location: ../inventario.php?actualizado=1");
-    exit;
+    if (isset($stmt) && $stmt->execute()) {
+        $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
+        header("Location: ../inventario.php?actualizado=1");
+        exit;
+    } else {
+        echo "<p style='color:red;'>Error al guardar los datos. Verifica la conexión o los datos enviados.</p>";
+    }
 }
 ?>
