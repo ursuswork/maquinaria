@@ -11,7 +11,6 @@ if ($id_maquinaria <= 0) {
   die("Error: ID inválido.");
 }
 
-// PESOS por sección
 $pesos = [
   "MOTOR" => 15,
   "SISTEMA MECÁNICO" => 15,
@@ -21,7 +20,6 @@ $pesos = [
   "CONSUMIBLES" => 10
 ];
 
-// COMPONENTES por sección
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
@@ -31,7 +29,6 @@ $secciones = [
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
 
-// CALCULAR porcentaje por componente
 $porcentajes = [];
 foreach ($secciones as $nombre => $lista) {
   $por_componente = $pesos[$nombre] / count($lista);
@@ -84,7 +81,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 ?>
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recibo de Unidad</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+<div class="container py-4">
+  <h2 class="text-center mb-4">Recibo de Unidad: <?php echo htmlspecialchars($maquinaria['nombre']); ?></h2>
+  <form method="post">
+    <?php foreach ($secciones as $nombre => $componentes): ?>
+      <h4 class="mt-4"><?php echo $nombre; ?></h4>
+      <div class="progress mb-2">
+        <div id="barra_<?php echo preg_replace('/[^a-zA-Z0-9]/', '_', $nombre); ?>" class="progress-bar bg-success" style="width: 0%">0%</div>
+      </div>
+      <div class="row">
+        <?php foreach ($componentes as $componente): 
+          $valor = $recibo_existente[$componente] ?? '';
+        ?>
+          <div class="col-md-4 mb-2">
+            <label class="form-label fw-bold"><?php echo $componente; ?></label><br>
+            <?php foreach (["bueno", "regular", "malo"] as $opcion): ?>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input componente-radio" type="radio" name="componentes[<?php echo $componente; ?>]" value="<?php echo $opcion; ?>"
+                  data-seccion="<?php echo $nombre; ?>" data-peso="<?php echo $porcentajes[$componente]; ?>"
+                  <?php if ($valor === $opcion) echo 'checked'; ?>>
+                <label class="form-check-label"><?php echo ucfirst($opcion); ?></label>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
+    <div class="mt-4">
+      <label for="observaciones" class="form-label">Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3"><?php echo htmlspecialchars($recibo_existente['observaciones'] ?? ''); ?></textarea>
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+  <div class="mt-5">
+    <label class="form-label">Avance Total Estimado</label>
+    <div class="progress">
+      <div id="barra_total" class="progress-bar bg-warning" style="width: 0%">0%</div>
+    </div>
+  </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   function actualizarBarras() {
@@ -124,9 +170,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-<div class="mt-5">
-  <label class="form-label">Avance Total Estimado</label>
-  <div class="progress">
-    <div id="barra_total" class="progress-bar bg-warning" style="width: 0%">0%</div>
-  </div>
-</div>
