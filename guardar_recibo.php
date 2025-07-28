@@ -71,13 +71,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         $sql = "UPDATE recibo_unidad SET $sets WHERE id_maquinaria=?";
         $stmt = $conn->prepare($sql);
-        $tipos = str_repeat("s", count($valores) + 3) . "ii";
-        $stmt->bind_param($tipos, ...array_merge([$empresa_origen, $empresa_destino, $observaciones, $condicion], $valores, [$id_maquinaria]));
+        if ($stmt) {
+            $tipos = str_repeat("s", count($valores) + 3) . "ii";
+            $stmt->bind_param($tipos, ...array_merge([$empresa_origen, $empresa_destino, $observaciones, $condicion], $valores, [$id_maquinaria]));
+        }
     } else {
         $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada$campos_extra) VALUES (?, ?, ?, NOW(), ?, ?$marcadores)";
         $stmt = $conn->prepare($sql);
-        $tipos = "isssi" . str_repeat("s", count($valores));
-        $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
+        if ($stmt) {
+            $tipos = "isssi" . str_repeat("s", count($valores));
+            $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
+        }
     }
 
     if (isset($stmt) && $stmt->execute()) {
@@ -85,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: ../inventario.php?actualizado=1");
         exit;
     } else {
-        echo "<p style='color:red;'>Error al guardar los datos. Verifica la conexión o los datos enviados.</p>";
+        echo "<p style='color:red;'>❌ Error al guardar: " . $conn->error . "</p>";
     }
 }
 ?>
