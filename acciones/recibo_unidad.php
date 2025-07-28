@@ -44,19 +44,20 @@ foreach ($secciones as $seccion => $componentes) {
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
 
-function botonOpciones($nombre, $valor_existente, $porcentaje) {
+function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
+  $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $nombre);
   return "
     <div class='mb-2'>
       <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
       <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$nombre}_bueno'>Bueno</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
 
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$nombre}_regular'>Regular</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
 
-        <input type='radio' class='btn-check' name='componentes[{$nombre}]' id='{$nombre}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$nombre}_malo'>Malo</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
       </div>
     </div>
   ";
