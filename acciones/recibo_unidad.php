@@ -1,4 +1,4 @@
-<<?php
+<?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
   header("Location: ../index.php");
@@ -43,73 +43,7 @@ foreach ($secciones as $seccion => $componentes) {
 }
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
-
-function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
-  $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $nombre);
-  return "
-    <div class='mb-2'>
-      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
-      <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
-
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
-
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
-      </div>
-    </div>
-  ";
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $componentes = $_POST['componentes'] ?? [];
-  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
-  $avance_total = 0;
-
-  $sql_check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria");
-  $existe = $sql_check->fetch_assoc();
-
-  if ($existe) {
-    $updates = [];
-    foreach ($componentes as $campo => $valor) {
-      $campo_sql = $conn->real_escape_string($campo);
-      $valor_sql = $conn->real_escape_string($valor);
-      $updates[] = "`$campo_sql` = '$valor_sql'";
-      if ($valor === 'bueno') {
-        $avance_total += $porcentajes[$campo] ?? 0;
-      }
-    }
-    $updates[] = "`observaciones` = '$observaciones'";
-    $conn->query("UPDATE recibo_unidad SET " . implode(', ', $updates) . " WHERE id_maquinaria = $id_maquinaria");
-  } else {
-    $campos = [];
-    $valores = [];
-    foreach ($componentes as $campo => $valor) {
-      $campo_sql = $conn->real_escape_string($campo);
-      $valor_sql = $conn->real_escape_string($valor);
-      $campos[] = "`$campo_sql`";
-      $valores[] = "'$valor_sql'";
-      if ($valor === 'bueno') {
-        $avance_total += $porcentajes[$campo] ?? 0;
-      }
-    }
-    $campos[] = "`id_maquinaria`";
-    $valores[] = $id_maquinaria;
-    $campos[] = "`observaciones`";
-    $valores[] = "'$observaciones'";
-    $conn->query("INSERT INTO recibo_unidad (" . implode(',', $campos) . ") VALUES (" . implode(',', $valores) . ")");
-  }
-
-  // Actualizar en tabla maquinaria
-  $avance_total = round($avance_total, 2);
-  $conn->query("UPDATE maquinaria SET condicion_estimada = $avance_total WHERE id = $id_maquinaria");
-
-  // Redirigir
-  header("Location: ../inventario.php");
-  exit;
-}
-}
-?> 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -120,7 +54,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   <style>
     body { background-color: #001f3f; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
     .container { background-color: #002b5c; padding: 2rem; border-radius: 1rem; max-width: 1200px; margin: auto; box-shadow: 0 0 20px #000000; }
-    h3, h4, h5 { color: #ffc107; border-bottom: 2px solid #ffc107; padding-bottom: .5rem; margin-bottom: 1rem; }
+    h3, h5 { color: #ffc107; border-bottom: 2px solid #ffc107; padding-bottom: .5rem; margin-bottom: 1rem; }
     .form-label { color: #ffc107; font-weight: bold; }
     .form-control, .form-select { background-color: #003366; color: #ffffff; border: 1px solid #0059b3; margin-bottom: 1rem; }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
@@ -173,57 +107,59 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
     </div>
   </div>
   <div class="row">
-    <?php foreach ($componentes as $comp): ?>
-      <div class="col-md-6">
-        <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp], $titulo) ?>
+    <?php foreach ($componentes as $comp): 
+      $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $comp);
+      $valor_existente = $recibo_existente[$comp] ?? '';
+      $porcentaje = $porcentajes[$comp] ?? 0;
+    ?>
+      <div class="col-md-6 mb-2">
+        <label class="form-label fw-bold text-warning"><?= htmlspecialchars($comp) ?> <small class="text-light">(<?= $porcentaje ?>%)</small></label><br>
+        <div class="btn-group" role="group">
+          <input type="radio" class="btn-check componente-radio" data-seccion="<?= $titulo ?>" data-componente="<?= $comp ?>" data-peso="<?= $porcentaje ?>" data-valor="bueno" name="componentes[<?= $comp ?>]" id="<?= $id_base ?>_bueno" value="bueno"<?= $valor_existente == 'bueno' ? ' checked' : '' ?>>
+          <label class="btn btn-outline-primary" for="<?= $id_base ?>_bueno">Bueno</label>
+
+          <input type="radio" class="btn-check componente-radio" data-seccion="<?= $titulo ?>" data-componente="<?= $comp ?>" data-peso="0" data-valor="regular" name="componentes[<?= $comp ?>]" id="<?= $id_base ?>_regular" value="regular"<?= $valor_existente == 'regular' ? ' checked' : '' ?>>
+          <label class="btn btn-outline-primary" for="<?= $id_base ?>_regular">Regular</label>
+
+          <input type="radio" class="btn-check componente-radio" data-seccion="<?= $titulo ?>" data-componente="<?= $comp ?>" data-peso="0" data-valor="malo" name="componentes[<?= $comp ?>]" id="<?= $id_base ?>_malo" value="malo"<?= $valor_existente == 'malo' ? ' checked' : '' ?>>
+          <label class="btn btn-outline-primary" for="<?= $id_base ?>_malo">Malo</label>
+        </div>
       </div>
     <?php endforeach; ?>
   </div>
 <?php endforeach; ?>
-      <div class="mb-3">
+      <div class="mb-3 mt-4">
         <label class="form-label">Observaciones</label>
         <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
       </div>
+
       <div class="text-center mt-4">
+        <h5 class="text-warning">Condición Total Estimada: <span id="total_condicion">0%</span></h5>
+      </div>
+
+      <div class="text-center mt-3">
         <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
         <button type="button" onclick="window.print()" class="btn btn-primary px-4 py-2 ms-2">Imprimir</button>
       </div>
     </form>
   </div>
+
   <script>
-    document.querySelectorAll('.componente-radio').forEach(input => {
-      input.addEventListener('change', () => {
-        const secciones = {};
-        document.querySelectorAll('.componente-radio:checked').forEach(radio => {
-          if (radio.dataset.valor === 'bueno') {
-            const seccion = radio.dataset.seccion;
-            const peso = parseFloat(radio.dataset.peso);
-            if (!secciones[seccion]) secciones[seccion] = 0;
-            secciones[seccion] += peso;
-          }
-        });
-        for (const [seccion, avance] of Object.entries(secciones)) {
-          const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
-          const barra = document.getElementById(id);
-          const pesos = <?= json_encode($pesos) ?>;
-          const normalizada = seccion.toUpperCase();
-          const pesoTotal = pesos[normalizada];
-          if (barra && pesoTotal) {
-            const porcentaje = (avance / pesoTotal * 100).toFixed(2);
-            barra.style.width = porcentaje + '%';
-            barra.innerText = avance.toFixed(2) + '%';
-          }
+    function actualizarTotal() {
+      let total = 0;
+      document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+        if (radio.dataset.valor === 'bueno') {
+          total += parseFloat(radio.dataset.peso || 0);
         }
-        document.querySelectorAll('.progress-bar').forEach(bar => {
-          const id = bar.id;
-          const seccion = id.replace('barra_', '').replace(/_/g, ' ').toUpperCase();
-          if (!secciones[seccion]) {
-            bar.style.width = '0%';
-            bar.innerText = '0%';
-          }
-        });
       });
+      document.getElementById('total_condicion').innerText = total.toFixed(2) + '%';
+    }
+
+    document.querySelectorAll('.componente-radio').forEach(input => {
+      input.addEventListener('change', actualizarTotal);
     });
+
+    window.addEventListener('DOMContentLoaded', actualizarTotal);
   </script>
 </body>
 </html>
