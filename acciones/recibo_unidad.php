@@ -50,14 +50,14 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
     <div class='mb-2'>
       <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
       <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{" . $nombre . "}]' id='{" . $id_base . "}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{" . $id_base . "}_bueno'>Bueno</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
 
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{" . $nombre . "}]' id='{" . $id_base . "}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{" . $id_base . "}_regular'>Regular</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
 
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{" . $nombre . "}]' id='{" . $id_base . "}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{" . $id_base . "}_malo'>Malo</label>
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
+        <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
       </div>
     </div>
   ";
@@ -88,7 +88,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
 <body>
   <div class="container py-4">
     <h3 class="text-center">Recibo de Unidad</h3>
-    <form method="POST">
+    <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>">
       <div class="row mb-3">
         <div class="col-md-4">
           <label class="form-label">Equipo</label>
