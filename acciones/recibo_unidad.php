@@ -8,37 +8,37 @@ include '../conexion.php';
 
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) {
-  die("❌ ID de maquinaria inválido.");
+  die("Error: ID de maquinaria inválido.");
 }
 
 $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 if (!$maquinaria) {
-  die("❌ Maquinaria no encontrada.");
+  die("Error: Maquinaria no encontrada.");
 }
 
 $secciones = [
-  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-  "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
-  "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
-  "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
+  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+  "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
+  "SISTEMA HIDRAULICO" => ["BANCO DE VALVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRAULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCION", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRAULICOS", "ORBITROL", "TORQUES HUV (SATELITES)", "VALVULAS DE RETENCION", "REDUCTORES"],
+  "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VALVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESION/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MODULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+  "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
 
 $pesos = [
   "MOTOR" => 15,
-  "SISTEMA MECÁNICO" => 15,
-  "SISTEMA HIDRÁULICO" => 30,
-  "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
-  "ESTÉTICO" => 5,
+  "SISTEMA MECANICO" => 15,
+  "SISTEMA HIDRAULICO" => 30,
+  "SISTEMA ELECTRICO Y ELECTRONICO" => 25,
+  "ESTETICO" => 5,
   "CONSUMIBLES" => 10
 ];
 
 $porcentajes = [];
 foreach ($secciones as $seccion => $componentes) {
   $porcentaje_por_componente = round($pesos[$seccion] / count($componentes), 2);
-  foreach ($componentes as $comp) {
-    $porcentajes[$comp] = $porcentaje_por_componente;
+  foreach ($componentes as $componente) {
+    $porcentajes[$componente] = $porcentaje_por_componente;
   }
 }
 
@@ -82,7 +82,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
       border-radius: 1rem;
       max-width: 1200px;
       margin: auto;
-      box-shadow: 0 0 20px #000;
+      box-shadow: 0 0 20px #000000;
     }
     h3, h4, h5 {
       color: #ffc107;
@@ -101,11 +101,11 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
       margin-bottom: 1rem;
     }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
-    .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000; }
+    .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000000; }
 
     @media print {
       .btn, textarea, input[type="radio"], label.btn { display: none !important; }
-      body { background: #fff; color: #000; }
+      body { background: #ffffff; color: #000000; }
     }
   </style>
 </head>
@@ -127,25 +127,27 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
           <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
         </div>
       </div>
-    <?php foreach ($secciones as $titulo => $componentes): ?>
+
+<?php foreach ($secciones as $titulo => $componentes): ?>
   <?php
     $peso_total = $pesos[$titulo];
     $componentes_seccion = count($componentes);
     $peso_por_componente = $peso_total / $componentes_seccion;
 
     $avance_actual = 0;
-    foreach ($componentes as $comp) {
-      $valor = $recibo_existente[$comp] ?? '';
+    foreach ($componentes as $componente) {
+      $valor = $recibo_existente[$componente] ?? '';
       if (in_array($valor, ['bueno', 'regular', 'malo'])) {
         $avance_actual += $peso_por_componente;
       }
     }
     $avance_actual = round($avance_actual, 2);
+    $barra_id = 'barra_' . strtolower(str_replace(' ', '_', $titulo));
   ?>
   <hr>
   <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
   <div class="progress mb-3" style="height: 20px;">
-    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $avance_actual ?>%;">
+    <div class="progress-bar bg-success" id="<?= $barra_id ?>" role="progressbar" style="width: <?= $avance_actual ?>%;">
       <?= $avance_actual ?>%
     </div>
   </div>
@@ -153,7 +155,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   <div class="row">
     <?php foreach ($componentes as $comp): ?>
       <div class="col-md-6">
-        <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp]) ?>
+        <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp], $titulo) ?>
       </div>
     <?php endforeach; ?>
   </div>
@@ -170,6 +172,38 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
       </div>
     </form>
   </div>
+
+  <script>
+    document.querySelectorAll('.componente-radio').forEach(input => {
+      input.addEventListener('change', () => {
+        const secciones = {};
+
+        document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+          const seccion = radio.dataset.seccion;
+          const peso = parseFloat(radio.dataset.peso);
+          if (!secciones[seccion]) secciones[seccion] = 0;
+          secciones[seccion] += peso;
+        });
+
+        for (const [seccion, avance] of Object.entries(secciones)) {
+          const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
+          const barra = document.getElementById(id);
+          if (barra) {
+            barra.style.width = avance + '%';
+            barra.innerText = avance.toFixed(2) + '%';
+          }
+        }
+
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+          const id = bar.id;
+          const seccion = id.replace('barra_', '').replace(/_/g, ' ').toUpperCase();
+          if (!secciones[seccion]) {
+            bar.style.width = '0%';
+            bar.innerText = '0%';
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>
-
