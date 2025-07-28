@@ -50,13 +50,13 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
     <div class='mb-2'>
       <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
       <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
         <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
 
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
         <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
 
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
+        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
         <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
       </div>
     </div>
@@ -71,38 +71,13 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #001f3f;
-      color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .container {
-      background-color: #002b5c;
-      padding: 2rem;
-      border-radius: 1rem;
-      max-width: 1200px;
-      margin: auto;
-      box-shadow: 0 0 20px #000000;
-    }
-    h3, h4, h5 {
-      color: #ffc107;
-      border-bottom: 2px solid #ffc107;
-      padding-bottom: .5rem;
-      margin-bottom: 1rem;
-    }
-    .form-label {
-      color: #ffc107;
-      font-weight: bold;
-    }
-    .form-control, .form-select {
-      background-color: #003366;
-      color: #ffffff;
-      border: 1px solid #0059b3;
-      margin-bottom: 1rem;
-    }
+    body { background-color: #001f3f; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
+    .container { background-color: #002b5c; padding: 2rem; border-radius: 1rem; max-width: 1200px; margin: auto; box-shadow: 0 0 20px #000000; }
+    h3, h4, h5 { color: #ffc107; border-bottom: 2px solid #ffc107; padding-bottom: .5rem; margin-bottom: 1rem; }
+    .form-label { color: #ffc107; font-weight: bold; }
+    .form-control, .form-select { background-color: #003366; color: #ffffff; border: 1px solid #0059b3; margin-bottom: 1rem; }
     .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
     .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000000; }
-
     @media print {
       .btn, textarea, input[type="radio"], label.btn { display: none !important; }
       body { background: #ffffff; color: #000000; }
@@ -127,17 +102,15 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
           <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
         </div>
       </div>
-
 <?php foreach ($secciones as $titulo => $componentes): ?>
   <?php
     $peso_total = $pesos[$titulo];
     $componentes_seccion = count($componentes);
     $peso_por_componente = $peso_total / $componentes_seccion;
-
     $avance_actual = 0;
     foreach ($componentes as $componente) {
       $valor = $recibo_existente[$componente] ?? '';
-      if (in_array($valor, ['bueno', 'regular', 'malo'])) {
+      if ($valor == 'bueno') {
         $avance_actual += $peso_por_componente;
       }
     }
@@ -151,7 +124,6 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
       <?= $avance_actual ?>%
     </div>
   </div>
-
   <div class="row">
     <?php foreach ($componentes as $comp): ?>
       <div class="col-md-6">
@@ -160,31 +132,28 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
     <?php endforeach; ?>
   </div>
 <?php endforeach; ?>
-
       <div class="mb-3">
         <label class="form-label">Observaciones</label>
         <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
       </div>
-
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
         <button type="button" onclick="window.print()" class="btn btn-primary px-4 py-2 ms-2">Imprimir</button>
       </div>
     </form>
   </div>
-
   <script>
     document.querySelectorAll('.componente-radio').forEach(input => {
       input.addEventListener('change', () => {
         const secciones = {};
-
         document.querySelectorAll('.componente-radio:checked').forEach(radio => {
-          const seccion = radio.dataset.seccion;
-          const peso = parseFloat(radio.dataset.peso);
-          if (!secciones[seccion]) secciones[seccion] = 0;
-          secciones[seccion] += peso;
+          if (radio.dataset.valor === 'bueno') {
+            const seccion = radio.dataset.seccion;
+            const peso = parseFloat(radio.dataset.peso);
+            if (!secciones[seccion]) secciones[seccion] = 0;
+            secciones[seccion] += peso;
+          }
         });
-
         for (const [seccion, avance] of Object.entries(secciones)) {
           const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
           const barra = document.getElementById(id);
@@ -193,7 +162,6 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
             barra.innerText = avance.toFixed(2) + '%';
           }
         }
-
         document.querySelectorAll('.progress-bar').forEach(bar => {
           const id = bar.id;
           const seccion = id.replace('barra_', '').replace(/_/g, ' ').toUpperCase();
