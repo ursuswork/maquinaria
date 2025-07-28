@@ -145,21 +145,64 @@ $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinari
   </div>
 
   <script>
-    function actualizarTotal() {
-      let total = 0;
-      document.querySelectorAll('.componente-radio:checked').forEach(radio => {
-        if (radio.dataset.valor === 'bueno') {
-          total += parseFloat(radio.dataset.peso || 0);
-        }
-      });
-      document.getElementById('total_condicion').innerText = total.toFixed(2) + '%';
-    }
+  function actualizarAvance() {
+    const pesos = <?= json_encode($pesos) ?>;
+    const secciones = {};
 
-    document.querySelectorAll('.componente-radio').forEach(input => {
-      input.addEventListener('change', actualizarTotal);
+    // Recolectar pesos de los radios seleccionados
+    document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+      const seccion = radio.dataset.seccion;
+      const valor = radio.dataset.valor;
+      const peso = parseFloat(radio.dataset.peso || 0);
+
+      if (!secciones[seccion]) secciones[seccion] = 0;
+      if (valor === 'bueno') {
+        secciones[seccion] += peso;
+      }
     });
 
-    window.addEventListener('DOMContentLoaded', actualizarTotal);
-  </script>
+    // Actualizar cada barra individual
+    for (const [seccion, peso_bueno] of Object.entries(secciones)) {
+      const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
+      const barra = document.getElementById(id);
+      const total_seccion = pesos[seccion.toUpperCase()];
+      if (barra && total_seccion) {
+        const porcentaje = (peso_bueno / total_seccion * 100).toFixed(2);
+        barra.style.width = porcentaje + '%';
+        barra.innerText = peso_bueno.toFixed(2) + '%';
+      }
+    }
+
+    // Reiniciar las barras no tocadas
+    Object.keys(pesos).forEach(seccion => {
+      const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
+      if (!secciones[seccion]) {
+        const barra = document.getElementById(id);
+        if (barra) {
+          barra.style.width = '0%';
+          barra.innerText = '0%';
+        }
+      }
+    });
+
+    // Actualizar barra total
+    let total = 0;
+    document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+      if (radio.dataset.valor === 'bueno') {
+        total += parseFloat(radio.dataset.peso || 0);
+      }
+    });
+    const totalSpan = document.getElementById('total_condicion');
+    if (totalSpan) {
+      totalSpan.innerText = total.toFixed(2) + '%';
+    }
+  }
+
+  document.querySelectorAll('.componente-radio').forEach(input => {
+    input.addEventListener('change', actualizarAvance);
+  });
+
+  window.addEventListener('DOMContentLoaded', actualizarAvance);
+</script>
 </body>
 </html>

@@ -1,109 +1,89 @@
 <?php
 session_start();
+if (!isset($_SESSION['usuario'])) {
+  header("Location: ../index.php");
+  exit;
+}
 include '../conexion.php';
 
-function convertir_valor($valor) {
-    return match (strtolower($valor)) {
-        'bueno' => 100,
-        'regular' => 70,
-        'malo' => 40,
-        default => 0
-    };
-}
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_maquinaria   = intval($_POST['id_maquinaria']);
-    $empresa_origen  = $_POST['empresa_origen'] ?? '';
-    $empresa_destino = $_POST['empresa_destino'] ?? '';
-    $observaciones   = $_POST['observaciones'] ?? '';
-    $componentes     = $_POST['componentes'] ?? [];
+  $id_maquinaria = intval($_POST['id_maquinaria'] ?? 0);
+  if ($id_maquinaria <= 0) {
+    die("Error: ID inválido.");
+  }
 
-    $pesos = [
-        'MOTOR' => 15,
-        'SISTEMA MECÁNICO' => 15,
-        'SISTEMA HIDRÁULICO' => 30,
-        'SISTEMA ELÉCTRICO Y ELECTRÓNICO' => 25,
-        'ESTÉTICO' => 5,
-        'CONSUMIBLES' => 10
-    ];
+  $componentes = $_POST['componentes'] ?? [];
+  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+  $avance_total = 0;
 
-    $secciones = [
-        "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-        "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
-        "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "COPLES", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-        "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)", "SENSORES"],
-        "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
-        "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
-    ];
+  // Pesos por sección
+  $pesos = [
+    "MOTOR" => 15,
+    "SISTEMA MECANICO" => 15,
+    "SISTEMA HIDRAULICO" => 30,
+    "SISTEMA ELECTRICO Y ELECTRONICO" => 25,
+    "ESTETICO" => 5,
+    "CONSUMIBLES" => 10
+  ];
 
-    $total = 0;
-    foreach ($secciones as $seccion => $lista) {
-        $sum = 0;
-        $count = 0;
-        foreach ($lista as $componente) {
-            if (isset($componentes[$componente])) {
-                $sum += convertir_valor($componentes[$componente]);
-                $count++;
-            }
-        }
-        if ($count > 0) {
-            $promedio = $sum / $count;
-            $total += $promedio * ($pesos[$seccion] / 100);
-        }
+  // Componentes por sección
+  $secciones = [
+    "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+    "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
+    "SISTEMA HIDRAULICO" => ["BANCO DE VALVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRAULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCION", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRAULICOS", "ORBITROL", "TORQUES HUV (SATELITES)", "VALVULAS DE RETENCION", "REDUCTORES"],
+    "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VALVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESION/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MODULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+    "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
+    "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
+  ];
+
+  // Calcular porcentaje por componente
+  $porcentajes = [];
+  foreach ($secciones as $seccion => $items) {
+    $peso_unitario = $pesos[$seccion] / count($items);
+    foreach ($items as $item) {
+      $porcentajes[$item] = $peso_unitario;
     }
-    $condicion = round($total);
+  }
 
-    $campos_extra = "";
-    $marcadores = "";
+  // Verificar si ya existe registro
+  $sql_check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria");
+  $existe = $sql_check->fetch_assoc();
+
+  if ($existe) {
+    $updates = [];
+    foreach ($componentes as $campo => $valor) {
+      $campo_sql = $conn->real_escape_string($campo);
+      $valor_sql = $conn->real_escape_string($valor);
+      $updates[] = "`$campo_sql` = '$valor_sql'";
+      if ($valor === 'bueno') {
+        $avance_total += $porcentajes[$campo] ?? 0;
+      }
+    }
+    $updates[] = "`observaciones` = '$observaciones'";
+    $conn->query("UPDATE recibo_unidad SET " . implode(', ', $updates) . " WHERE id_maquinaria = $id_maquinaria");
+  } else {
+    $campos = [];
     $valores = [];
-    foreach ($componentes as $clave => $valor) {
-        $campo = $conn->real_escape_string($clave);
-        $campos_extra .= ", `$campo`";
-        $marcadores .= ", ?";
-        $valores[] = $valor;
+    foreach ($componentes as $campo => $valor) {
+      $campo_sql = $conn->real_escape_string($campo);
+      $valor_sql = $conn->real_escape_string($valor);
+      $campos[] = "`$campo_sql`";
+      $valores[] = "'$valor_sql'";
+      if ($valor === 'bueno') {
+        $avance_total += $porcentajes[$campo] ?? 0;
+      }
     }
+    $campos[] = "`id_maquinaria`";
+    $valores[] = $id_maquinaria;
+    $campos[] = "`observaciones`";
+    $valores[] = "'$observaciones'";
+    $conn->query("INSERT INTO recibo_unidad (" . implode(',', $campos) . ") VALUES (" . implode(',', $valores) . ")");
+  }
 
-    $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
+  $avance_total = round($avance_total, 2);
+  $conn->query("UPDATE maquinaria SET condicion_estimada = $avance_total WHERE id = $id_maquinaria");
 
-    if ($check && $check->num_rows > 0) {
-        $sets = "empresa_origen=?, empresa_destino=?, fecha=NOW(), observaciones=?, condicion_estimada=?";
-        foreach ($componentes as $clave => $valor) {
-            $sets .= ", `" . $conn->real_escape_string($clave) . "` = ?";
-        }
-        $sql = "UPDATE recibo_unidad SET $sets WHERE id_maquinaria=?";
-        $stmt = $conn->prepare($sql);
-
-        if (!$stmt) {
-            die("<p style='color:red;'>❌ Error en prepare UPDATE: " . $conn->error . "</p>");
-        }
-
-        $tipos = str_repeat("s", count($valores) + 3) . "i";
-        $bind_result = $stmt->bind_param($tipos, ...array_merge([$empresa_origen, $empresa_destino, $observaciones, $condicion], $valores, [$id_maquinaria]));
-    } else {
-        $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada$campos_extra) VALUES (?, ?, ?, NOW(), ?, ?$marcadores)";
-        $stmt = $conn->prepare($sql);
-
-        if (!$stmt) {
-            die("<p style='color:red;'>❌ Error en prepare INSERT: " . $conn->error . "</p>");
-        }
-
-        $tipos = "isssi" . str_repeat("s", count($valores));
-        $bind_result = $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
-    }
-
-    if (!$bind_result) {
-        die("<p style='color:red;'>❌ Error al vincular parámetros: " . $stmt->error . "</p>");
-    }
-
-    if (!$stmt->execute()) {
-        die("<p style='color:red;'>❌ Error al ejecutar: " . $stmt->error . "</p>");
-    }
-
-    if (!$conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria")) {
-        die("<p style='color:red;'>❌ Error al actualizar maquinaria: " . $conn->error . "</p>");
-    }
-
-    header("Location: ../inventario.php?actualizado=1");
-    exit;
+  header("Location: ../inventario.php");
+  exit;
 }
 ?>
