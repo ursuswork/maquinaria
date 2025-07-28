@@ -5,6 +5,46 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 include '../conexion.php';
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $componentes = $_POST['componentes'] ?? [];
+  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+  $columnas = "";
+  $valores = "";
+
+  foreach ($componentes as $nombre => $estado) {
+    $columna = "`" . $conn->real_escape_string($nombre) . "`";
+    $valor = "'" . $conn->real_escape_string($estado) . "'";
+    $columnas .= "$columna, ";
+    $valores .= "$valor, ";
+  }
+
+  $columnas .= "`id_maquinaria`, `observaciones`";
+  $valores .= "$id_maquinaria, '$observaciones'";
+
+  $sql_existente = "SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1";
+  $existe = $conn->query($sql_existente)->fetch_assoc();
+
+  if ($existe) {
+    // Si ya existe, actualizar
+    $updates = [];
+    foreach ($componentes as $nombre => $estado) {
+      $col = "`" . $conn->real_escape_string($nombre) . "`";
+      $val = "'" . $conn->real_escape_string($estado) . "'";
+      $updates[] = "$col = $val";
+    }
+    $updates[] = "`observaciones` = '$observaciones'";
+    $update_sql = "UPDATE recibo_unidad SET " . implode(", ", $updates) . " WHERE id_maquinaria = $id_maquinaria";
+    $conn->query($update_sql);
+  } else {
+    // Insertar nuevo
+    $insert_sql = "INSERT INTO recibo_unidad ($columnas) VALUES ($valores)";
+    $conn->query($insert_sql);
+  }
+
+  // Redirigir a inventario
+  header("Location: ../inventario.php");
+  exit;
+}
 
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) {
