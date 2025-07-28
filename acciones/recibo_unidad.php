@@ -5,11 +5,47 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 include '../conexion.php';
+
+$id_maquinaria = intval($_GET['id'] ?? 0);
+if ($id_maquinaria <= 0) {
+  die("Error: ID de maquinaria inválido.");
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $componentes = $_POST['componentes'] ?? [];
   $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
   $columnas = "";
   $valores = "";
+  $total_condicion = 0;
+
+  $secciones_pesos = [
+    "MOTOR" => 15,
+    "SISTEMA MECÁNICO" => 15,
+    "SISTEMA HIDRÁULICO" => 30,
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => 25,
+    "ESTÉTICO" => 5,
+    "CONSUMIBLES" => 10
+  ];
+
+  $secciones_componentes = [
+    "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+    "SISTEMA MECÁNICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
+    "SISTEMA HIDRÁULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
+    "SISTEMA ELÉCTRICO Y ELECTRÓNICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)", "SENSORES"],
+    "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
+    "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
+  ];
+
+  foreach ($secciones_componentes as $seccion => $componentes_seccion) {
+    $peso_seccion = $secciones_pesos[$seccion];
+    $peso_por_componente = $peso_seccion / count($componentes_seccion);
+    foreach ($componentes_seccion as $componente) {
+      $estado = $componentes[$componente] ?? '';
+      if ($estado === 'bueno') {
+        $total_condicion += $peso_por_componente;
+      }
+    }
+  }
 
   foreach ($componentes as $nombre => $estado) {
     $columna = "`" . $conn->real_escape_string($nombre) . "`";
@@ -18,14 +54,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $valores .= "$valor, ";
   }
 
-  $columnas .= "`id_maquinaria`, `observaciones`";
-  $valores .= "$id_maquinaria, '$observaciones'";
+  $columnas .= "`id_maquinaria`, `observaciones`, `condicion_estimada`";
+  $valores .= "$id_maquinaria, '$observaciones', $total_condicion";
 
   $sql_existente = "SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1";
   $existe = $conn->query($sql_existente)->fetch_assoc();
 
   if ($existe) {
-    // Si ya existe, actualizar
     $updates = [];
     foreach ($componentes as $nombre => $estado) {
       $col = "`" . $conn->real_escape_string($nombre) . "`";
@@ -33,16 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $updates[] = "$col = $val";
     }
     $updates[] = "`observaciones` = '$observaciones'";
+    $updates[] = "`condicion_estimada` = $total_condicion";
     $update_sql = "UPDATE recibo_unidad SET " . implode(", ", $updates) . " WHERE id_maquinaria = $id_maquinaria";
     $conn->query($update_sql);
   } else {
-    // Insertar nuevo
     $insert_sql = "INSERT INTO recibo_unidad ($columnas) VALUES ($valores)";
     $conn->query($insert_sql);
   }
 
-  // Redirigir a inventario
-  header("Location: ../inventario.php");
+  $conn->query("UPDATE maquinaria SET condicion_estimada = $total_condicion WHERE id = $id_maquinaria");
+
+  echo "<script>alert('✅ Recibo guardado correctamente'); window.location.href = '../inventario.php';</script>";
   exit;
 }
 
