@@ -61,8 +61,55 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
       </div>
     </div>
   ";
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $componentes = $_POST['componentes'] ?? [];
+  $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+  $avance_total = 0;
+
+  $sql_check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria");
+  $existe = $sql_check->fetch_assoc();
+
+  if ($existe) {
+    $updates = [];
+    foreach ($componentes as $campo => $valor) {
+      $campo_sql = $conn->real_escape_string($campo);
+      $valor_sql = $conn->real_escape_string($valor);
+      $updates[] = "`$campo_sql` = '$valor_sql'";
+      if ($valor === 'bueno') {
+        $avance_total += $porcentajes[$campo] ?? 0;
+      }
+    }
+    $updates[] = "`observaciones` = '$observaciones'";
+    $conn->query("UPDATE recibo_unidad SET " . implode(', ', $updates) . " WHERE id_maquinaria = $id_maquinaria");
+  } else {
+    $campos = [];
+    $valores = [];
+    foreach ($componentes as $campo => $valor) {
+      $campo_sql = $conn->real_escape_string($campo);
+      $valor_sql = $conn->real_escape_string($valor);
+      $campos[] = "`$campo_sql`";
+      $valores[] = "'$valor_sql'";
+      if ($valor === 'bueno') {
+        $avance_total += $porcentajes[$campo] ?? 0;
+      }
+    }
+    $campos[] = "`id_maquinaria`";
+    $valores[] = $id_maquinaria;
+    $campos[] = "`observaciones`";
+    $valores[] = "'$observaciones'";
+    $conn->query("INSERT INTO recibo_unidad (" . implode(',', $campos) . ") VALUES (" . implode(',', $valores) . ")");
+  }
+
+  // Actualizar en tabla maquinaria
+  $avance_total = round($avance_total, 2);
+  $conn->query("UPDATE maquinaria SET condicion_estimada = $avance_total WHERE id = $id_maquinaria");
+
+  // Redirigir
+  header("Location: ../inventario.php");
+  exit;
 }
-?>
+}
+?> 
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -158,7 +205,9 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
         for (const [seccion, avance] of Object.entries(secciones)) {
           const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
           const barra = document.getElementById(id);
-          const pesoTotal = <?= json_encode($pesos) ?>[seccion];
+          const pesos = <?= json_encode($pesos) ?>;
+          const normalizada = seccion.toUpperCase();
+          const pesoTotal = pesos[normalizada];
           if (barra && pesoTotal) {
             const porcentaje = (avance / pesoTotal * 100).toFixed(2);
             barra.style.width = porcentaje + '%';
