@@ -56,8 +56,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $condicion = round($total);
 
+    // Guardar en recibo_unidad
+    $campos_extra = "";
+    $marcadores = "";
+    $valores = [];
+    foreach ($componentes as $clave => $valor) {
+        $campo = $conn->real_escape_string($clave);
+        $campos_extra .= ", `$campo`";
+        $marcadores .= ", ?";
+        $valores[] = $valor;
+    }
+
+    $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
+    if ($check->num_rows > 0) {
+        $sets = "empresa_origen=?, empresa_destino=?, fecha=NOW(), observaciones=?, condicion_estimada=?";
+        foreach ($componentes as $clave => $valor) {
+            $sets .= ", `" . $conn->real_escape_string($clave) . "` = ?";
+        }
+        $sql = "UPDATE recibo_unidad SET $sets WHERE id_maquinaria=?";
+        $stmt = $conn->prepare($sql);
+        $tipos = str_repeat("s", count($valores) + 3) . "ii";
+        $stmt->bind_param($tipos, ...array_merge([$empresa_origen, $empresa_destino, $observaciones, $condicion], $valores, [$id_maquinaria]));
+    } else {
+        $sql = "INSERT INTO recibo_unidad (id_maquinaria, empresa_origen, empresa_destino, fecha, observaciones, condicion_estimada$campos_extra) VALUES (?, ?, ?, NOW(), ?, ?$marcadores)";
+        $stmt = $conn->prepare($sql);
+        $tipos = "isssi" . str_repeat("s", count($valores));
+        $stmt->bind_param($tipos, ...array_merge([$id_maquinaria, $empresa_origen, $empresa_destino, $observaciones, $condicion], $valores));
+    }
+    $stmt->execute();
+
+    // Actualizar condición estimada en maquinaria
     $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion WHERE id = $id_maquinaria");
 
-    header("Location: recibo_unidad.php?id=$id_maquinaria&guardado=1");
+    // Redirigir al inventario
+    header("Location: ../inventario.php?actualizado=1");
     exit;
 }
+?>
