@@ -11,7 +11,7 @@ $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
 $sql = "
-  SELECT m.*, r.condicion_estimada, r.observaciones 
+  SELECT m.*, r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo
   FROM maquinaria m
   LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 ";
@@ -48,13 +48,7 @@ $resultado = $conn->query($sql);
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar { font-weight: bold; background-color: #ffcc00 !important; color: black; }
-    .btn-flotante {
-      position: fixed; bottom: 20px; right: 20px;
-      background-color: #ffc107; color: #001f3f;
-      padding: 12px 20px; border: none; border-radius: 30px;
-      font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    .imagen-thumbnail { max-width:80px; max-height:80px; cursor:pointer; }
+    .text-light.small.mt-1 { font-size: 0.85rem; color: #ffc107 !important; }
   </style>
 </head>
 <body>
@@ -215,10 +209,13 @@ $resultado = $conn->query($sql);
   <td><?=htmlspecialchars($fila['subtipo'])?></td>
   <td>
     <?php if($tipo_maq==='usada'): ?>
-      <div class="progress"><div class="progress-bar" style="width:<?=intval($fila['condicion_estimada'])?>%"><?=intval($fila['condicion_estimada'])?>%</div></div>
-    <?php else: ?>
-      <div class="progress"><div class="progress-bar" style="width:<?=$avance?>%"><?=$avance?>%</div></div>
+    <div class="progress"><div class="progress-bar" style="width:<?=intval($fila['condicion_estimada'])?>%"><?=intval($fila['condicion_estimada'])?>%</div></div>
+    <?php if (!empty($fila['fecha_recibo'])): ?>
+      <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
     <?php endif; ?>
+  <?php else: ?>
+    <div class="progress"><div class="progress-bar" style="width:<?=$avance?>%"><?=$avance?>%</div></div>
+  <?php endif; ?>
   </td>
   <td><?= nl2br(htmlspecialchars($fila['observaciones'] ?? '')) ?></td>
   <td>
