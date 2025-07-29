@@ -16,10 +16,10 @@ $componentes = $_POST['componentes'] ?? [];
 $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
 $fecha_llenado = date('Y-m-d');
 
-// Si ya existe un recibo, lo actualizamos. Si no, lo insertamos.
+// Verificar si ya existe un recibo
 $existe = $conn->query("SELECT id_maquinaria FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->num_rows > 0;
 
-// Construir columnas y valores dinámicamente
+// Construcción de columnas para INSERT o UPDATE
 $columnas = "observaciones = '$observaciones', fecha_llenado = '$fecha_llenado'";
 foreach ($componentes as $nombre => $valor) {
   $col = $conn->real_escape_string($nombre);
@@ -45,7 +45,9 @@ if (!$conn->query($sql)) {
   die("Error al guardar los datos: " . $conn->error);
 }
 
-// Cálculo de condición estimada
+// =====================
+// Cálculo de Condición
+// =====================
 $pesos = [
   "MOTOR" => 15,
   "SISTEMA MECANICO" => 15,
@@ -56,29 +58,32 @@ $pesos = [
 ];
 
 $secciones = [
-  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-  "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
-  "SISTEMA HIDRAULICO" => ["BANCO DE VALVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRAULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCION", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRAULICOS", "ORBITROL", "TORQUES HUV (SATELITES)", "VALVULAS DE RETENCION", "REDUCTORES"],
-  "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VALVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESION/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MODULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
-  "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
-  "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
+  "MOTOR" => ["cilindros", "pistones", "anillos", "inyectores", "block", "cabeza", "varillas", "resortes", "punterias", "cigueñal", "arbol_de_elevas", "retenes", "ligas", "sensores", "poleas", "concha", "cremallera", "clutch", "coples", "bomba_de_inyeccion", "juntas", "marcha", "tuberia", "alternador", "filtros", "bases", "soportes", "turbo", "escape", "chicotes"],
+  "SISTEMA MECANICO" => ["transmision", "diferenciales", "cardan"],
+  "SISTEMA HIDRAULICO" => ["banco_de_valvulas", "bombas_de_transito", "bombas_de_precarga", "bombas_de_accesorios", "clutch_hidraulico", "gatos_de_levante", "gatos_de_direccion", "gatos_de_accesorios", "mangueras", "motores_hidraulicos", "orbitrol", "torques_huv_satelites", "valvulas_de_retencion", "reductores"],
+  "SISTEMA ELECTRICO Y ELECTRONICO" => ["alarmas", "arneses", "bobinas", "botones", "cables", "cables_de_sensores", "conectores", "electro_valvulas", "fusibles", "porta_fusibles", "indicadores", "presion_agua_temperatura_voltimetro", "luces", "modulos", "torreta", "relevadores", "switch_llave"],
+  "ESTETICO" => ["pintura", "calcomanias", "asiento", "tapiceria", "tolvas", "cristales", "accesorios", "sistema_de_riego"],
+  "CONSUMIBLES" => ["puntas", "porta_puntas", "garras", "cuchillas", "cepillos", "separadores", "llantas", "rines", "bandas_orugas"]
 ];
 
 $total = 0;
 foreach ($secciones as $nombre_seccion => $componentes_seccion) {
-  $peso = $pesos[$nombre_seccion];
+  $clave_peso = strtoupper($nombre_seccion);
+  $peso = $pesos[$clave_peso] ?? 0;
   $bueno = 0;
   foreach ($componentes_seccion as $comp) {
     if (($componentes[$comp] ?? '') === 'bueno') {
       $bueno++;
     }
   }
-  $porcentaje_seccion = count($componentes_seccion) > 0 ? ($bueno / count($componentes_seccion)) * $peso : 0;
-  $total += $porcentaje_seccion;
+  $porcentaje = count($componentes_seccion) > 0 ? ($bueno / count($componentes_seccion)) * $peso : 0;
+  $total += $porcentaje;
 }
 
 $condicion_total = round($total, 2);
 $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion_total WHERE id = $id_maquinaria");
 
+// Redirigir al inventario
 header("Location: ../inventario.php");
 exit;
+?>
