@@ -184,28 +184,27 @@ $resultado = $conn->query($sql);
     <td><?= $tipo_maq === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?></td>
     <td><?= htmlspecialchars($fila['subtipo']) ?></td>
     <td>
-      <?php if ($tipo_maq === 'usada'): ?>
-  <div class="text-center">
-    <div class="progress mb-1">
-      <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%"></div>
-    </div>
-    <span class="fs-5 text-warning fw-bold"><?= intval($fila['condicion_estimada']) ?>%</span>
-    <?php if (!empty($fila['fecha_recibo'])): ?>
-      <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
-    <?php endif; ?>
-  </div>
-<?php else: ?>
-        <?php if (!empty($fila['fecha_recibo'])): ?>
-          <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
-        <?php endif; ?>
-      <?php else: ?>
-        <div class="progress">
-          <div class="progress-bar" style="width:<?= $avance ?>%">
-            <?= $avance ?>%
-          </div>
+  <?php if ($tipo_maq === 'usada'): ?>
+    <?php if (!is_null($fila['condicion_estimada'])): ?>
+      <div class="progress">
+        <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%">
+          <?= intval($fila['condicion_estimada']) ?>%
         </div>
+      </div>
+      <?php if (!empty($fila['fecha_recibo'])): ?>
+        <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
       <?php endif; ?>
-    </td>
+    <?php else: ?>
+      <span class="text-warning">Sin recibo</span>
+    <?php endif; ?>
+  <?php elseif ($tipo_maq === 'nueva'): ?>
+    <div class="progress">
+      <div class="progress-bar" style="width:<?= $avance ?>%">
+        <?= $avance ?>%
+      </div>
+    </div>
+  <?php endif; ?>
+</td>
     <td><?= nl2br(htmlspecialchars($fila['observaciones'] ?? '')) ?></td>
     <td>
       <a href="editar_maquinaria.php?id=<?= $id ?>" class="btn btn-sm btn-outline-primary">
