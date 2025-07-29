@@ -20,10 +20,34 @@ $secciones = [
   "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
+
 $pesos = ["MOTOR"=>15,"SISTEMA MECANICO"=>15,"SISTEMA HIDRAULICO"=>30,"SISTEMA ELECTRICO Y ELECTRONICO"=>25,"ESTETICO"=>5,"CONSUMIBLES"=>10];
-$recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 ?>
 
+<?php foreach ($secciones as $nombre_seccion => $componentes): ?>
+  <div class="seccion mb-4">
+    <h5 class="text-warning mb-3"><?= $nombre_seccion ?> (<?= $pesos[$nombre_seccion] ?>%)</h5>
+    <div class="progress mb-3">
+      <div class="progress-bar barra-avance" id="barra_<?= strtolower(str_replace(' ', '_', $nombre_seccion)) ?>" style="width: 0%">0%</div>
+    </div>
+    <div class="row">
+      <?php foreach ($componentes as $componente): 
+        $id_hash = md5($componente);
+        $valor_guardado = $recibo[$componente] ?? '';
+      ?>
+        <div class="col-md-4 mb-3">
+          <div class="text-warning fw-bold mb-1"><?= $componente ?></div>
+          <input type="hidden" name="componentes[<?= $componente ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor_guardado ?>">
+          <div class="btn-group d-flex" role="group">
+            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'bueno' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
+            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'regular' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
+            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'malo' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+<?php endforeach; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,62 +56,17 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #0b1d3a;
-      color: #ffc107;
-      padding: 20px;
-    }
-    .seccion {
-      background-color: #112e51;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-    .barra-avance {
-      height: 18px;
-      font-size: 0.85rem;
-      line-height: 18px;
-      text-align: center;
-      color: white;
-      background-color: #28a745;
-    }
-    .barra-porcentaje {
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .btn-opcion {
-      font-size: 0.9rem;
-      border-radius: 20px;
-      margin-top: 5px;
-      padding: 6px 14px;
-      font-weight: bold;
-    }
-    .btn-outline-primary {
-      border: 2px solid #0066ff;
-      color: #0066ff;
-      background-color: #0b1d3a;
-      box-shadow: 1px 1px 4px rgba(255,255,255,0.2);
-    }
-    .btn-primary {
-      background-color: #0066ff;
-      border: 2px solid #0066ff;
-      box-shadow: 2px 2px 6px rgba(255,255,255,0.4);
-    }
-    input[type=text], textarea {
-      background-color: white;
-      color: black;
-    }
-    .info-box {
-      background: #134c85;
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-    }
+    body { background-color: #0b1d3a; color: #ffc107; padding: 20px; }
+    .seccion { background-color: #112e51; padding: 20px; border-radius: 12px; margin-bottom: 25px; }
+    .barra-avance { height: 16px; background-color: #28a745; font-size: 0.8rem; line-height: 16px; text-align: center; color: white; }
+    .btn-opcion { font-size: 0.8rem; border-radius: 20px; margin-top: 5px; }
+    .btn-primary { background-color: #0066ff; border: none; }
+    .btn-outline-primary { border: 1px solid #0066ff; color: #0066ff; }
+    textarea, input[type=text] { background-color: #fff; color: #000; }
+    .label-info { font-weight: bold; margin-bottom: 3px; }
     @media print {
       .no-print { display: none; }
-      body { color: black; background: white; }
+      body { color: #000; background: white; }
     }
   </style>
 </head>
