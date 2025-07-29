@@ -38,8 +38,7 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 <body>
   <div class="container">
     <h1 class="text-center">Recibo de Unidad</h1>
-    <p>Contenido del formulario y componentes aquí...</p>
-  </div>
+      </div>
 </body>
 </html>
 <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
