@@ -44,7 +44,6 @@ if ($existe) {
 if (!$conn->query($sql)) {
   die("Error al guardar los datos: " . $conn->error);
 }
-
 // =====================
 // Cálculo de Condición
 // =====================
@@ -82,6 +81,7 @@ foreach ($secciones as $nombre_seccion => $componentes_seccion) {
 
 $condicion_total = round($total, 2);
 $conn->query("UPDATE maquinaria SET condicion_estimada = $condicion_total WHERE id = $id_maquinaria");
+
 
 // Redirigir al inventario
 header("Location: ../inventario.php?exito=1");
