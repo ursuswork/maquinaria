@@ -181,12 +181,12 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       };
 
       const secciones = {
-        motor: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['MOTOR 15%'])) ?>,
-        sistema_mecanico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA MECANICO 15%'])) ?>,
-        sistema_hidraulico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA HIDRAULICO 30%'])) ?>,
-        sistema_electrico_y_electronico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA ELECTRICO Y ELECTRONICO 25%'])) ?>,
-        estetico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['ESTETICO 5%'])) ?>,
-        consumibles: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['CONSUMIBLES 10%'])) ?>
+        motor: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['MOTOR'])) ?>,
+        sistema_mecanico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA MECANICO'])) ?>,
+        sistema_hidraulico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA HIDRAULICO'])) ?>,
+        sistema_electrico_y_electronico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['SISTEMA ELECTRICO Y ELECTRONICO'])) ?>,
+        estetico: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['ESTETICO'])) ?>,
+        consumibles: <?= json_encode(array_map(fn($x)=>md5($x), $secciones['CONSUMIBLES'])) ?>
       };
 
       let total = 0;
