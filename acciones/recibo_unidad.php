@@ -64,7 +64,7 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <label class="fw-bold">Tipo</label>
       <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
     </div>
-    <div class="col-md-6 mb-2">
+    <div class="col-md-4 mb-2">
   <label class="text-white fw-bold">Nombre</label>
   <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['nombre']) ?></div>
     </div>
