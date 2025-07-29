@@ -20,34 +20,10 @@ $secciones = [
   "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
-
 $pesos = ["MOTOR"=>15,"SISTEMA MECANICO"=>15,"SISTEMA HIDRAULICO"=>30,"SISTEMA ELECTRICO Y ELECTRONICO"=>25,"ESTETICO"=>5,"CONSUMIBLES"=>10];
+$recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 ?>
 
-<?php foreach ($secciones as $nombre_seccion => $componentes): ?>
-  <div class="seccion mb-4">
-    <h5 class="text-warning mb-3"><?= $nombre_seccion ?> (<?= $pesos[$nombre_seccion] ?>%)</h5>
-    <div class="progress mb-3">
-      <div class="progress-bar barra-avance" id="barra_<?= strtolower(str_replace(' ', '_', $nombre_seccion)) ?>" style="width: 0%">0%</div>
-    </div>
-    <div class="row">
-      <?php foreach ($componentes as $componente): 
-        $id_hash = md5($componente);
-        $valor_guardado = $recibo[$componente] ?? '';
-      ?>
-        <div class="col-md-4 mb-3">
-          <div class="text-warning fw-bold mb-1"><?= $componente ?></div>
-          <input type="hidden" name="componentes[<?= $componente ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor_guardado ?>">
-          <div class="btn-group d-flex" role="group">
-            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'bueno' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
-            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'regular' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
-            <button type="button" class="btn btn-outline-primary btn-opcion flex-fill <?= $valor_guardado === 'malo' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
-          </div>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-<?php endforeach; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -57,99 +33,83 @@ $pesos = ["MOTOR"=>15,"SISTEMA MECANICO"=>15,"SISTEMA HIDRAULICO"=>30,"SISTEMA E
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #0b1d3a; color: #ffc107; padding: 20px; }
-    .seccion { background-color: #112e51; padding: 20px; border-radius: 12px; margin-bottom: 25px; }
-    .barra-avance { height: 16px; background-color: #28a745; font-size: 0.8rem; line-height: 16px; text-align: center; color: white; }
-    .btn-opcion { font-size: 0.8rem; border-radius: 20px; margin-top: 5px; }
-    .btn-primary { background-color: #0066ff; border: none; }
-    .btn-outline-primary { border: 1px solid #0066ff; color: #0066ff; }
-    textarea, input[type=text] { background-color: #fff; color: #000; }
-    .label-info { font-weight: bold; margin-bottom: 3px; }
-    @media print {
-      .no-print { display: none; }
-      body { color: #000; background: white; }
-    }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="text-center mb-4">
-    <h2 class="text-warning fw-bold">Recibo de Unidad</h2>
-    <h4 class="text-light"><?= htmlspecialchars($maquinaria['nombre']) . " (" . htmlspecialchars($maquinaria['modelo']) . ")" ?></h4>
+  <div class="container">
+    <h1 class="text-center">Recibo de Unidad</h1>
+    <p>Contenido del formulario y componentes aquí...</p>
+  </div>
+</body>
+</html>
+<form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
+  <div class="row bg-primary p-3 mb-4 rounded-3 text-white">
+    <div class="col-md-6 mb-2">
+      <label class="fw-bold">Empresa Origen</label>
+      <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
+    </div>
+    <div class="col-md-6 mb-2">
+      <label class="fw-bold">Empresa Destino</label>
+      <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
+    </div>
+
+    <div class="col-md-4 mb-2">
+      <label class="fw-bold">Número de Serie</label>
+      <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
+    </div>
+    <div class="col-md-4 mb-2">
+      <label class="fw-bold">Ubicación</label>
+      <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
+    </div>
+    <div class="col-md-4 mb-2">
+      <label class="fw-bold">Tipo</label>
+      <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
+    </div>
+    <div class="col-md-4 mb-2">
+      <label class="fw-bold">Subtipo</label>
+      <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
+    </div>
   </div>
 
-  <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
-
-    <div class="info-box row">
-      <div class="col-md-6 mb-3">
-        <label class="text-white fw-bold">Empresa Origen</label>
-        <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
-      </div>
-      <div class="col-md-6 mb-3">
-        <label class="text-white fw-bold">Empresa Destino</label>
-        <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
-      </div>
-
-      <div class="col-md-6 mb-2">
-        <label class="text-white">Número de Serie</label>
-        <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
-      </div>
-      <div class="col-md-6 mb-2">
-        <label class="text-white">Ubicación</label>
-        <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
-      </div>
-
-      <div class="col-md-6 mb-2">
-        <label class="text-white">Tipo</label>
-        <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
-      </div>
-      <div class="col-md-6 mb-2">
-        <label class="text-white">Subtipo</label>
-        <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
-      </div>
-    </div>
-    <?php foreach ($secciones as $nombre_seccion => $componentes): 
-      $clave_id = strtolower(str_replace([' ', 'Ó', 'É', 'Á', 'Í', 'Ú', 'Ñ'], ['_', 'O', 'E', 'A', 'I', 'U', 'N'], $nombre_seccion));
-    ?>
-    <div class="seccion mb-4">
-      <h5 class="text-warning"><?= $nombre_seccion ?> (<?= $pesos[$nombre_seccion] ?>%)</h5>
+  <?php foreach ($secciones as $seccion => $componentes): ?>
+    <div class="seccion mb-4 p-3 rounded border border-warning">
+      <h5 class="text-warning"><?= $seccion ?> (<?= $pesos[$seccion] ?>%)</h5>
       <div class="progress mb-3">
-        <div id="barra_<?= $clave_id ?>" class="progress-bar barra-avance" role="progressbar" style="width:0%">0%</div>
+        <div class="progress-bar bg-success barra-avance" id="barra_<?= strtolower(str_replace(' ', '_', $seccion)) ?>" style="width: 0%">0%</div>
       </div>
       <div class="row">
-        <?php foreach ($componentes as $comp): 
-          $valor_actual = $recibo[$comp] ?? '';
-          $id_hash = md5($comp);
+        <?php foreach ($componentes as $componente): 
+          $id_hash = md5($componente);
+          $valor = $recibo[$componente] ?? '';
         ?>
-        <div class="col-md-4 mb-3">
-          <div class="card p-2 bg-dark text-light shadow-sm">
-            <div class="fw-bold mb-2 text-center"><?= $comp ?></div>
-            <input type="hidden" name="componentes[<?= htmlspecialchars($comp) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor_actual ?>">
-            <div class="text-center">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-opcion <?= $valor_actual === 'bueno' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
-              <button type="button" class="btn btn-sm btn-outline-primary btn-opcion <?= $valor_actual === 'regular' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
-              <button type="button" class="btn btn-sm btn-outline-primary btn-opcion <?= $valor_actual === 'malo' ? 'btn-primary' : '' ?>" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold text-warning"><?= $componente ?></label>
+            <input type="hidden" name="componentes[<?= htmlspecialchars($componente) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor ?>">
+            <div class="d-flex gap-2">
+              <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
+              <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
+              <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
             </div>
           </div>
-        </div>
         <?php endforeach; ?>
       </div>
     </div>
-    <?php endforeach; ?>
-    <div class="mb-4">
-      <label class="form-label">Observaciones</label>
-      <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
-    </div>
+  <?php endforeach; ?>
+  <div class="mb-3">
+    <label class="form-label fw-bold text-warning">Observaciones</label>
+    <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
+  </div>
 
-    <div class="text-center my-4">
-      <h5>Condición Total Estimada</h5>
-      <h1 id="total_avance" style="color: yellow; font-size: 3rem;">0%</h1>
-    </div>
+  <div class="text-center my-4">
+    <h5 class="text-warning">Condición Total Estimada</h5>
+    <h1 id="total_avance" style="color: yellow; font-size: 3rem;">0%</h1>
+  </div>
 
-    <div class="text-center no-print mb-5">
-      <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
-      <button type="button" onclick="window.print()" class="btn btn-outline-light ms-2">Imprimir</button>
-    </div>
-  </form>
+  <div class="text-center no-print mb-5">
+    <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
+    <button type="button" onclick="window.print()" class="btn btn-outline-light ms-2">Imprimir</button>
+  </div>
+</form>
 </div>
 
 <script>
