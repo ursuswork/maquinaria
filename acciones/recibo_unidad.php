@@ -87,9 +87,7 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
     <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
   </div>
 </div>
-    <?php endforeach; ?>
-
-    <div class="mb-3">
+     <div class="mb-3">
       <label class="form-label">Observaciones</label>
       <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
     </div>
