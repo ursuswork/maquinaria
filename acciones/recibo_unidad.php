@@ -16,7 +16,6 @@ if (!$maquinaria) {
   die("Maquinaria no encontrada");
 }
 
-// Secciones con nombres exactos de columnas
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECANICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
@@ -35,7 +34,6 @@ $pesos = [
   "CONSUMIBLES" => 10
 ];
 
-// Traer datos anteriores si existen
 $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 ?>
 <!DOCTYPE html>
@@ -47,20 +45,21 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #0b1d3a;
-      color: #fff;
+      background-color: #0a1931;
+      color: #f0f0f0;
       padding: 20px;
     }
     .seccion {
-      background-color: #112e51;
+      background-color: #185adb;
       border-radius: 12px;
       padding: 15px;
       margin-bottom: 25px;
     }
     .seccion h5 {
-      border-bottom: 2px solid #fff;
+      border-bottom: 2px solid #ffc107;
       padding-bottom: 5px;
       margin-bottom: 15px;
+      color: #ffffff;
     }
     .form-label {
       font-weight: bold;
@@ -77,9 +76,19 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
     .total-condicion {
       font-size: 3rem;
       font-weight: bold;
-      color: yellow;
+      color: #ffc107;
       text-align: center;
       margin-top: 20px;
+    }
+    textarea.form-control {
+      background-color: #112d4e;
+      color: white;
+      border: 1px solid #468faf;
+    }
+    .btn-warning {
+      background-color: #ffc107;
+      border-color: #ffc107;
+      color: #000;
     }
   </style>
 </head>
@@ -175,7 +184,10 @@ function calcularAvance() {
     total += porcentaje;
 
     const barra = document.getElementById("barra_" + seccion);
-    if (barra) barra.style.width = `${(buenos / inputs.length) * 100}%`;
+const texto = document.getElementById("num_" + seccion);
+const porcentajeVisual = Math.round((buenos / inputs.length) * 100);
+if (barra) barra.style.width = `${porcentajeVisual}%`;
+if (texto) texto.textContent = `${porcentajeVisual}%`;
   }
 
   document.getElementById("total_avance").textContent = `${Math.round(total)}%`;
