@@ -55,31 +55,31 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 
   <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
     <div class="row mb-4">
-      <div class="col-md-6">
-        <label class="label-info">Empresa Origen</label>
-        <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
-      </div>
-      <div class="col-md-6">
-        <label class="label-info">Empresa Destino</label>
-        <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
-      </div>
-      <div class="col-md-6 mt-2">
-        <label class="label-info">Número de Serie</label>
-        <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
-      </div>
-      <div class="col-md-6 mt-2">
-        <label class="label-info">Ubicación</label>
-        <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
-      </div>
-      <div class="col-md-6 mt-2">
-        <label class="label-info">Tipo</label>
-        <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
-      </div>
-      <div class="col-md-6 mt-2">
-        <label class="label-info">Subtipo</label>
-        <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
-      </div>
-    </div>
+  <div class="col-md-6">
+    <label class="label-info">Empresa Origen</label>
+    <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
+  </div>
+  <div class="col-md-6">
+    <label class="label-info">Empresa Destino</label>
+    <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
+  </div>
+  <div class="col-md-6 mt-2">
+    <label class="label-info">Número de Serie</label>
+    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
+  </div>
+  <div class="col-md-6 mt-2">
+    <label class="label-info">Ubicación</label>
+    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
+  </div>
+  <div class="col-md-6 mt-2">
+    <label class="label-info">Tipo</label>
+    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
+  </div>
+  <div class="col-md-6 mt-2">
+    <label class="label-info">Subtipo</label>
+    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
+  </div>
+</div>
 
     <?php foreach ($secciones as $nombre => $componentes):
       $clave = strtolower(str_replace(' ', '_', $nombre));
