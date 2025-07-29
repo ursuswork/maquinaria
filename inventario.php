@@ -185,11 +185,16 @@ $resultado = $conn->query($sql);
     <td><?= htmlspecialchars($fila['subtipo']) ?></td>
     <td>
       <?php if ($tipo_maq === 'usada'): ?>
-        <div class="progress">
-          <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%">
-            <?= intval($fila['condicion_estimada']) ?>%
-          </div>
-        </div>
+  <div class="text-center">
+    <div class="progress mb-1">
+      <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%"></div>
+    </div>
+    <span class="fs-5 text-warning fw-bold"><?= intval($fila['condicion_estimada']) ?>%</span>
+    <?php if (!empty($fila['fecha_recibo'])): ?>
+      <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
+    <?php endif; ?>
+  </div>
+<?php else: ?>
         <?php if (!empty($fila['fecha_recibo'])): ?>
           <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
         <?php endif; ?>
