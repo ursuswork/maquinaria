@@ -130,7 +130,10 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 <div class="total-condicion">
   <span id="total_avance">0%</span>
 </div>
-
+<div class="text-center my-4">
+  <h5>Condición Total Estimada</h5>
+  <h1 id="total_avance" style="color: #ffc107; font-size: 4rem;">0%</h1>
+</div>
 <div class="text-center">
   <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
 </div>
