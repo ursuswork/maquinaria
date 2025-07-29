@@ -67,7 +67,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
 <body>
 <div class="container">
   <h3 class="text-center">Recibo de Unidad</h3>
-  <form method="POST" action="guardar_recibo.php?id=<?= \$id_maquinaria ?>">
+  <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>">
     <div class="row mb-3">
       <div class="col-md-4">
         <label class="form-label">Equipo</label>
