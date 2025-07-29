@@ -17,10 +17,10 @@ if (!$maquinaria) {
 }
 
 $secciones = [
-  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-  "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
-  "SISTEMA HIDRAULICO" => ["BANCO DE VALVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRAULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCION", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRAULICOS", "ORBITROL", "TORQUES HUV (SATELITES)", "VALVULAS DE RETENCION", "REDUCTORES"],
-  "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VALVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESION/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MODULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+  "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+  "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDÁN"],
+  "SISTEMA HIDRAULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
+  "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
   "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
@@ -43,9 +43,23 @@ foreach ($secciones as $seccion => $componentes) {
 }
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
+
 function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $nombre);
-  return "<div class='mb-2'><label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br><div class='btn-group' role='group'><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label></div></div>";
+  return "
+  <div class='mb-2'>
+    <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
+    <div class='btn-group' role='group'>
+      <input type='radio' class='btn-check componente-radio' data-seccion='$seccion' data-componente='$nombre' data-peso='$porcentaje' data-valor='bueno' name='componentes[$nombre]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
+      <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
+
+      <input type='radio' class='btn-check componente-radio' data-seccion='$seccion' data-componente='$nombre' data-peso='0' data-valor='regular' name='componentes[$nombre]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
+      <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
+
+      <input type='radio' class='btn-check componente-radio' data-seccion='$seccion' data-componente='$nombre' data-peso='0' data-valor='malo' name='componentes[$nombre]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
+      <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
+    </div>
+  </div>";
 }
 ?>
 <!DOCTYPE html>
@@ -68,47 +82,48 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
 <div class="container">
   <h3 class="text-center">Recibo de Unidad</h3>
   <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>">
+
     <div class="row mb-3">
       <div class="col-md-4">
         <label class="form-label">Equipo</label>
-        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['nombre']) ?>" readonly>
+        <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['nombre']) ?>" readonly>
       </div>
       <div class="col-md-4">
         <label class="form-label">Marca</label>
-        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['marca']) ?>" readonly>
+        <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['marca']) ?>" readonly>
       </div>
       <div class="col-md-4">
         <label class="form-label">Modelo</label>
-        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['modelo']) ?>" readonly>
+        <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
       </div>
     </div>
 
-    <?php foreach (\$secciones as \$titulo => \$componentes): ?>
+    <?php foreach ($secciones as $titulo => $componentes): ?>
       <?php
-        \$peso_total = \$pesos[\$titulo];
-        \$componentes_seccion = count(\$componentes);
-        \$peso_por_componente = \$peso_total / \$componentes_seccion;
-        \$avance_actual = 0;
-        foreach (\$componentes as \$componente) {
-          \$valor = \$recibo_existente[\$componente] ?? '';
-          if (\$valor == 'bueno') {
-            \$avance_actual += \$peso_por_componente;
+        $peso_total = $pesos[$titulo];
+        $componentes_seccion = count($componentes);
+        $peso_por_componente = $peso_total / $componentes_seccion;
+        $avance_actual = 0;
+        foreach ($componentes as $componente) {
+          $valor = $recibo_existente[$componente] ?? '';
+          if ($valor == 'bueno') {
+            $avance_actual += $peso_por_componente;
           }
         }
-        \$avance_actual = round(\$avance_actual, 2);
-        \$barra_id = 'barra_' . strtolower(str_replace(' ', '_', \$titulo));
+        $avance_actual = round($avance_actual, 2);
+        $barra_id = 'barra_' . strtolower(str_replace(' ', '_', $titulo));
       ?>
       <hr>
-      <h5><?= htmlspecialchars(\$titulo) ?> (<?= \$peso_total ?>%)</h5>
+      <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
       <div class="progress mb-3" style="height: 20px; width: 100%;">
-        <div class="progress-bar" id="<?= \$barra_id ?>" role="progressbar" style="width: <?= (\$avance_actual / \$peso_total * 100) ?>%;">
-          <?= \$avance_actual ?>%
+        <div class="progress-bar bg-success" id="<?= $barra_id ?>" role="progressbar" style="width: <?= ($avance_actual / $peso_total * 100) ?>%;">
+          <?= $avance_actual ?>%
         </div>
       </div>
       <div class="row">
-        <?php foreach (\$componentes as \$comp): ?>
+        <?php foreach ($componentes as $comp): ?>
           <div class="col-md-6">
-            <?= botonOpciones(\$comp, \$recibo_existente[\$comp] ?? '', \$porcentajes[\$comp], \$titulo) ?>
+            <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp], $titulo) ?>
           </div>
         <?php endforeach; ?>
       </div>
@@ -116,7 +131,7 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
 
     <div class="mb-3">
       <label class="form-label">Observaciones</label>
-      <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars(\$recibo_existente['observaciones'] ?? '') ?></textarea>
+      <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
     </div>
 
     <div class="mb-4">
@@ -133,25 +148,18 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   </form>
 </div>
 <script>
-const pesos = <?= json_encode(\$pesos) ?>;
+const pesos = <?= json_encode($pesos) ?>;
 document.querySelectorAll('.componente-radio').forEach(input => {
   input.addEventListener('change', calcularAvance);
 });
 
 function calcularAvance() {
   let totalAvance = 0;
-  const avancePorSeccion = {};
-
   document.querySelectorAll('.componente-radio:checked').forEach(radio => {
-    const seccion = radio.dataset.seccion;
-    const peso = parseFloat(radio.dataset.peso);
     if (radio.dataset.valor === 'bueno') {
-      totalAvance += peso;
-      if (!avancePorSeccion[seccion]) avancePorSeccion[seccion] = 0;
-      avancePorSeccion[seccion] += peso;
+      totalAvance += parseFloat(radio.dataset.peso);
     }
   });
-
   const barra = document.getElementById('barra_total');
   barra.style.width = totalAvance.toFixed(2) + '%';
   barra.innerText = totalAvance.toFixed(2) + '%';
