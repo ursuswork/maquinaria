@@ -36,122 +36,96 @@ $pesos = [
 
 $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Recibo de Unidad - <?= $maquinaria['nombre'] ?? '' ?></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recibo de Unidad</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #0b1d3a;
-      color: #ffc107;
-      padding: 20px;
+      background-color: #0a1a2f;
+      color: #ffeb3b;
     }
     .seccion {
-      background-color: #112e51;
-      border-radius: 12px;
+      background-color: #10243f;
       padding: 15px;
+      border-radius: 10px;
       margin-bottom: 25px;
+    }
+    .barra-avance {
+      height: 18px;
+      font-weight: bold;
+    }
+    .btn-opcion {
+      border-radius: 25px;
+      font-size: 0.75rem;
     }
     .form-label {
       font-weight: bold;
     }
-    .barra-avance {
-      height: 14px;
-      border-radius: 10px;
-      background-color: #28a745 !important;
-      position: relative;
+    .info-maquina .row > div {
+      padding: 5px 15px;
     }
-    .barra-avance span {
-      position: absolute;
-      width: 100%;
-      text-align: center;
-      font-size: 0.75rem;
+    h3, h5 {
       color: #fff;
-    }
-    .btn-opcion {
-      border-radius: 50px;
-      font-size: 0.7rem;
-    }
-    .btn-warning {
-      background-color: #ffc107;
-      border: none;
-      color: black;
-    }
-    .total-condicion {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #ffc107;
-      text-align: center;
-    }
-    .info-maquina {
-      background: #112e51;
-      border-radius: 10px;
-      padding: 10px 20px;
-      margin-bottom: 20px;
-    }
-    .info-maquina p {
-      margin: 5px 0;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h3 class="text-center mb-4">Recibo de Unidad</h3>
+<div class="container my-4">
+  <h3 class="text-center mb-3">Recibo de Unidad</h3>
 
-  <!-- Información de la máquina -->
-  <div class="bg-dark text-warning p-3 rounded mb-4">
+  <div class="seccion info-maquina">
     <div class="row">
-      <?php foreach ($info_maquina as $label => $valor): ?>
-        <div class="col-md-6 mb-2">
-          <strong><?= $label ?>:</strong> <?= htmlspecialchars($valor) ?>
-        </div>
-      <?php endforeach; ?>
-      <div class="col-md-6 mb-2">
-        <label class="form-label text-light">Empresa Origen:</label>
-        <input type="text" name="empresa_origen" class="form-control" value="<?= $recibo['empresa_origen'] ?? '' ?>">
+      <div class="col-md-4"><strong>Número de Serie:</strong> <?= $maquinaria['numero_serie'] ?></div>
+      <div class="col-md-4"><strong>Modelo:</strong> <?= $maquinaria['modelo'] ?></div>
+      <div class="col-md-4"><strong>Ubicación:</strong> <?= $maquinaria['ubicacion'] ?></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4"><strong>Tipo:</strong> <?= $maquinaria['tipo_maquinaria'] ?></div>
+      <div class="col-md-4"><strong>Subtipo:</strong> <?= $maquinaria['subtipo'] ?></div>
+      <div class="col-md-4">
+        <label><strong>Empresa Origen:</strong></label>
+        <input type="text" class="form-control" name="empresa_origen" form="formulario" value="<?= $recibo['empresa_origen'] ?? '' ?>">
       </div>
-      <div class="col-md-6 mb-2">
-        <label class="form-label text-light">Empresa Destino:</label>
-        <input type="text" name="empresa_destino" class="form-control" value="<?= $recibo['empresa_destino'] ?? '' ?>">
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-6">
+        <label><strong>Empresa Destino:</strong></label>
+        <input type="text" class="form-control" name="empresa_destino" form="formulario" value="<?= $recibo['empresa_destino'] ?? '' ?>">
       </div>
     </div>
   </div>
 
-  <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="recibo_unidad">
-    <?php foreach ($secciones as $nombre_seccion => $componentes):
+  <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="formulario">
+    <?php foreach ($secciones as $nombre_seccion => $componentes): 
       $peso = $pesos[$nombre_seccion];
-      $id_barra = "barra_" . str_replace(' ', '_', strtolower($nombre_seccion));
-      $id_texto = "porcentaje_" . str_replace(' ', '_', strtolower($nombre_seccion));
+      $id_barra = "barra_" . md5($nombre_seccion);
     ?>
     <div class="seccion">
       <h5><?= $nombre_seccion ?> (<?= $peso ?>%)</h5>
-      <div class="mb-2 position-relative">
-        <div class="progress bg-secondary barra-avance">
-          <div id="<?= $id_barra ?>" class="progress-bar bg-success barra-avance" style="width: 0%">
-            <span id="<?= $id_texto ?>" class="position-absolute w-100 text-center text-dark fw-bold">0%</span>
-          </div>
-        </div>
+      <div class="progress bg-dark mb-3">
+        <div class="progress-bar bg-success barra-avance" id="<?= $id_barra ?>" role="progressbar">0%</div>
       </div>
       <div class="row">
-        <?php foreach ($componentes as $nombre): 
-          $valor = $recibo[$nombre] ?? '';
-          $id_input = "comp_" . md5($nombre);
+        <?php foreach ($componentes as $componente): 
+          $valor = $recibo[$componente] ?? '';
+          $id_input = "comp_" . md5($componente);
         ?>
-        <div class="col-md-6 mb-3">
-          <label class="form-label text-light"><?= $nombre ?></label>
-          <div class="btn-group btn-group-lg w-100" role="group">
-            <?php foreach (['bueno', 'regular', 'malo'] as $opcion):
-              $btn_class = ($valor == $opcion) ? 'btn-primary' : 'btn-outline-primary';
+        <div class="col-md-6 mb-2">
+          <label class="form-label"><?= $componente ?></label><br>
+          <div class="btn-group btn-group-sm" role="group">
+            <?php foreach (['bueno', 'regular', 'malo'] as $opcion): 
+              $class = ($valor == $opcion) ? 'btn-primary' : 'btn-outline-primary';
             ?>
-              <button type="button" class="btn <?= $btn_class ?> fw-bold" onclick="seleccionar('<?= $id_input ?>','<?= $opcion ?>', this)">
-                <?= ucfirst($opcion) ?>
-              </button>
+            <button type="button" class="btn btn-opcion <?= $class ?>" onclick="seleccionar('<?= $id_input ?>','<?= $opcion ?>', this)">
+              <?= ucfirst($opcion) ?>
+            </button>
             <?php endforeach; ?>
           </div>
-          <input type="hidden" name="componentes[<?= $nombre ?>]" id="<?= $id_input ?>" value="<?= $valor ?>">
+          <input type="hidden" name="componentes[<?= $componente ?>]" id="<?= $id_input ?>" value="<?= $valor ?>">
         </div>
         <?php endforeach; ?>
       </div>
@@ -163,13 +137,13 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <textarea name="observaciones" class="form-control" rows="3"><?= $recibo['observaciones'] ?? '' ?></textarea>
     </div>
 
-    <div class="text-center mt-4">
-      <h4 class="text-light">Condición Estimada Total</h4>
-      <div class="total-condicion text-warning" id="total_avance">0%</div>
+    <div class="text-center my-4">
+      <h5>Condición Total Estimada</h5>
+      <h1 id="total_avance" style="color: yellow; font-size: 3.5rem;">0%</h1>
     </div>
 
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-warning btn-lg px-5">Guardar Recibo</button>
+    <div class="text-center">
+      <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
     </div>
   </form>
 </div>
@@ -179,56 +153,52 @@ document.addEventListener('DOMContentLoaded', calcularAvance);
 
 function calcularAvance() {
   const pesos = {
-    "motor": 15,
-    "sistema_mecanico": 15,
-    "sistema_hidraulico": 30,
-    "sistema_electrico_y_electronico": 25,
-    "estetico": 5,
-    "consumibles": 10
-  };
-
-  const secciones = {
-    "motor": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["MOTOR"])) ?>],
-    "sistema_mecanico": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["SISTEMA MECANICO"])) ?>],
-    "sistema_hidraulico": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["SISTEMA HIDRAULICO"])) ?>],
-    "sistema_electrico_y_electronico": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["SISTEMA ELECTRICO Y ELECTRONICO"])) ?>],
-    "estetico": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["ESTETICO"])) ?>],
-    "consumibles": [<?= implode(",", array_map(fn($x) => "'" . md5($x) . "'", $secciones["CONSUMIBLES"])) ?>]
+    "<?= md5('MOTOR') ?>": 15,
+    "<?= md5('SISTEMA MECANICO') ?>": 15,
+    "<?= md5('SISTEMA HIDRAULICO') ?>": 30,
+    "<?= md5('SISTEMA ELECTRICO Y ELECTRONICO') ?>": 25,
+    "<?= md5('ESTETICO') ?>": 5,
+    "<?= md5('CONSUMIBLES') ?>": 10
   };
 
   let total = 0;
 
-  for (const seccion in secciones) {
-    let buenos = 0;
-    const inputs = secciones[seccion];
-    inputs.forEach(id => {
-      const val = document.getElementById("comp_" + id).value;
-      if (val === "bueno") buenos++;
-    });
-    const porcentaje = (buenos / inputs.length) * 100;
-    const avance = (buenos / inputs.length) * pesos[seccion];
-    total += avance;
+  <?php foreach ($secciones as $nombre_seccion => $componentes): 
+    $id_barra = "barra_" . md5($nombre_seccion);
+    $ids = array_map(fn($x) => "comp_" . md5($x), $componentes);
+  ?>
+  let buenos_<?= md5($nombre_seccion) ?> = 0;
+  let total_<?= md5($nombre_seccion) ?> = <?= count($componentes) ?>;
 
-    const barra = document.getElementById("barra_" + seccion);
-    const texto = document.getElementById("texto_barra_" + seccion);
-    if (barra) {
-      barra.style.width = porcentaje + "%";
-      barra.querySelector("span").textContent = Math.round(porcentaje) + "%";
-    }
+  <?php foreach ($ids as $id): ?>
+  if (document.getElementById("<?= $id ?>").value === "bueno") {
+    buenos_<?= md5($nombre_seccion) ?>++;
   }
+  <?php endforeach; ?>
 
-  document.getElementById("total_avance").textContent = `${Math.round(total)}%`;
+  let porcentaje_<?= md5($nombre_seccion) ?> = (buenos_<?= md5($nombre_seccion) ?> / total_<?= md5($nombre_seccion) ?>) * 100;
+  let barra_<?= md5($nombre_seccion) ?> = document.getElementById("<?= $id_barra ?>");
+  barra_<?= md5($nombre_seccion) ?>.style.width = porcentaje_<?= md5($nombre_seccion) ?> + "%";
+  barra_<?= md5($nombre_seccion) ?>.innerText = Math.round(porcentaje_<?= md5($nombre_seccion) ?>) + "%";
+
+  total += (buenos_<?= md5($nombre_seccion) ?> / total_<?= md5($nombre_seccion) ?>) * pesos["<?= md5($nombre_seccion) ?>"];
+  <?php endforeach; ?>
+
+  document.getElementById("total_avance").innerText = Math.round(total) + "%";
 }
 
 function seleccionar(id, valor, boton) {
-  const input = document.getElementById(id);
+  let input = document.getElementById(id);
   input.value = valor;
 
-  const grupo = boton.parentNode.querySelectorAll("button");
-  grupo.forEach(btn => btn.classList.remove("btn-warning"));
-  grupo.forEach(btn => btn.classList.add("btn-outline-light"));
-  boton.classList.add("btn-warning");
-  boton.classList.remove("btn-outline-light");
+  let grupo = boton.parentNode.querySelectorAll("button");
+  grupo.forEach(btn => {
+    btn.classList.remove("btn-primary");
+    btn.classList.add("btn-outline-primary");
+  });
+
+  boton.classList.add("btn-primary");
+  boton.classList.remove("btn-outline-primary");
 
   calcularAvance();
 }
