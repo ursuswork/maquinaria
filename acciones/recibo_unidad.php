@@ -55,60 +55,38 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 
   <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
     <div class="row mb-4">
-  <div class="col-md-6">
-    <label class="label-info">Empresa Origen</label>
+ <div class="row bg-dark p-3 mb-4 rounded-3 border border-primary">
+  <div class="col-md-12">
+    <h4 class="text-warning mb-3"><?= htmlspecialchars($maquinaria['nombre']) . " (" . htmlspecialchars($maquinaria['modelo']) . ")" ?></h4>
+  </div>
+
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Empresa Origen</label>
     <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
   </div>
-  <div class="col-md-6">
-    <label class="label-info">Empresa Destino</label>
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Empresa Destino</label>
     <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
   </div>
-  <div class="col-md-6 mt-2">
-    <label class="label-info">Número de Serie</label>
-    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
+
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Número de Serie</label>
+    <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
   </div>
-  <div class="col-md-6 mt-2">
-    <label class="label-info">Ubicación</label>
-    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Ubicación</label>
+    <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
   </div>
-  <div class="col-md-6 mt-2">
-    <label class="label-info">Tipo</label>
-    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
+
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Tipo</label>
+    <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
   </div>
-  <div class="col-md-6 mt-2">
-    <label class="label-info">Subtipo</label>
-    <div class="form-control-plaintext"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
+  <div class="col-md-6 mb-2">
+    <label class="text-white fw-bold">Subtipo</label>
+    <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
   </div>
 </div>
-
-    <?php foreach ($secciones as $nombre => $componentes):
-      $clave = strtolower(str_replace(' ', '_', $nombre));
-      $peso = $pesos[$nombre];
-    ?>
-    <div class="seccion">
-      <h5><?= $nombre ?> (<?= $peso ?>%)</h5>
-      <div class="progress mb-3">
-        <div id="barra_<?= $clave ?>" class="barra-avance" style="width:0%">0%</div>
-      </div>
-      <div class="row">
-        <?php foreach ($componentes as $componente):
-          $id = md5($componente);
-          $valor = $recibo[$componente] ?? '';
-        ?>
-        <div class="col-md-6 mb-2">
-          <label class="d-block mb-1"><?= $componente ?></label>
-          <div class="btn-group btn-group-sm d-flex gap-1" role="group">
-            <?php foreach (['bueno', 'regular', 'malo'] as $opcion):
-              $clase = ($valor == $opcion) ? 'btn-primary' : 'btn-outline-primary';
-            ?>
-              <button type="button" class="btn btn-opcion <?= $clase ?>" onclick="seleccionar('<?= $id ?>', '<?= $opcion ?>', this)"><?= ucfirst($opcion) ?></button>
-            <?php endforeach; ?>
-          </div>
-          <input type="hidden" name="componentes[<?= $componente ?>]" id="comp_<?= $id ?>" value="<?= $valor ?>">
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
     <?php endforeach; ?>
 
     <div class="mb-3">
