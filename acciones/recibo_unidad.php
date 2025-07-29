@@ -43,24 +43,9 @@ foreach ($secciones as $seccion => $componentes) {
 }
 
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
-
 function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $nombre);
-  return "
-    <div class='mb-2'>
-      <label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br>
-      <div class='btn-group' role='group'>
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label>
-
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label>
-
-        <input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . ">
-        <label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label>
-      </div>
-    </div>
-  ";
+  return "<div class='mb-2'><label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br><div class='btn-group' role='group'><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{$nombre}]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{$nombre}]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{$nombre}]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label></div></div>";
 }
 ?>
 <!DOCTYPE html>
@@ -71,110 +56,107 @@ function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #001f3f; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
-    .container { background-color: #002b5c; padding: 2rem; border-radius: 1rem; max-width: 1200px; margin: auto; box-shadow: 0 0 20px #000000; }
-    h3, h4, h5 { color: #ffc107; border-bottom: 2px solid #ffc107; padding-bottom: .5rem; margin-bottom: 1rem; }
-    .form-label { color: #ffc107; font-weight: bold; }
-    .form-control, .form-select { background-color: #003366; color: #ffffff; border: 1px solid #0059b3; margin-bottom: 1rem; }
-    .btn-primary { background-color: #0056b3; border: none; font-weight: bold; }
-    .btn-warning { background-color: #ffc107; border: none; font-weight: bold; color: #000000; }
-    .progress-bar { transition: width 0.4s ease; background-color: #28a745 !important; }
-    @media print {
-      .btn, textarea, input[type="radio"], label.btn { display: none !important; }
-      body { background: #ffffff; color: #000000; }
-    }
+    body { background-color: #001f3f; color: #ffffff; }
+    .container { background-color: #002b5c; padding: 2rem; border-radius: 1rem; max-width: 1200px; margin: auto; }
+    .form-label { color: #ffc107; }
+    .form-control, .form-select { background-color: #003366; color: #ffffff; }
+    .btn-primary, .btn-warning { font-weight: bold; }
+    .progress-bar.total { background-color: #ffc107 !important; color: black; }
   </style>
 </head>
 <body>
-  <div class="container py-4">
-    <h3 class="text-center">Recibo de Unidad</h3>
-    <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>">
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <label class="form-label">Equipo</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['nombre']) ?>" readonly>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Marca</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['marca']) ?>" readonly>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Modelo</label>
-          <input type="text" class="form-control" value="<?= htmlspecialchars($maquinaria['modelo']) ?>" readonly>
-        </div>
+<div class="container">
+  <h3 class="text-center">Recibo de Unidad</h3>
+  <form method="POST" action="guardar_recibo.php?id=<?= \$id_maquinaria ?>">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Equipo</label>
+        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['nombre']) ?>" readonly>
       </div>
-<?php foreach ($secciones as $titulo => $componentes): ?>
-  <?php
-    $peso_total = $pesos[$titulo];
-    $componentes_seccion = count($componentes);
-    $peso_por_componente = $peso_total / $componentes_seccion;
-    $avance_actual = 0;
-    foreach ($componentes as $componente) {
-      $valor = $recibo_existente[$componente] ?? '';
-      if ($valor == 'bueno') {
-        $avance_actual += $peso_por_componente;
-      }
-    }
-    $avance_actual = round($avance_actual, 2);
-    $barra_id = 'barra_' . strtolower(str_replace(' ', '_', $titulo));
-  ?>
-  <hr>
-  <h5><?= htmlspecialchars($titulo) ?> (<?= $peso_total ?>%)</h5>
-  <div class="progress mb-3" style="height: 20px; width: 100%;">
-    <div class="progress-bar" id="<?= $barra_id ?>" role="progressbar" style="width: <?= ($avance_actual / $peso_total * 100) ?>%;">
-      <?= $avance_actual ?>%
+      <div class="col-md-4">
+        <label class="form-label">Marca</label>
+        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['marca']) ?>" readonly>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Modelo</label>
+        <input type="text" class="form-control" value="<?= htmlspecialchars(\$maquinaria['modelo']) ?>" readonly>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <?php foreach ($componentes as $comp): ?>
-      <div class="col-md-6">
-        <?= botonOpciones($comp, $recibo_existente[$comp] ?? '', $porcentajes[$comp], $titulo) ?>
-      </div>
-    <?php endforeach; ?>
-  </div>
-<?php endforeach; ?>
-      <div class="mb-3">
-        <label class="form-label">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo_existente['observaciones'] ?? '') ?></textarea>
-      </div>
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-warning px-5 py-2">Guardar</button>
-        <button type="button" onclick="window.print()" class="btn btn-primary px-4 py-2 ms-2">Imprimir</button>
-      </div>
-    </form>
-  </div>
-  <script>
-    document.querySelectorAll('.componente-radio').forEach(input => {
-      input.addEventListener('change', () => {
-        const secciones = {};
-        document.querySelectorAll('.componente-radio:checked').forEach(radio => {
-          if (radio.dataset.valor === 'bueno') {
-            const seccion = radio.dataset.seccion;
-            const peso = parseFloat(radio.dataset.peso);
-            if (!secciones[seccion]) secciones[seccion] = 0;
-            secciones[seccion] += peso;
-          }
-        });
-        for (const [seccion, avance] of Object.entries(secciones)) {
-          const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
-          const barra = document.getElementById(id);
-          const pesoTotal = <?= json_encode($pesos) ?>[seccion];
-          if (barra && pesoTotal) {
-            const porcentaje = (avance / pesoTotal * 100).toFixed(2);
-            barra.style.width = porcentaje + '%';
-            barra.innerText = avance.toFixed(2) + '%';
+
+    <?php foreach (\$secciones as \$titulo => \$componentes): ?>
+      <?php
+        \$peso_total = \$pesos[\$titulo];
+        \$componentes_seccion = count(\$componentes);
+        \$peso_por_componente = \$peso_total / \$componentes_seccion;
+        \$avance_actual = 0;
+        foreach (\$componentes as \$componente) {
+          \$valor = \$recibo_existente[\$componente] ?? '';
+          if (\$valor == 'bueno') {
+            \$avance_actual += \$peso_por_componente;
           }
         }
-        document.querySelectorAll('.progress-bar').forEach(bar => {
-          const id = bar.id;
-          const seccion = id.replace('barra_', '').replace(/_/g, ' ').toUpperCase();
-          if (!secciones[seccion]) {
-            bar.style.width = '0%';
-            bar.innerText = '0%';
-          }
-        });
-      });
-    });
-  </script>
+        \$avance_actual = round(\$avance_actual, 2);
+        \$barra_id = 'barra_' . strtolower(str_replace(' ', '_', \$titulo));
+      ?>
+      <hr>
+      <h5><?= htmlspecialchars(\$titulo) ?> (<?= \$peso_total ?>%)</h5>
+      <div class="progress mb-3" style="height: 20px; width: 100%;">
+        <div class="progress-bar" id="<?= \$barra_id ?>" role="progressbar" style="width: <?= (\$avance_actual / \$peso_total * 100) ?>%;">
+          <?= \$avance_actual ?>%
+        </div>
+      </div>
+      <div class="row">
+        <?php foreach (\$componentes as \$comp): ?>
+          <div class="col-md-6">
+            <?= botonOpciones(\$comp, \$recibo_existente[\$comp] ?? '', \$porcentajes[\$comp], \$titulo) ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
+
+    <div class="mb-3">
+      <label class="form-label">Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars(\$recibo_existente['observaciones'] ?? '') ?></textarea>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-bold text-warning">Avance Total (Condición Estimada)</label>
+      <div class="progress" style="height: 24px;">
+        <div class="progress-bar total" id="barra_total" style="width: 0%;">0%</div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-warning">Guardar</button>
+      <button type="button" onclick="window.print()" class="btn btn-primary">Imprimir</button>
+    </div>
+  </form>
+</div>
+<script>
+const pesos = <?= json_encode(\$pesos) ?>;
+document.querySelectorAll('.componente-radio').forEach(input => {
+  input.addEventListener('change', calcularAvance);
+});
+
+function calcularAvance() {
+  let totalAvance = 0;
+  const avancePorSeccion = {};
+
+  document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+    const seccion = radio.dataset.seccion;
+    const peso = parseFloat(radio.dataset.peso);
+    if (radio.dataset.valor === 'bueno') {
+      totalAvance += peso;
+      if (!avancePorSeccion[seccion]) avancePorSeccion[seccion] = 0;
+      avancePorSeccion[seccion] += peso;
+    }
+  });
+
+  const barra = document.getElementById('barra_total');
+  barra.style.width = totalAvance.toFixed(2) + '%';
+  barra.innerText = totalAvance.toFixed(2) + '%';
+}
+window.onload = calcularAvance;
+</script>
 </body>
 </html>
