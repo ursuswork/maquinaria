@@ -28,15 +28,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   // Componentes por sección
   $secciones = [
-    "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
-    "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDÁN"],
-    "SISTEMA HIDRAULICO" => ["BANCO DE VÁLVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRÁULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCIÓN", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRÁULICOS", "ORBITROL", "TORQUES HUV (SATÉLITES)", "VÁLVULAS DE RETENCIÓN", "REDUCTORES"],
-    "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VÁLVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESIÓN/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MÓDULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
-    "ESTÉTICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
+    "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGUEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
+    "SISTEMA MECANICO" => ["TRANSMISION", "DIFERENCIALES", "CARDAN"],
+    "SISTEMA HIDRAULICO" => ["BANCO DE VALVULAS", "BOMBAS DE TRANSITO", "BOMBAS DE PRECARGA", "BOMBAS DE ACCESORIOS", "CLUTCH HIDRAULICO", "GATOS DE LEVANTE", "GATOS DE DIRECCION", "GATOS DE ACCESORIOS", "MANGUERAS", "MOTORES HIDRAULICOS", "ORBITROL", "TORQUES HUV (SATELITES)", "VALVULAS DE RETENCION", "REDUCTORES"],
+    "SISTEMA ELECTRICO Y ELECTRONICO" => ["ALARMAS", "ARNESES", "BOBINAS", "BOTONES", "CABLES", "CABLES DE SENSORES", "CONECTORES", "ELECTRO VALVULAS", "FUSIBLES", "PORTA FUSIBLES", "INDICADORES", "PRESION/AGUA/TEMPERATURA/VOLTIMETRO", "LUCES", "MODULOS", "TORRETA", "RELEVADORES", "SWITCH (LLAVE)"],
+    "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
     "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
   ];
 
-  // Calcular peso por componente
+  // Calcular el porcentaje por componente
   $porcentajes = [];
   foreach ($secciones as $seccion => $items) {
     $peso_unitario = $pesos[$seccion] / count($items);
@@ -45,11 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
   }
 
-  // Verificar si ya existe un registro
-  $sql_check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria");
-  $existe = $sql_check->fetch_assoc();
+  // Verificar si ya existe un registro previo
+  $check = $conn->query("SELECT id FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1");
+  $existe = $check->fetch_assoc();
 
   if ($existe) {
+    // UPDATE
     $updates = [];
     foreach ($componentes as $campo => $valor) {
       $campo_sql = $conn->real_escape_string($campo);
@@ -61,8 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $updates[] = "`observaciones` = '$observaciones'";
     $updates[] = "`fecha_llenado` = NOW()";
-    $conn->query("UPDATE recibo_unidad SET " . implode(', ', $updates) . " WHERE id_maquinaria = $id_maquinaria");
+    $conn->query("UPDATE recibo_unidad SET " . implode(", ", $updates) . " WHERE id_maquinaria = $id_maquinaria");
+
   } else {
+    // INSERT
     $campos = [];
     $valores = [];
     foreach ($componentes as $campo => $valor) {
@@ -74,19 +77,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $avance_total += $porcentajes[$campo] ?? 0;
       }
     }
-    $campos[] = "`id_maquinaria`";
+    $campos[] = "id_maquinaria";
     $valores[] = $id_maquinaria;
-    $campos[] = "`observaciones`";
+    $campos[] = "observaciones";
     $valores[] = "'$observaciones'";
-    $campos[] = "`fecha_llenado`";
+    $campos[] = "fecha_llenado";
     $valores[] = "NOW()";
     $conn->query("INSERT INTO recibo_unidad (" . implode(',', $campos) . ") VALUES (" . implode(',', $valores) . ")");
   }
 
-  // Guardar porcentaje total en maquinaria
+  // Actualizar columna `condicion_estimada`
   $avance_total = round($avance_total, 2);
   $conn->query("UPDATE maquinaria SET condicion_estimada = $avance_total WHERE id = $id_maquinaria");
 
+  // Redirigir al inventario
   header("Location: ../inventario.php");
   exit;
 }
