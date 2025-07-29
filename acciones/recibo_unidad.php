@@ -38,7 +38,7 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 <body>
   <div class="container">
     <h1 class="text-center">Recibo de Unidad</h1>
-      </div>
+    </div>
 </body>
 </html>
 <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
@@ -64,9 +64,9 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <label class="fw-bold">Tipo</label>
       <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
     </div>
-    <div class="col-md-4 mb-2">
-      <label class="fw-bold">Subtipo</label>
-      <div class="form-control bg-dark text-warning"><?= htmlspecialchars($maquinaria['subtipo']) ?></div>
+    <div class="col-md-6 mb-2">
+  <label class="text-white fw-bold">Nombre</label>
+  <div class="form-control bg-secondary text-white"><?= htmlspecialchars($maquinaria['nombre']) ?></div>
     </div>
   </div>
 
