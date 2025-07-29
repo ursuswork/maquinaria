@@ -11,7 +11,7 @@ $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
 $sql = "
-  SELECT m.*, r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo
+   SELECT m.*, r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo
   FROM maquinaria m
   LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 ";
@@ -183,7 +183,7 @@ $resultado = $conn->query($sql);
     <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
     <td><?= $tipo_maq === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?></td>
     <td><?= htmlspecialchars($fila['subtipo']) ?></td>
-    <td>
+   <td>
   <?php if ($tipo_maq === 'usada'): ?>
     <?php if (!is_null($fila['condicion_estimada'])): ?>
       <div class="progress">
