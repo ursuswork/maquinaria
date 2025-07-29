@@ -99,39 +99,54 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 </head>
 <body>
 <div class="container">
-  <h3 class="text-center mb-3">Recibo de Unidad - <?= $maquinaria['nombre'] . " (" . $maquinaria['modelo'] . ")" ?></h3>
+  <h3 class="text-center mb-4">Recibo de Unidad</h3>
 
-  <div class="info-maquina">
-    <p><strong>Empresa Origen:</strong> <?= $maquinaria['empresa_origen'] ?? 'N/A' ?></p>
-    <p><strong>Empresa Destino:</strong> <?= $maquinaria['empresa_destino'] ?? 'N/A' ?></p>
-    <p><strong>Número de Serie:</strong> <?= $maquinaria['numero_serie'] ?? 'N/A' ?></p>
-    <p><strong>Tipo:</strong> <?= ucfirst($maquinaria['tipo_maquinaria']) ?? 'N/A' ?></p>
+  <!-- Información de la máquina -->
+  <div class="bg-dark text-warning p-3 rounded mb-4">
+    <div class="row">
+      <?php foreach ($info_maquina as $label => $valor): ?>
+        <div class="col-md-6 mb-2">
+          <strong><?= $label ?>:</strong> <?= htmlspecialchars($valor) ?>
+        </div>
+      <?php endforeach; ?>
+      <div class="col-md-6 mb-2">
+        <label class="form-label text-light">Empresa Origen:</label>
+        <input type="text" name="empresa_origen" class="form-control" value="<?= $recibo['empresa_origen'] ?? '' ?>">
+      </div>
+      <div class="col-md-6 mb-2">
+        <label class="form-label text-light">Empresa Destino:</label>
+        <input type="text" name="empresa_destino" class="form-control" value="<?= $recibo['empresa_destino'] ?? '' ?>">
+      </div>
+    </div>
   </div>
 
   <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="recibo_unidad">
     <?php foreach ($secciones as $nombre_seccion => $componentes):
       $peso = $pesos[$nombre_seccion];
       $id_barra = "barra_" . str_replace(' ', '_', strtolower($nombre_seccion));
+      $id_texto = "porcentaje_" . str_replace(' ', '_', strtolower($nombre_seccion));
     ?>
     <div class="seccion">
       <h5><?= $nombre_seccion ?> (<?= $peso ?>%)</h5>
-      <div class="progress mb-3 bg-secondary">
-        <div id="<?= $id_barra ?>" class="progress-bar barra-avance" role="progressbar" style="width: 0%">
-          <span id="texto_<?= $id_barra ?>">0%</span>
+      <div class="mb-2 position-relative">
+        <div class="progress bg-secondary barra-avance">
+          <div id="<?= $id_barra ?>" class="progress-bar bg-success barra-avance" style="width: 0%">
+            <span id="<?= $id_texto ?>" class="position-absolute w-100 text-center text-dark fw-bold">0%</span>
+          </div>
         </div>
       </div>
       <div class="row">
-        <?php foreach ($componentes as $nombre):
+        <?php foreach ($componentes as $nombre): 
           $valor = $recibo[$nombre] ?? '';
           $id_input = "comp_" . md5($nombre);
         ?>
         <div class="col-md-6 mb-3">
-          <label class="form-label"><?= $nombre ?></label>
-          <div class="d-flex gap-1 flex-wrap">
-            <?php foreach (['bueno', 'regular', 'malo'] as $opcion): 
-              $btn_class = ($valor == $opcion) ? 'btn-warning' : 'btn-outline-light';
+          <label class="form-label text-light"><?= $nombre ?></label>
+          <div class="btn-group btn-group-lg w-100" role="group">
+            <?php foreach (['bueno', 'regular', 'malo'] as $opcion):
+              $btn_class = ($valor == $opcion) ? 'btn-primary' : 'btn-outline-primary';
             ?>
-              <button type="button" class="btn btn-opcion <?= $btn_class ?>" onclick="seleccionar('<?= $id_input ?>','<?= $opcion ?>', this)">
+              <button type="button" class="btn <?= $btn_class ?> fw-bold" onclick="seleccionar('<?= $id_input ?>','<?= $opcion ?>', this)">
                 <?= ucfirst($opcion) ?>
               </button>
             <?php endforeach; ?>
@@ -148,13 +163,13 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <textarea name="observaciones" class="form-control" rows="3"><?= $recibo['observaciones'] ?? '' ?></textarea>
     </div>
 
-    <div class="text-center">
-      <h4>Condición Total Estimada</h4>
-      <div class="total-condicion" id="total_avance">0%</div>
+    <div class="text-center mt-4">
+      <h4 class="text-light">Condición Estimada Total</h4>
+      <div class="total-condicion text-warning" id="total_avance">0%</div>
     </div>
 
     <div class="text-center mt-4">
-      <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
+      <button type="submit" class="btn btn-warning btn-lg px-5">Guardar Recibo</button>
     </div>
   </form>
 </div>
