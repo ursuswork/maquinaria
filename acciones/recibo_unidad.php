@@ -45,7 +45,7 @@ foreach ($secciones as $seccion => $componentes) {
 $recibo_existente = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria LIMIT 1")->fetch_assoc();
 function botonOpciones($nombre, $valor_existente, $porcentaje, $seccion) {
   $id_base = preg_replace("/[^a-zA-Z0-9]/", "_", $nombre);
-  return "<div class='mb-2'><label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br><div class='btn-group' role='group'><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[{" . $nombre . "}]' id='{${id_base}_bueno}' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{${id_base}_bueno}'>Bueno</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[{" . $nombre . "}]' id='{${id_base}_regular}' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{${id_base}_regular}'>Regular</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[{" . $nombre . "}]' id='{${id_base}_malo}' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{${id_base}_malo}'>Malo</label></div></div>";
+  return "<div class='mb-2'><label class='form-label fw-bold text-warning'>" . htmlspecialchars($nombre) . " <small class='text-light'>($porcentaje%)</small></label><br><div class='btn-group' role='group'><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='" . $porcentaje . "' data-valor='bueno' name='componentes[$nombre]' id='{$id_base}_bueno' value='bueno'" . ($valor_existente == 'bueno' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_bueno'>Bueno</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='regular' name='componentes[$nombre]' id='{$id_base}_regular' value='regular'" . ($valor_existente == 'regular' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_regular'>Regular</label><input type='radio' class='btn-check componente-radio' data-seccion='" . $seccion . "' data-componente='" . $nombre . "' data-peso='0' data-valor='malo' name='componentes[$nombre]' id='{$id_base}_malo' value='malo'" . ($valor_existente == 'malo' ? ' checked' : '') . "><label class='btn btn-outline-primary' for='{$id_base}_malo'>Malo</label></div></div>";
 }
 ?>
 <!DOCTYPE html>
@@ -140,16 +140,31 @@ document.querySelectorAll('.componente-radio').forEach(input => {
 
 function calcularAvance() {
   let totalAvance = 0;
+  const avancePorSeccion = {};
+
   document.querySelectorAll('.componente-radio:checked').forEach(radio => {
+    const seccion = radio.dataset.seccion;
     const peso = parseFloat(radio.dataset.peso);
     if (radio.dataset.valor === 'bueno') {
       totalAvance += peso;
+      if (!avancePorSeccion[seccion]) avancePorSeccion[seccion] = 0;
+      avancePorSeccion[seccion] += peso;
     }
   });
 
-  const barra = document.getElementById('barra_total');
-  barra.style.width = totalAvance.toFixed(2) + '%';
-  barra.innerText = totalAvance.toFixed(2) + '%';
+  const barraTotal = document.getElementById('barra_total');
+  barraTotal.style.width = totalAvance.toFixed(2) + '%';
+  barraTotal.innerText = totalAvance.toFixed(2) + '%';
+
+  Object.keys(avancePorSeccion).forEach(seccion => {
+    const id = 'barra_' + seccion.toLowerCase().replace(/ /g, '_');
+    const barra = document.getElementById(id);
+    const porcentaje = (avancePorSeccion[seccion] / pesos[seccion]) * 100;
+    if (barra) {
+      barra.style.width = porcentaje.toFixed(2) + '%';
+      barra.innerText = avancePorSeccion[seccion].toFixed(2) + '%';
+    }
+  });
 }
 window.onload = calcularAvance;
 </script>
