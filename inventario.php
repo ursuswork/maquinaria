@@ -158,16 +158,18 @@ $resultado = $conn->query($sql);
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
-<?php while($fila = $resultado->fetch_assoc()):
+   <tbody>
+<?php while ($fila = $resultado->fetch_assoc()):
   $id = intval($fila['id']);
   $tipo_maq = strtolower(trim($fila['tipo_maquinaria']));
   $subtipo = strtolower(trim($fila['subtipo']));
   $avance = 0;
 
   if ($tipo_maq === 'nueva') {
-    // Aquí se calcula el avance para nueva según subtipo (bachadora, esparcidor, petrolizadora)
-    include 'calculo_avance_por_subtipo.php'; // O el bloque que ya incluimos antes
+    // Lógica para calcular el avance desde archivo externo
+    ob_start();
+    include 'calculo_avance_por_subtipo.php';
+    ob_end_clean();
   }
 ?>
   <tr>
@@ -184,27 +186,27 @@ $resultado = $conn->query($sql);
     <td><?= $tipo_maq === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?></td>
     <td><?= htmlspecialchars($fila['subtipo']) ?></td>
     <td>
-  <?php if ($tipo_maq === 'usada'): ?>
-    <?php if (!is_null($fila['condicion_estimada'])): ?>
-      <div class="progress">
-        <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%">
-          <?= intval($fila['condicion_estimada']) ?>%
+      <?php if ($tipo_maq === 'usada'): ?>
+        <?php if (!is_null($fila['condicion_estimada'])): ?>
+          <div class="progress">
+            <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%">
+              <?= intval($fila['condicion_estimada']) ?>%
+            </div>
+          </div>
+          <?php if (!empty($fila['fecha_recibo'])): ?>
+            <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
+          <?php endif; ?>
+        <?php else: ?>
+          <span class="text-warning">Sin recibo</span>
+        <?php endif; ?>
+      <?php elseif ($tipo_maq === 'nueva'): ?>
+        <div class="progress">
+          <div class="progress-bar" style="width:<?= $avance ?>%">
+            <?= $avance ?>%
+          </div>
         </div>
-      </div>
-      <?php if (!empty($fila['fecha_recibo'])): ?>
-        <div class="text-light small mt-1">🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong></div>
       <?php endif; ?>
-    <?php else: ?>
-      <span class="text-warning">Sin recibo</span>
-    <?php endif; ?>
-  <?php elseif ($tipo_maq === 'nueva'): ?>
-    <div class="progress">
-      <div class="progress-bar" style="width:<?= $avance ?>%">
-        <?= $avance ?>%
-      </div>
-    </div>
-  <?php endif; ?>
-</td>
+    </td>
     <td><?= nl2br(htmlspecialchars($fila['observaciones'] ?? '')) ?></td>
     <td>
       <a href="editar_maquinaria.php?id=<?= $id ?>" class="btn btn-sm btn-outline-primary">
@@ -232,7 +234,7 @@ $resultado = $conn->query($sql);
     </td>
   </tr>
 <?php endwhile; ?>
-    </tbody>
+</tbody>
   </table>
 </div>
 
