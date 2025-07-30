@@ -6,32 +6,41 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-$busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
-$tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
+// --- VARIABLES DE FILTRO ---
+$busqueda       = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
+$tipo_filtro    = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
+// --- ARMA FILTROS DINÁMICOS ---
+$filtros = [];
+
+if ($busqueda !== '') {
+  $filtros[] = "(m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
+}
+
+if ($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') {
+  $filtros[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
+  if ($subtipo_filtro !== 'todos' && $subtipo_filtro !== '') {
+    $filtros[] = "LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
+  }
+} elseif ($tipo_filtro === 'usada') {
+  $filtros[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
+}
+
+// --- QUERY FINAL ---
 $sql = "
    SELECT m.*, r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo
   FROM maquinaria m
   LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 ";
-if ($busqueda !== '') {
-  $sql .= " WHERE (m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
-}
-if ($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') {
-  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') 
-        . "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
-}
-if (($tipo_filtro === 'produccion nueva' || $tipo_filtro === 'nueva') && $subtipo_filtro !== 'todos') {
-  $sql .= " AND LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
-}
-if ($tipo_filtro === 'usada') {
-  $sql .= (strpos($sql, 'WHERE') !== false ? ' AND ' : ' WHERE ') 
-        . "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
+if (count($filtros) > 0) {
+  $sql .= " WHERE " . implode(" AND ", $filtros);
 }
 $sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
+
 $resultado = $conn->query($sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -41,58 +50,16 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #001f3f;
-      color: #ffffff;
-    }
-    .table thead th {
-      background-color: #004080;
-      color: #ffffff;
-    }
-    .table tbody tr:nth-child(even) {
-      background-color: #003366;
-    }
-    .table tbody tr:nth-child(odd) {
-      background-color: #002b5c;
-    }
-    .badge-nueva {
-      background-color: #ffc107;
-      color: #001f3f;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-    .progress {
-      height: 22px;
-      border-radius: 20px;
-      background-color: #002b5c;
-      overflow: hidden;
-    }
-    .progress-bar {
-      font-weight: bold;
-      background-color: #28a745 !important;
-      color: white;
-    }
-    .text-light.small.mt-1 {
-      font-size: 0.85rem;
-      color: #ffc107 !important;
-    }
-    .btn-flotante {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #ffc107;
-      color: #001f3f;
-      padding: 12px 18px;
-      border-radius: 50px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    .imagen-thumbnail {
-      width: 80px;
-      height: auto;
-      border-radius: 4px;
-    }
+    body { background-color: #001f3f; color: #ffffff; }
+    .table thead th { background-color: #004080; color: #ffffff; }
+    .table tbody tr:nth-child(even) { background-color: #003366; }
+    .table tbody tr:nth-child(odd) { background-color: #002b5c; }
+    .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
+    .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
+    .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
+    .text-light.small.mt-1 { font-size: 0.85rem; color: #ffc107 !important; }
+    .btn-flotante { position: fixed; bottom: 20px; right: 20px; background-color: #ffc107; color: #001f3f; padding: 12px 18px; border-radius: 50px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -159,7 +126,10 @@ $resultado = $conn->query($sql);
       </tr>
     </thead>
    <tbody>
-<?php while ($fila = $resultado->fetch_assoc()):
+<?php
+$hay_registros = false;
+while ($fila = $resultado->fetch_assoc()):
+  $hay_registros = true;
   $id = intval($fila['id']);
   $tipo_maq = strtolower(trim($fila['tipo_maquinaria']));
   $subtipo = strtolower(trim($fila['subtipo']));
@@ -167,15 +137,17 @@ $resultado = $conn->query($sql);
 
   if ($tipo_maq === 'nueva') {
     // Lógica para calcular el avance desde archivo externo
-    ob_start();
-    include 'calculo_avance_por_subtipo.php';
-    ob_end_clean();
+    if (file_exists('calculo_avance_por_subtipo.php')) {
+      ob_start();
+      include 'calculo_avance_por_subtipo.php';
+      ob_end_clean();
+    }
   }
 ?>
   <tr>
     <td>
       <?php if (!empty($fila['imagen'])): ?>
-        <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail">
+        <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
       <?php else: ?>
         Sin imagen
       <?php endif; ?>
@@ -227,19 +199,25 @@ $resultado = $conn->query($sql);
             'petrolizadora' => 'avance_petrolizadora.php'
           ];
         ?>
-        <a href="<?= $map[$subtipo] ?>?id=<?= $id ?>" class="btn btn-sm btn-outline-success">
+        <a href="<?= $map[$subtipo] ?? '#' ?>?id=<?= $id ?>" class="btn btn-sm btn-outline-success">
           <i class="bi bi-bar-chart-line"></i>
         </a>
       <?php endif; ?>
     </td>
   </tr>
 <?php endwhile; ?>
+
+<?php if (!$hay_registros): ?>
+  <tr>
+    <td colspan="9" class="text-center text-warning">No se encontraron registros.</td>
+  </tr>
+<?php endif; ?>
 </tbody>
   </table>
 </div>
 
 <!-- Botón flotante de exportar -->
-<a href="exportar_excel.php" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">
+<a href="exportar_excel.php" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow" target="_blank">
   <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
 </a>
 
