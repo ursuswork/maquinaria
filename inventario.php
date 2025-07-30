@@ -74,6 +74,52 @@ $resultado = $conn->query($sql);
       color: #ffc107;
       text-shadow: 0 3px 12px #0e222e44;
     }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .top-bar-btns {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-agregar {
+      background: #28a745;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 22px;
+      padding: 7px 22px;
+      border: none;
+      font-size: 1.09rem;
+      transition: background 0.17s;
+    }
+    .btn-agregar:hover { background: #218838; color: #fff; }
+    .btn-exportar {
+      background: #ffc107;
+      color: #001f3f;
+      font-weight: bold;
+      border-radius: 22px;
+      padding: 7px 26px;
+      font-size: 1.1rem;
+      transition: background 0.17s;
+      border: none;
+    }
+    .btn-exportar:hover { background: #ffca2c; }
+    .btn-salir {
+      background: #e74c3c;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 22px;
+      padding: 7px 19px;
+      font-size: 1.06rem;
+      transition: background 0.15s;
+      border: none;
+    }
+    .btn-salir:hover { background: #c0392b; color: #fff; }
     .nav-tabs .nav-link,
     .nav-pills .nav-link {
       background: #175266 !important;
@@ -141,29 +187,23 @@ $resultado = $conn->query($sql);
       transition: background 0.18s;
     }
     .btn-avance:hover { background: #015b65; }
-    .btn-exportar {
-      background: #ffc107;
-      color: #001f3f;
-      font-weight: bold;
-      border-radius: 22px;
-      padding: 7px 26px;
-      margin-left: 10px;
-      font-size: 1.1rem;
-      transition: background 0.17s;
-      border: none;
-    }
-    .btn-exportar:hover { background: #ffca2c; }
     @media (max-width: 992px) {
       .container-custom { padding: 16px 2px; }
       .titulo-maquinaria { font-size: 2rem; }
+      .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+      .top-bar-btns { justify-content: center; }
     }
   </style>
 </head>
 <body>
 <div class="container container-custom">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
-    <a href="exportar_excel.php" class="btn btn-exportar"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+    <div class="top-bar-btns">
+      <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
+      <a href="exportar_excel.php" class="btn btn-exportar"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+      <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+    </div>
   </div>
   <!-- Filtros -->
   <ul class="nav nav-tabs mb-2">
@@ -227,7 +267,7 @@ $resultado = $conn->query($sql);
       </thead>
       <tbody>
       <?php if ($resultado->num_rows > 0): ?>
-        <?php while($fila = $resultado->fetch_assoc()): 
+        <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
         ?>
