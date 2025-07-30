@@ -9,7 +9,7 @@ if (!isset($_SESSION['usuario'])) {
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<title>Agregar Maquinaria o Camión</title>
+<title>Agregar Maquinaria</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="estilos_colores.css" rel="stylesheet"/>
@@ -50,7 +50,7 @@ if (!isset($_SESSION['usuario'])) {
 <body class="bg-dark text-white">
 <div class="container-ficha">
 <div class="contenedor-formulario">
-<h4 class="text-center mb-4 text-primary">Agregar Maquinaria o Camión</h4>
+<h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
 <form action="procesar_agregar.php" enctype="multipart/form-data" method="POST">
 <div class="mb-3">
 <label class="form-label text-warning">Nombre</label>
@@ -66,7 +66,7 @@ if (!isset($_SESSION['usuario'])) {
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Año</label>
-<input class="form-control mb-3" name="anio" required="" type="number" min="1950" max="<?= date('Y')+1 ?>"/>
+<input class="form-control mb-3" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Número de serie</label>
@@ -100,7 +100,7 @@ if (!isset($_SESSION['usuario'])) {
 <input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
 <div class="d-grid mb-2">
-    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar</button>
+    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
 </div>
 </form>
 <div class="text-center mt-2">
