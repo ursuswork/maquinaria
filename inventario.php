@@ -6,33 +6,32 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
+// Filtros
 $busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
 
 $where = [];
 if ($busqueda !== '') {
-  $where[] = "(m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
+  $where[] = "(m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%' OR m.marca LIKE '%$busqueda%')";
 }
 if ($tipo_filtro === 'nueva') {
   $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
   if ($subtipo_filtro !== 'todos') {
-    $where[] = "LOWER(TRIM(m.subtipo)) = '".$conn->real_escape_string($subtipo_filtro)."'";
+    $where[] = "LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
   }
-}
-if ($tipo_filtro === 'usada') {
+} elseif ($tipo_filtro === 'usada') {
   $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
-}
-if ($tipo_filtro === 'camion') {
+} elseif ($tipo_filtro === 'camion') {
   $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'camion'";
 }
 
 $sql = "
 SELECT m.*,
        r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo,
-       ab.avance AS avance_bachadora,
-       ae.avance AS avance_esparcidor,
-       ap.avance AS avance_petrolizadora
+       ab.avance AS avance_bachadora, ab.fecha_actualizacion AS fecha_bachadora,
+       ae.avance AS avance_esparcidor, ae.fecha_actualizacion AS fecha_esparcidor,
+       ap.avance AS avance_petrolizadora, ap.fecha_actualizacion AS fecha_petrolizadora
 FROM maquinaria m
 LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria AND ab.etapa IS NULL
@@ -50,58 +49,87 @@ $resultado = $conn->query($sql);
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inventario de Maquinaria</title>
+  <title>Maquinaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body { background-color: #001f3f; color: #ffffff; }
-    h3.text-warning {
-      font-size: 2.5rem;
+    .titulo-maquinaria {
+      font-size: 3.2rem;
       font-weight: 900;
       letter-spacing: 2px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2.2rem;
+      margin-top: 1.1rem;
+      text-align: center;
+      color: #ffc107;
       text-shadow: 0 2px 16px #000;
     }
-    .nav-tabs .nav-link {
+    .nav-tabs .nav-link,
+    .nav-pills .nav-link {
       color: #ffc107 !important;
       border: 1px solid #ffc107 !important;
       background: transparent !important;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
     .nav-tabs .nav-link.active,
     .nav-tabs .nav-link.active:focus,
-    .nav-tabs .nav-link.active:hover {
+    .nav-tabs .nav-link.active:hover,
+    .nav-pills .nav-link.active {
       background-color: #ffc107 !important;
       color: #001f3f !important;
       font-weight: bold;
     }
+    .nav-pills .nav-link { border-radius: 0.6rem !important; }
     .table thead th { background-color: #004080; color: #ffffff; }
     .table tbody tr:nth-child(even) { background-color: #003366; }
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
+    .badge-camion { background-color: #00bcf7; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
     .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; font-size: 1.2rem; }
-    .text-light.small.mt-1 { font-size: 0.85rem; color: #ffc107 !important; }
-    .btn.btn-avan { margin-top: 5px; }
+    .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
+    .text-fecha-azul {
+      color: #0b1d3a;
+      background: #ffd;
+      display: inline-block;
+      font-size: 0.92rem;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 2px 11px;
+      margin-top: 0.18rem;
+    }
+    .btn-exportar {
+      font-weight: bold;
+      background: #ffc107;
+      color: #001f3f;
+      border: none;
+      margin-right: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+    .btn-exportar:hover { background: #ffe082; color: #001f3f; }
+    .btn-avance { font-size: 1rem; padding: 0.2rem 0.8rem; }
   </style>
 </head>
 <body>
 <div class="container py-4">
+  <div class="titulo-maquinaria">Maquinaria</div>
   <div class="d-flex justify-content-between mb-3 align-items-center">
-    <h3 class="text-warning">Inventario de Maquinaria</h3>
+    <div>
+      <form action="exportar_inventario.php" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-exportar">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+      </form>
+    </div>
     <div>
       <a href="agregar_maquinaria.php" class="btn btn-success">+ Agregar Maquinaria</a>
       <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
     </div>
   </div>
+
   <!-- Pestañas -->
-  <?php
-    $isNueva = $tipo_filtro === 'nueva';
-    $isCamion = $tipo_filtro === 'camion';
-  ?>
   <ul class="nav nav-tabs mb-2">
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
@@ -116,28 +144,29 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
     </li>
   </ul>
+
   <?php if ($tipo_filtro === 'nueva'): ?>
-  <ul class="nav nav-pills mb-3 ms-3">
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'todos' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=todos">Todos</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'bachadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=bachadora">Bachadora</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'esparcidor de sello' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=esparcidor de sello">Esparcidor de Sello</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
-    </li>
-  </ul>
+    <ul class="nav nav-pills mb-3 ms-3">
+      <li class="nav-item">
+        <a class="nav-link <?= $subtipo_filtro === 'todos' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=todos">Todos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?= $subtipo_filtro === 'bachadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=bachadora">Bachadora</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?= $subtipo_filtro === 'esparcidor de sello' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=esparcidor de sello">Esparcidor de Sello</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
+      </li>
+    </ul>
   <?php endif; ?>
 
   <!-- Buscador -->
   <form class="mb-3" method="GET">
+    <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
     <div class="input-group">
-      <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
-      <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
+      <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo, serie o marca" value="<?= htmlspecialchars($busqueda) ?>">
       <button class="btn btn-warning" type="submit">Buscar</button>
     </div>
   </form>
@@ -147,20 +176,13 @@ $resultado = $conn->query($sql);
       <tr>
         <th>Imagen</th>
         <th>Nombre</th>
+        <th>Marca</th>
         <th>Modelo</th>
-        <?php if ($tipo_filtro === 'camion'): ?>
-          <th>Año</th>
-          <th>Número de Serie</th>
-          <th>Marca</th>
-        <?php endif; ?>
+        <th>Núm. Serie</th>
         <th>Ubicación</th>
         <th>Tipo</th>
-        <?php if ($tipo_filtro !== 'camion'): ?>
-          <th>Subtipo</th>
-        <?php endif; ?>
-        <?php if ($tipo_filtro !== 'camion'): ?>
-          <th>Avance / Condición</th>
-        <?php endif; ?>
+        <th>Subtipo</th>
+        <th>Avance / Condición</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -176,53 +198,57 @@ $resultado = $conn->query($sql);
           <?php endif; ?>
         </td>
         <td><?= htmlspecialchars($fila['nombre']) ?></td>
+        <td><?= htmlspecialchars($fila['marca']) ?></td>
         <td><?= htmlspecialchars($fila['modelo']) ?></td>
-        <?php if ($tipo_filtro === 'camion'): ?>
-          <td><?= htmlspecialchars($fila['anio'] ?? '') ?></td>
-          <td><?= htmlspecialchars($fila['numero_serie'] ?? '') ?></td>
-          <td><?= htmlspecialchars($fila['marca'] ?? '') ?></td>
-        <?php endif; ?>
+        <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
         <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
         <td>
           <?php
-          $tipo = strtolower($fila['tipo_maquinaria']);
-          echo ($tipo === 'nueva') ? '<span class="badge-nueva">Nueva</span>' : ucfirst($tipo);
+            $tipo = strtolower($fila['tipo_maquinaria']);
+            echo ($tipo === 'nueva') 
+              ? '<span class="badge-nueva">Nueva</span>'
+              : (($tipo === 'camion') ? '<span class="badge-camion">Camión</span>' : 'Usada');
           ?>
         </td>
-        <?php if ($tipo_filtro !== 'camion'): ?>
-          <td><?= htmlspecialchars($fila['subtipo']) ?></td>
-        <?php endif; ?>
-        <?php if ($tipo_filtro !== 'camion'): ?>
+        <td><?= htmlspecialchars($fila['subtipo']) ?></td>
         <td>
           <?php
-          $subtipo = strtolower($fila['subtipo']);
-          if ($tipo === 'usada') {
-            if (!is_null($fila['condicion_estimada'])) {
-              echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
-              if (!empty($fila['fecha_recibo'])) {
-                echo '<div class="text-light small mt-1">🗓 <strong>'.date('d/m/Y', strtotime($fila['fecha_recibo'])).'</strong></div>';
+            if ($tipo === 'usada') {
+              if (!is_null($fila['condicion_estimada'])) {
+                echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
+                if (!empty($fila['fecha_recibo'])) {
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y', strtotime($fila['fecha_recibo'])).'</div>';
+                }
+              } else {
+                echo '<span class="text-warning">Sin recibo</span>';
               }
-            } else {
-              echo '<span class="text-warning">Sin recibo</span>';
-            }
-          } elseif ($tipo === 'nueva') {
-            if ($subtipo === 'bachadora') {
-              if (!is_null($fila['avance_bachadora'])) {
+            } elseif ($tipo === 'nueva') {
+              $subtipo = strtolower(trim($fila['subtipo']));
+              if ($subtipo === 'bachadora' && !is_null($fila['avance_bachadora'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
-              }
-            } elseif ($subtipo === 'esparcidor de sello') {
-              if (!is_null($fila['avance_esparcidor'])) {
+                if (!empty($fila['fecha_bachadora'])) {
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_bachadora'])).'</div>';
+                }
+              } elseif ($subtipo === 'esparcidor de sello' && !is_null($fila['avance_esparcidor'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
-              }
-            } elseif ($subtipo === 'petrolizadora') {
-              if (!is_null($fila['avance_petrolizadora'])) {
+                if (!empty($fila['fecha_esparcidor'])) {
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_esparcidor'])).'</div>';
+                }
+              } elseif ($subtipo === 'petrolizadora' && !is_null($fila['avance_petrolizadora'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
+                if (!empty($fila['fecha_petrolizadora'])) {
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_petrolizadora'])).'</div>';
+                }
+              } else {
+                echo '<span class="text-secondary">N/A</span>';
               }
+            } elseif ($tipo === 'camion') {
+              echo '<span class="text-secondary">N/A</span>';
+            } else {
+              echo '<span class="text-secondary">N/A</span>';
             }
-          }
           ?>
         </td>
-        <?php endif; ?>
         <td>
           <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
             <i class="bi bi-pencil-square"></i>
@@ -230,28 +256,27 @@ $resultado = $conn->query($sql);
           <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
             <i class="bi bi-trash"></i>
           </a>
-          <?php if ($tipo === 'usada'): ?>
-            <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
-              <i class="bi bi-file-earmark-text"></i> Recibo
-            </a>
-          <?php elseif ($tipo === 'nueva' && in_array($subtipo, ['bachadora', 'esparcidor de sello', 'petrolizadora'])): ?>
-            <?php
-              $map = [
-                'bachadora' => 'avance_bachadora.php',
-                'esparcidor de sello' => 'avance_esparcidor.php',
-                'petrolizadora' => 'avance_petrolizadora.php'
-              ];
-            ?>
-            <a href="<?= $map[$subtipo] ?? '#' ?>?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-success btn-avan" title="Capturar/Ver avance">
-              <i class="bi bi-bar-chart-line"></i> Avance
-            </a>
-          <?php endif; ?>
+          <?php
+          if ($tipo === 'nueva') {
+            $subtipo = strtolower(trim($fila['subtipo']));
+            if ($subtipo === 'bachadora') {
+              echo '<a href="avance_bachadora.php?id='.$fila['id'].'" class="btn btn-sm btn-avance btn-outline-success mt-1" title="Avance Bachadora"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+            } elseif ($subtipo === 'esparcidor de sello') {
+              echo '<a href="avance_esparcidor.php?id='.$fila['id'].'" class="btn btn-sm btn-avance btn-outline-success mt-1" title="Avance Esparcidor"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+            } elseif ($subtipo === 'petrolizadora') {
+              echo '<a href="avance_petrolizadora.php?id='.$fila['id'].'" class="btn btn-sm btn-avance btn-outline-success mt-1" title="Avance Petrolizadora"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+            }
+          }
+          if ($tipo === 'usada') {
+            echo '<a href="acciones/recibo_unidad.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-warning mt-1" title="Recibo de Unidad"><i class="bi bi-file-earmark-text"></i> Recibo</a>';
+          }
+          ?>
         </td>
       </tr>
       <?php endwhile; ?>
     <?php else: ?>
       <tr>
-        <td colspan="<?= $tipo_filtro === 'camion' ? '10' : '9' ?>" class="text-center text-warning">No se encontraron registros.</td>
+        <td colspan="10" class="text-center text-warning">No se encontraron registros.</td>
       </tr>
     <?php endif; ?>
     </tbody>
