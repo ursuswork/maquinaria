@@ -54,63 +54,33 @@ $resultado = $conn->query($sql);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body { background-color: #001f3f; color: #ffffff; }
-    .titulo-maquinaria {
-      font-size: 3.2rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      margin-bottom: 2.2rem;
-      margin-top: 1.1rem;
-      text-align: center;
-      color: #ffc107;
-      text-shadow: 0 2px 16px #000;
-    }
-    .nav-tabs .nav-link,
-    .nav-pills .nav-link {
-      color: #ffc107 !important;
-      border: 1px solid #ffc107 !important;
-      background: transparent !important;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-    .nav-tabs .nav-link.active,
-    .nav-tabs .nav-link.active:focus,
-    .nav-tabs .nav-link.active:hover,
-    .nav-pills .nav-link.active {
-      background-color: #ffc107 !important;
-      color: #001f3f !important;
-      font-weight: bold;
-    }
-    .nav-pills .nav-link { border-radius: 0.6rem !important; }
-    .table thead th { background-color: #004080; color: #ffffff; }
-    .table tbody tr:nth-child(even) { background-color: #003366; }
-    .table tbody tr:nth-child(odd) { background-color: #002b5c; }
-    .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
-    .badge-camion { background-color: #00bcf7; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
-    .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
-    .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
-    .text-fecha-azul {
-      color: #0b1d3a;
-      background: #ffd;
-      display: inline-block;
-      font-size: 0.92rem;
-      font-weight: bold;
-      border-radius: 8px;
-      padding: 2px 11px;
-      margin-top: 0.18rem;
-    }
-    .btn-exportar {
-      font-weight: bold;
-      background: #ffc107;
-      color: #001f3f;
-      border: none;
-      margin-right: 1.2rem;
-      margin-bottom: 0.4rem;
-    }
-    .btn-exportar:hover { background: #ffe082; color: #001f3f; }
-    .btn-avance { font-size: 1rem; padding: 0.2rem 0.8rem; }
-  </style>
+  body { background-color: #001f3f; color: #ffffff; }
+  .table thead th { background-color: #004080; color: #ffffff; }
+  .table tbody tr:nth-child(even) { background-color: #003366; }
+  .table tbody tr:nth-child(odd) { background-color: #002b5c; }
+  .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
+  .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
+  .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
+  .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
+  .nav-tabs .nav-link,
+  .nav-pills .nav-link {
+    background: #175266 !important;    /* Azul petróleo */
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold;
+    margin-right: 6px;
+  }
+  .nav-tabs .nav-link.active,
+  .nav-pills .nav-link.active {
+    background: #27a0b6 !important; /* Más claro para activo */
+    color: #fff !important;
+  }
+  .fecha-actualizacion {
+    color: #012a5c;        /* Azul marino */
+    font-size: 0.93rem;
+    font-weight: bold;
+  }
+</style>
 </head>
 <body>
 <div class="container py-4">
@@ -227,17 +197,17 @@ $resultado = $conn->query($sql);
               if ($subtipo === 'bachadora' && !is_null($fila['avance_bachadora'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
                 if (!empty($fila['fecha_bachadora'])) {
-                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_bachadora'])).'</div>';
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y', strtotime($fila['fecha_bachadora'])).'</div>';
                 }
               } elseif ($subtipo === 'esparcidor de sello' && !is_null($fila['avance_esparcidor'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
                 if (!empty($fila['fecha_esparcidor'])) {
-                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_esparcidor'])).'</div>';
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y', strtotime($fila['fecha_esparcidor'])).'</div>';
                 }
               } elseif ($subtipo === 'petrolizadora' && !is_null($fila['avance_petrolizadora'])) {
                 echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
                 if (!empty($fila['fecha_petrolizadora'])) {
-                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y H:i', strtotime($fila['fecha_petrolizadora'])).'</div>';
+                  echo '<div class="text-fecha-azul">🗓 '.date('d/m/Y', strtotime($fila['fecha_petrolizadora'])).'</div>';
                 }
               } else {
                 echo '<span class="text-secondary">N/A</span>';
