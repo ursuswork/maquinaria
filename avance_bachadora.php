@@ -48,14 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
   $existe = $conn->query("SELECT 1 FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
   if ($existe->num_rows == 0) {
-    $conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa) VALUES ($id_maquinaria, '$etapa')");
+    $conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, updated_at) VALUES ($id_maquinaria, '$etapa', NOW())");
   } else {
     $conn->query("DELETE FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
   }
 }
 
 $realizadas = [];
-$res = $conn->query("SELECT etapa FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria");
+$res = $conn->query("SELECT etapa FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NOT NULL");
 while ($row = $res->fetch_assoc()) {
   $realizadas[] = $row['etapa'];
 }
@@ -68,12 +68,17 @@ foreach ($etapas as $nombre => $peso) {
   }
 }
 $porcentaje = round(($peso_completado / $peso_total) * 100);
-// Guarda el avance actualizado en la fila especial (etapa IS NULL) para el porcentaje total
-// 1. Elimina cualquier fila vieja de avance total
-$conn->query("DELETE FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
 
-// 2. Inserta el avance total (etapa NULL) — así puedes hacer LEFT JOIN en el inventario
-$conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, avance) VALUES ($id_maquinaria, NULL, $porcentaje)");
+// Guarda el avance actualizado en la fila especial (etapa IS NULL) para el porcentaje total
+$conn->query("DELETE FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
+$conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, avance, updated_at) VALUES ($id_maquinaria, NULL, $porcentaje, NOW())");
+
+// Consultar fecha de última actualización
+$fecha_actualizacion = '';
+$fechaRes = $conn->query("SELECT updated_at FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
+if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
+  $fecha_actualizacion = $rowF['updated_at'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -135,12 +140,21 @@ $conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, avance) VALUES
       font-weight: bold;
       border: 2px solid #1c7c35 !important;
     }
+    .fecha-actualizacion {
+      color: #eee;
+      font-size: 1rem;
+      text-align: right;
+      margin-bottom: -15px;
+    }
   </style>
 </head>
 <body>
   <div class="ficha">
     <h3>Avance de Bachadora</h3>
     <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
+    <?php if ($fecha_actualizacion): ?>
+      <div class="fecha-actualizacion">Actualizado: <?= date('d/m/Y H:i', strtotime($fecha_actualizacion)) ?></div>
+    <?php endif; ?>
 
     <div class="mb-4">
       <div class="progress">
