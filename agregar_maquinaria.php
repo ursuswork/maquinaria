@@ -45,8 +45,10 @@ if (!isset($_SESSION['usuario'])) {
         padding-bottom: .5rem;
         margin-bottom: 1.5rem;
     }
-</style></head>
-<body class="bg-dark text-white"><div class="container-ficha">
+</style>
+</head>
+<body class="bg-dark text-white">
+<div class="container-ficha">
 <div class="contenedor-formulario">
 <h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
 <form action="procesar_agregar.php" enctype="multipart/form-data" method="POST">
@@ -92,10 +94,16 @@ if (!isset($_SESSION['usuario'])) {
 <label class="form-label text-warning">Imagen</label>
 <input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
-<div class="d-grid">
-<button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
+<div class="d-grid mb-2">
+    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
 </div>
 </form>
+<!-- BOTÓN VOLVER A INVENTARIO -->
+<div class="text-center mt-2">
+    <a href="inventario.php" class="btn btn-outline-info w-100">
+        ← Volver a Inventario
+    </a>
+</div>
 </div>
 <script>
     function mostrarSubtipo() {
@@ -104,5 +112,6 @@ if (!isset($_SESSION['usuario'])) {
       subtipo.style.display = (tipo === 'nueva') ? 'block' : 'none';
     }
 </script>
-</div></body>
+</div>
+</body>
 </html>
