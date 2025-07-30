@@ -42,10 +42,12 @@ $etapas = [
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
   $etapa = $_POST['etapa'];
   $accion = $_POST['accion'];
+  $now = date('Y-m-d H:i:s');
 
   if ($accion === 'marcar') {
-    $stmt = $conn->prepare("INSERT IGNORE INTO avance_petrolizadora (id_maquinaria, etapa) VALUES (?, ?)");
-    $stmt->bind_param("is", $id_maquinaria, $etapa);
+    // Marca etapa y fecha
+    $stmt = $conn->prepare("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at = VALUES(updated_at)");
+    $stmt->bind_param("iss", $id_maquinaria, $etapa, $now);
     $stmt->execute();
   } elseif ($accion === 'desmarcar') {
     $stmt = $conn->prepare("DELETE FROM avance_petrolizadora WHERE id_maquinaria = ? AND etapa = ?");
@@ -63,7 +65,7 @@ if (!$maquinaria) die("Maquinaria no encontrada");
 
 // Etapas completadas
 $completadas = [];
-$res = $conn->query("SELECT etapa FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria");
+$res = $conn->query("SELECT etapa FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NOT NULL");
 while ($row = $res->fetch_assoc()) {
   $completadas[] = $row['etapa'];
 }
@@ -81,9 +83,14 @@ foreach ($etapas as $grupo) {
   }
 }
 $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
+
 // Guarda el avance actualizado en una fila especial (etapa IS NULL) para el porcentaje total
+$now = date('Y-m-d H:i:s');
 $conn->query("DELETE FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
-$conn->query("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, avance) VALUES ($id_maquinaria, NULL, $porcentaje)");
+$conn->query("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, avance, updated_at) VALUES ($id_maquinaria, NULL, $porcentaje, '$now')");
+
+// Consulta la fecha de última actualización del avance general
+$fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL")->fetch_assoc()['updated_at'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -148,6 +155,13 @@ $conn->query("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, avance) VA
       font-weight: bold;
       border: 2px solid #1c7c35 !important;
     }
+    .fecha-actualizacion {
+      font-size: 1rem;
+      color: #87d0ff;
+      text-align: center;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
   </style>
 </head>
 <body>
@@ -158,6 +172,11 @@ $conn->query("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, avance) VA
     <div class="progress mb-4">
       <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
     </div>
+    <?php if ($fecha_actualizacion): ?>
+      <div class="fecha-actualizacion">
+        Última actualización: <?= date('d/m/Y H:i', strtotime($fecha_actualizacion)) ?>
+      </div>
+    <?php endif; ?>
 
     <?php foreach ($etapas as $grupo => $pasos): ?>
       <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
