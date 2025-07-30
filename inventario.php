@@ -7,16 +7,40 @@ if (!isset($_SESSION['usuario'])) {
 include 'conexion.php';
 
 // Filtros
-$tipo_filtro = isset($_GET['tipo']) ? strtolower(trim($_GET['tipo'])) : 'todas';
-$subtipo_filtro = isset($_GET['subtipo']) ? strtolower(trim($_GET['subtipo'])) : 'todos';
+<?php
+$tipo = strtolower($fila['tipo_maquinaria']);
+$subtipo = strtolower(trim($fila['subtipo']));
 
-$where = [];
-if ($tipo_filtro !== 'todas') {
-    $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = '$tipo_filtro'";
+if ($tipo === 'usada') {
+    // ... como antes ...
+} elseif ($tipo === 'nueva') {
+    if ($subtipo === 'bachadora') {
+        if (!is_null($fila['avance_bachadora'])) {
+            // Muestra barra y número solo si hay avance
+            echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
+            echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_bachadora']).'%</div>';
+        }
+        // El botón aparece siempre
+        echo '<a href="avance_bachadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+    } elseif ($subtipo === 'esparcidor de sello') {
+        if (!is_null($fila['avance_esparcidor'])) {
+            echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
+            echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_esparcidor']).'%</div>';
+        }
+        echo '<a href="avance_esparcidor.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+    } elseif ($subtipo === 'petrolizadora') {
+        if (!is_null($fila['avance_petrolizadora'])) {
+            echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
+            echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_petrolizadora']).'%</div>';
+        }
+        echo '<a href="avance_petrolizadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
+    } else {
+        echo '<span class="text-secondary">N/A</span>';
+    }
+} else {
+    echo '<span class="text-secondary">N/A</span>';
 }
-if ($subtipo_filtro !== 'todos' && $subtipo_filtro !== '') {
-    $where[] = "LOWER(TRIM(m.subtipo)) = '$subtipo_filtro'";
-}
+?>
 
 // JOINS para avances por cada subtipo de producción nueva
 $sql = "
