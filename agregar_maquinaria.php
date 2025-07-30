@@ -9,7 +9,7 @@ if (!isset($_SESSION['usuario'])) {
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
-<title>Agregar Maquinaria</title>
+<title>Agregar Maquinaria o Camión</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="estilos_colores.css" rel="stylesheet"/>
@@ -50,7 +50,7 @@ if (!isset($_SESSION['usuario'])) {
 <body class="bg-dark text-white">
 <div class="container-ficha">
 <div class="contenedor-formulario">
-<h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
+<h4 class="text-center mb-4 text-primary">Agregar Maquinaria o Camión</h4>
 <form action="procesar_agregar.php" enctype="multipart/form-data" method="POST">
 <div class="mb-3">
 <label class="form-label text-warning">Nombre</label>
@@ -65,6 +65,10 @@ if (!isset($_SESSION['usuario'])) {
 <input class="form-control mb-3" name="modelo" required="" type="text"/>
 </div>
 <div class="mb-3">
+<label class="form-label text-warning">Año</label>
+<input class="form-control mb-3" name="anio" required="" type="number" min="1950" max="<?= date('Y')+1 ?>"/>
+</div>
+<div class="mb-3">
 <label class="form-label text-warning">Número de serie</label>
 <input class="form-control mb-3" name="numero_serie" required="" type="text"/>
 </div>
@@ -76,8 +80,9 @@ if (!isset($_SESSION['usuario'])) {
 <label class="form-label text-warning">Tipo</label>
 <select class="form-select mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
 <option value="">Seleccionar</option>
-<option value="nueva">Produccion Nueva</option>
+<option value="nueva">Producción Nueva</option>
 <option value="usada">Usada</option>
+<option value="camion">Camión</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">
@@ -95,10 +100,9 @@ if (!isset($_SESSION['usuario'])) {
 <input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
 <div class="d-grid mb-2">
-    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
+    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar</button>
 </div>
 </form>
-<!-- BOTÓN VOLVER A INVENTARIO -->
 <div class="text-center mt-2">
     <a href="inventario.php" class="btn btn-outline-info w-100">
         ← Volver a Inventario
