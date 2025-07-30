@@ -68,6 +68,12 @@ foreach ($etapas as $nombre => $peso) {
   }
 }
 $porcentaje = round(($peso_completado / $peso_total) * 100);
+// Guarda el avance actualizado en la fila especial (etapa IS NULL) para el porcentaje total
+// 1. Elimina cualquier fila vieja de avance total
+$conn->query("DELETE FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
+
+// 2. Inserta el avance total (etapa NULL) — así puedes hacer LEFT JOIN en el inventario
+$conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, avance) VALUES ($id_maquinaria, NULL, $porcentaje)");
 ?>
 <!DOCTYPE html>
 <html lang="es">
