@@ -158,7 +158,7 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(even) { background-color: #003366; }
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 8px; }
-    .badge-camion { background: #01ff12ff; color: #fff; border-radius: 8px; }
+    .badge-camion { background: #01ff1294; color: #fff;padding: 6px 12px; border-radius: 8px; }
     .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar {
