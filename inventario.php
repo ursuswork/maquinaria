@@ -183,7 +183,7 @@ $resultado = $conn->query($sql);
     <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
     <td><?= $tipo_maq === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?></td>
     <td><?= htmlspecialchars($fila['subtipo']) ?></td>
-   <td>
+    <td>
   <?php if ($tipo_maq === 'usada'): ?>
     <?php if (!is_null($fila['condicion_estimada'])): ?>
       <div class="progress">
