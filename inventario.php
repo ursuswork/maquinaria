@@ -71,7 +71,7 @@ $resultado = $conn->query($sql);
       text-align: center;
       letter-spacing: 2px;
       margin-bottom: 30px;
-      color: #fff;
+      color: #ffc107;
       text-shadow: 0 3px 12px #0e222e44;
     }
     .nav-tabs .nav-link,
@@ -82,12 +82,12 @@ $resultado = $conn->query($sql);
       font-weight: bold;
       margin-right: 6px;
       border-radius: 16px 16px 0 0 !important;
-      transition: background 0.2s;
+      transition: background 0.2s, color 0.2s;
     }
     .nav-tabs .nav-link.active,
     .nav-pills .nav-link.active {
-      background: #27a0b6 !important;
-      color: #fff !important;
+      background: #ffc107 !important;
+      color: #032c3b !important;
     }
     .nav-pills .nav-link {
       border-radius: 18px !important;
