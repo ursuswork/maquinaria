@@ -86,49 +86,81 @@ $resultado = $conn->query($sql);
   <?php endif; ?>
 
   <!-- Tabla de resultados -->
-  <table class="table table-hover table-bordered text-white">
-    <thead>
-      <tr>
-        <th>Imagen</th>
-        <th>Nombre</th>
-        <th>Modelo</th>
-        <th>Ubicación</th>
-        <th>Tipo</th>
-        <th>Subtipo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
+ <!-- ... encabezado, filtros y demás ... -->
+<table class="table table-hover table-bordered text-white">
+  <thead>
+    <tr>
+      <th>Imagen</th>
+      <th>Nombre</th>
+      <th>Modelo</th>
+      <th>Ubicación</th>
+      <th>Tipo</th>
+      <th>Subtipo</th>
+      <th>Avance / Condición</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
     <?php if ($resultado->num_rows > 0): ?>
       <?php while($fila = $resultado->fetch_assoc()): ?>
-      <tr>
-        <td>
-          <?php if (!empty($fila['imagen'])): ?>
-            <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
-          <?php else: ?>
-            Sin imagen
-          <?php endif; ?>
-        </td>
-        <td><?= htmlspecialchars($fila['nombre']) ?></td>
-        <td><?= htmlspecialchars($fila['modelo']) ?></td>
-        <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
-        <td>
-          <?= strtolower($fila['tipo_maquinaria']) === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?>
-        </td>
-        <td><?= htmlspecialchars($fila['subtipo']) ?></td>
-        <td>
-          <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
-          <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')"><i class="bi bi-trash"></i></a>
-        </td>
-      </tr>
+        <tr>
+          <td>
+            <?php if (!empty($fila['imagen'])): ?>
+              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
+            <?php else: ?>
+              Sin imagen
+            <?php endif; ?>
+          </td>
+          <td><?= htmlspecialchars($fila['nombre']) ?></td>
+          <td><?= htmlspecialchars($fila['modelo']) ?></td>
+          <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
+          <td>
+            <?= strtolower($fila['tipo_maquinaria']) === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?>
+          </td>
+          <td><?= htmlspecialchars($fila['subtipo']) ?></td>
+          <td>
+            <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
+              <?php if (!is_null($fila['condicion_estimada'])): ?>
+                <div class="progress" style="height:22px;">
+                  <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%;">
+                    <?= intval($fila['condicion_estimada']) ?>%
+                  </div>
+                </div>
+                <?php if (!empty($fila['fecha_recibo'])): ?>
+                  <div class="text-light small mt-1">
+                    🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong>
+                  </div>
+                <?php endif; ?>
+              <?php else: ?>
+                <span class="text-warning">Sin recibo</span>
+              <?php endif; ?>
+            <?php elseif (strtolower($fila['tipo_maquinaria']) === 'nueva'): ?>
+              <!-- Aquí puedes mostrar el avance de nueva si lo tienes -->
+              <span class="text-secondary">N/A</span>
+            <?php endif; ?>
+          </td>
+          <td>
+            <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil-square"></i>
+            </a>
+            <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')">
+              <i class="bi bi-trash"></i>
+            </a>
+            <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
+              <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
+                <i class="bi bi-file-earmark-text"></i> Recibo
+              </a>
+            <?php endif; ?>
+          </td>
+        </tr>
       <?php endwhile; ?>
     <?php else: ?>
       <tr>
-        <td colspan="7" class="text-center text-warning">No se encontraron registros.</td>
+        <td colspan="8" class="text-center text-warning">No se encontraron registros.</td>
       </tr>
     <?php endif; ?>
-    </tbody>
-  </table>
+  </tbody>
+</table>
 </div>
 </body>
 </html>
