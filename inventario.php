@@ -18,6 +18,7 @@ if ($subtipo_filtro !== 'todos' && $subtipo_filtro !== '') {
     $where[] = "LOWER(TRIM(m.subtipo)) = '$subtipo_filtro'";
 }
 
+// JOINS para avances por cada subtipo de producción nueva
 $sql = "
 SELECT m.*,
        r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo,
@@ -26,9 +27,9 @@ SELECT m.*,
        ap.avance AS avance_petrolizadora
 FROM maquinaria m
 LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
-LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria
-LEFT JOIN avance_esparcidor ae ON m.id = ae.id_maquinaria
-LEFT JOIN avance_petrolizadora ap ON m.id = ap.id_maquinaria
+LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria AND ab.etapa IS NULL
+LEFT JOIN avance_esparcidor ae ON m.id = ae.id_maquinaria AND ae.etapa IS NULL
+LEFT JOIN avance_petrolizadora ap ON m.id = ap.id_maquinaria AND ap.etapa IS NULL
 ";
 if (count($where)) {
     $sql .= " WHERE " . implode(" AND ", $where);
@@ -51,7 +52,6 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(even) { background-color: #003366; }
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
-    .btn-flotante { position: fixed; bottom: 20px; right: 20px; background-color: #ffc107; color: #001f3f; padding: 12px 18px; border-radius: 50px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
     .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
@@ -80,7 +80,6 @@ $resultado = $conn->query($sql);
     </li>
   </ul>
 
-  <!-- Subfiltro de subtipo solo si está en 'nueva' -->
   <?php if ($tipo_filtro === 'nueva'): ?>
   <ul class="nav nav-pills mb-3 ms-3">
     <li class="nav-item">
@@ -98,7 +97,6 @@ $resultado = $conn->query($sql);
   </ul>
   <?php endif; ?>
 
-  <!-- Tabla de resultados -->
   <table class="table table-hover table-bordered text-white">
     <thead>
       <tr>
@@ -146,29 +144,26 @@ $resultado = $conn->query($sql);
                   echo '<span class="text-warning">Sin recibo</span>';
               }
           } elseif ($tipo === 'nueva') {
-              if ($subtipo === 'bachadora' && !is_null($fila['avance_bachadora'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_bachadora']).'%</div>';
+              if ($subtipo === 'bachadora') {
+                  if (!is_null($fila['avance_bachadora'])) {
+                      echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
+                      echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_bachadora']).'%</div>';
+                  }
                   echo '<a href="avance_bachadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
-              } elseif ($subtipo === 'esparcidor de sello' && !is_null($fila['avance_esparcidor'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_esparcidor']).'%</div>';
+              } elseif ($subtipo === 'esparcidor de sello') {
+                  if (!is_null($fila['avance_esparcidor'])) {
+                      echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
+                      echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_esparcidor']).'%</div>';
+                  }
                   echo '<a href="avance_esparcidor.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
-              } elseif ($subtipo === 'petrolizadora' && !is_null($fila['avance_petrolizadora'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_petrolizadora']).'%</div>';
+              } elseif ($subtipo === 'petrolizadora') {
+                  if (!is_null($fila['avance_petrolizadora'])) {
+                      echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
+                      echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_petrolizadora']).'%</div>';
+                  }
                   echo '<a href="avance_petrolizadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success mt-2" title="Capturar/Ver avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
               } else {
-                  // Para nueva sin avance capturado aún
-                  if ($subtipo === 'bachadora') {
-                      echo '<a href="avance_bachadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success" title="Capturar avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
-                  } elseif ($subtipo === 'esparcidor de sello') {
-                      echo '<a href="avance_esparcidor.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success" title="Capturar avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
-                  } elseif ($subtipo === 'petrolizadora') {
-                      echo '<a href="avance_petrolizadora.php?id='.$fila['id'].'" class="btn btn-sm btn-outline-success" title="Capturar avance"><i class="bi bi-bar-chart-line"></i> Avance</a>';
-                  } else {
-                      echo '<span class="text-secondary">N/A</span>';
-                  }
+                  echo '<span class="text-secondary">N/A</span>';
               }
           } else {
               echo '<span class="text-secondary">N/A</span>';
