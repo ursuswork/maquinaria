@@ -9,6 +9,7 @@ include 'conexion.php';
 // Filtros
 $tipo_filtro = isset($_GET['tipo']) ? strtolower(trim($_GET['tipo'])) : 'todas';
 $subtipo_filtro = isset($_GET['subtipo']) ? strtolower(trim($_GET['subtipo'])) : 'todos';
+$busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
 
 $where = [];
 if ($tipo_filtro !== 'todas') {
@@ -16,6 +17,10 @@ if ($tipo_filtro !== 'todas') {
 }
 if ($subtipo_filtro !== 'todos' && $subtipo_filtro !== '') {
     $where[] = "LOWER(TRIM(m.subtipo)) = '$subtipo_filtro'";
+}
+if ($busqueda !== '') {
+    $busc = $conn->real_escape_string($busqueda);
+    $where[] = "(m.nombre LIKE '%$busc%' OR m.modelo LIKE '%$busc%' OR m.numero_serie LIKE '%$busc%')";
 }
 
 $sql = "
@@ -55,6 +60,7 @@ $resultado = $conn->query($sql);
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
     .text-light.small.mt-1 { font-size: 0.85rem; color: #ffc107 !important; }
+    .btn-exportar { position: fixed; bottom: 30px; right: 40px; z-index: 10; font-size: 1.1rem; }
   </style>
 </head>
 <body>
@@ -96,6 +102,16 @@ $resultado = $conn->query($sql);
   </ul>
   <?php endif; ?>
 
+  <!-- Barra de búsqueda -->
+  <form class="mb-3" method="GET" action="">
+    <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
+    <input type="hidden" name="subtipo" value="<?= htmlspecialchars($subtipo_filtro) ?>">
+    <div class="input-group">
+      <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
+      <button class="btn btn-warning" type="submit"><i class="bi bi-search"></i> Buscar</button>
+    </div>
+  </form>
+
   <table class="table table-hover table-bordered text-white">
     <thead>
       <tr>
@@ -134,8 +150,7 @@ $resultado = $conn->query($sql);
 
           if ($tipo === 'usada') {
               if (!is_null($fila['condicion_estimada'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['condicion_estimada']).'%</div>';
+                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;"> </div></div>';
                   if (!empty($fila['fecha_recibo'])) {
                       echo '<div class="text-light small mt-1">🗓 <strong>'.date('d/m/Y', strtotime($fila['fecha_recibo'])).'</strong></div>';
                   }
@@ -144,14 +159,11 @@ $resultado = $conn->query($sql);
               }
           } elseif ($tipo === 'nueva') {
               if ($subtipo === 'bachadora' && !is_null($fila['avance_bachadora'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_bachadora']).'%</div>';
+                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;"> </div></div>';
               } elseif ($subtipo === 'esparcidor de sello' && !is_null($fila['avance_esparcidor'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_esparcidor']).'%</div>';
+                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;"> </div></div>';
               } elseif ($subtipo === 'petrolizadora' && !is_null($fila['avance_petrolizadora'])) {
-                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
-                  echo '<div class="text-center" style="font-size:1.3rem; color: #ffc107;">'.intval($fila['avance_petrolizadora']).'%</div>';
+                  echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;"> </div></div>';
               } else {
                   echo '<span class="text-secondary">N/A</span>';
               }
@@ -168,8 +180,6 @@ $resultado = $conn->query($sql);
             <i class="bi bi-trash"></i>
           </a>
           <?php
-            $tipo = strtolower($fila['tipo_maquinaria']);
-            $subtipo = strtolower(trim($fila['subtipo']));
             if ($tipo === 'usada') {
           ?>
               <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
@@ -197,5 +207,11 @@ $resultado = $conn->query($sql);
     </tbody>
   </table>
 </div>
+
+<!-- Botón flotante de exportar -->
+<a href="exportar_excel.php" class="btn btn-warning btn-exportar shadow">
+  <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
+</a>
+
 </body>
 </html>
