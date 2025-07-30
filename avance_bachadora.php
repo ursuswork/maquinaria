@@ -6,6 +6,9 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
+// ------ CONTROL DE ROLES ------
+$rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
+
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
@@ -44,7 +47,8 @@ $etapas_bachadora = [
 
 $etapas = $etapas_arma + $etapas_bachadora;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
+// Solo se procesa el POST si es usuario de rol "produccion"
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $rol === 'produccion') {
   $etapa = $conn->real_escape_string($_POST['etapa']);
   $existe = $conn->query("SELECT 1 FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
   if ($existe->num_rows == 0) {
@@ -162,6 +166,8 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
       </div>
     </div>
 
+    <!-- Solo muestra el formulario si el usuario es produccion -->
+    <?php if ($rol === 'produccion'): ?>
     <form method="post">
       <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
       <?php foreach ($etapas_arma as $etapa => $peso): ?>
@@ -177,6 +183,22 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
         </button>
       <?php endforeach; ?>
     </form>
+    <?php else: ?>
+      <!-- Para usuarios sin permiso, solo muestra el listado -->
+      <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
+      <?php foreach ($etapas_arma as $etapa => $peso): ?>
+        <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </div>
+      <?php endforeach; ?>
+
+      <h5 class="mt-4 text-white text-center">BACHADORA</h5>
+      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+        <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
+          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+        </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
 
     <div class="text-center mt-4">
       <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>

@@ -6,6 +6,10 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
+// Control de roles (solo 'produccion' puede modificar avances de petrolizadora)
+$rol = $_SESSION['rol'] ?? 'consulta'; // Asegúrate que esté en $_SESSION['rol']
+$puede_modificar = ($rol === 'produccion'); // Cambia si otro rol debe editar
+
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
@@ -38,8 +42,7 @@ $etapas = [
   ]
 ];
 
-// Marcar / desmarcar etapa
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_modificar) {
   $etapa = $_POST['etapa'];
   $accion = $_POST['accion'];
   $now = date('Y-m-d H:i:s');
@@ -182,6 +185,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
       <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
       <?php foreach ($pasos as $etapa => $peso):
         $ya = in_array($etapa, $completadas);
+        if ($puede_modificar):
       ?>
         <form method="POST" class="mb-1">
           <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
@@ -190,6 +194,11 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
             <?= $etapa ?> (<?= $peso ?>%)
           </button>
         </form>
+      <?php else: ?>
+        <div class="btn btn-toggle <?= $ya ? 'completed' : '' ?>" style="pointer-events:none;">
+          <?= $etapa ?> (<?= $peso ?>%)
+        </div>
+      <?php endif; ?>
       <?php endforeach; ?>
     <?php endforeach; ?>
 

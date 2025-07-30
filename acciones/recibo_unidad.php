@@ -6,11 +6,30 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
+// Control de acceso según rol
+$rol = $_SESSION['rol'] ?? '';
+$permitir_modificar = false;
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) die("ID inválido");
 
 $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
 if (!$maquinaria) die("Maquinaria no encontrada");
+
+$tipo_maquinaria = strtolower($maquinaria['tipo_maquinaria']);
+if ($rol === 'admin') {
+    $permitir_modificar = true;
+} elseif ($rol === 'usada' && ($tipo_maquinaria === 'usada' || $tipo_maquinaria === 'camion')) {
+    $permitir_modificar = true;
+} elseif ($rol === 'produccion' && ($tipo_maquinaria === 'nueva' || $tipo_maquinaria === 'camion')) {
+    $permitir_modificar = true;
+} elseif ($rol === 'camiones' && $tipo_maquinaria === 'camion') {
+    $permitir_modificar = true;
+} elseif ($rol === 'consulta') {
+    $permitir_modificar = false;
+} else {
+    // Por defecto, acceso denegado
+    die("Acceso denegado para su usuario.");
+}
 
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
@@ -66,11 +85,11 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <div class="ficha-maquina row g-3 align-items-center">
         <div class="col-md-6 mb-2">
           <label class="fw-bold">Empresa Origen</label>
-          <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>">
+          <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>" <?= !$permitir_modificar ? "readonly" : "" ?>>
         </div>
         <div class="col-md-6 mb-2">
           <label class="fw-bold">Empresa Destino</label>
-          <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>">
+          <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>" <?= !$permitir_modificar ? "readonly" : "" ?>>
         </div>
         <div class="col-md-4 mb-2">
           <label class="fw-bold">Nombre</label>
@@ -113,9 +132,13 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
                 <label class="form-label fw-bold text-warning"><?= $componente ?></label>
                 <input type="hidden" name="componentes[<?= htmlspecialchars($componente) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor ?>">
                 <div class="d-flex gap-2">
-                  <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
-                  <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
-                  <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+                  <?php if ($permitir_modificar): ?>
+                    <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
+                    <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
+                    <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+                  <?php else: ?>
+                    <span class="badge bg-secondary"><?= ucfirst($valor ?: '-') ?></span>
+                  <?php endif; ?>
                 </div>
               </div>
             <?php endforeach; ?>
@@ -124,14 +147,16 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       <?php endforeach; ?>
       <div class="mb-3">
         <label class="form-label fw-bold text-warning">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3"><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
+        <textarea name="observaciones" class="form-control" rows="3" <?= !$permitir_modificar ? "readonly" : "" ?>><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
       </div>
       <div class="text-center my-4">
         <h5 class="text-warning">Condición Total Estimada</h5>
         <h1 id="total_avance" style="color: yellow; font-size: 3rem;">0%</h1>
       </div>
       <div class="text-center no-print mb-5">
+        <?php if ($permitir_modificar): ?>
         <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
+        <?php endif; ?>
         <button type="button" onclick="window.print()" class="btn btn-outline-light ms-2">Imprimir</button>
         <a href="../inventario.php" class="btn btn-outline-info ms-2">Volver a Inventario</a>
       </div>
