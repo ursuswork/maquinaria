@@ -58,8 +58,8 @@ if ($existe) {
 }
 
 if ($conn->query($sql)) {
-    header("Location: recibo_unidad.php?id=$id_maquinaria");
-    exit;
+   header("Location: ../inventario.php");
+   exit;
 } else {
     echo "Error al guardar: " . $conn->error;
 }
