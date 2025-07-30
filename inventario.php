@@ -10,6 +10,39 @@ include 'conexion.php';
 $busqueda       = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro    = strtolower(trim($_GET['tipo'] ?? 'todas'));
 $subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
+// Suponiendo que quieres filtrar por "nueva"
+$tipo = 'nueva'; // O 'usada'
+
+$sql = "SELECT * FROM maquinaria WHERE LOWER(TRIM(tipo_maquinaria)) = '$tipo'";
+$resultado = $conn->query($sql);
+
+echo "<div style='color:yellow;font-weight:bold'>Registros: " . $resultado->num_rows . "</div>";
+
+echo "<table border=1 style='color: white;'>";
+if ($resultado->num_rows > 0) {
+  $primero = $resultado->fetch_assoc();
+  echo "<tr>";
+  foreach ($primero as $k => $v) {
+    echo "<th>$k</th>";
+  }
+  echo "</tr>";
+  echo "<tr>";
+  foreach ($primero as $k => $v) {
+    echo "<td>$v</td>";
+  }
+  echo "</tr>";
+  while ($fila = $resultado->fetch_assoc()) {
+    echo "<tr>";
+    foreach ($fila as $k => $v) {
+      echo "<td>$v</td>";
+    }
+    echo "</tr>";
+  }
+} else {
+  echo "<tr><td colspan=100>No hay registros</td></tr>";
+}
+echo "</table>";
+
 
 // --- ARMA FILTROS DINÁMICOS ---
 $filtros = [];
