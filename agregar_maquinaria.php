@@ -4,6 +4,12 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
+// --- Control de roles
+$rol = $_SESSION['rol'] ?? 'consulta';
+$tipos_permitidos = [];
+if ($rol == 'produccion')      $tipos_permitidos = ['nueva', 'camion'];
+elseif ($rol == 'usada')       $tipos_permitidos = ['usada', 'camion'];
+elseif ($rol == 'consulta')    { header("Location: inventario.php"); exit; }
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -79,10 +85,16 @@ if (!isset($_SESSION['usuario'])) {
 <div class="mb-3">
 <label class="form-label text-warning">Tipo</label>
 <select class="form-select mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
-<option value="">Seleccionar</option>
-<option value="nueva">Producción Nueva</option>
-<option value="usada">Usada</option>
-<option value="camion">Camión</option>
+  <option value="">Seleccionar</option>
+  <?php if (in_array('nueva', $tipos_permitidos)): ?>
+    <option value="nueva">Producción Nueva</option>
+  <?php endif; ?>
+  <?php if (in_array('usada', $tipos_permitidos)): ?>
+    <option value="usada">Usada</option>
+  <?php endif; ?>
+  <?php if (in_array('camion', $tipos_permitidos)): ?>
+    <option value="camion">Camión</option>
+  <?php endif; ?>
 </select>
 </div>
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">

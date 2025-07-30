@@ -6,6 +6,9 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
+// ROL DEL USUARIO
+$rol = $_SESSION['rol'] ?? 'consulta'; // 'produccion', 'usada', 'consulta'
+
 // Filtros
 $busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
 $tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
@@ -158,12 +161,12 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(even) { background-color: #003366; }
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 8px; }
-    .badge-camion { background: #01ff1294; color: #fff;padding: 6px 12px; border-radius: 8px; }
+    .badge-camion { background: #09a11383; color: #fff;padding: 6px 12px; border-radius: 8px; }
     .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar {
       font-weight: bold;
-      background-color: #28a745 !important;
+      background-color: #0c6f23ff !important;
       color: #fff;
       font-size: 1.1rem;
       transition: width 0.5s;
@@ -200,7 +203,9 @@ $resultado = $conn->query($sql);
   <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
-      <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
+      <?php if ($rol != 'consulta'): ?>
+        <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
+      <?php endif; ?>
       <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
       <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
     </div>
@@ -270,6 +275,10 @@ $resultado = $conn->query($sql);
         <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
+          // Permisos
+          $puede_editar = false;
+          if ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) $puede_editar = true;
+          if ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) $puede_editar = true;
         ?>
         <tr>
           <td>
@@ -343,28 +352,32 @@ $resultado = $conn->query($sql);
             ?>
           </td>
           <td>
-            <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
-              <i class="bi bi-pencil-square"></i>
-            </a>
-            <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
-              <i class="bi bi-trash"></i>
-            </a>
-            <?php if ($tipo === 'usada'): ?>
-              <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
-                <i class="bi bi-file-earmark-text"></i> Recibo
+            <?php if ($puede_editar): ?>
+              <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
+                <i class="bi bi-pencil-square"></i>
               </a>
-            <?php elseif ($tipo === 'nueva' && $subtipo === 'bachadora'): ?>
-              <a href="avance_bachadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance de Bachadora">
-                <i class="bi bi-bar-chart-line"></i> Avance
+              <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
+                <i class="bi bi-trash"></i>
               </a>
-            <?php elseif ($tipo === 'nueva' && $subtipo === 'esparcidor de sello'): ?>
-              <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Esparcidor">
-                <i class="bi bi-bar-chart-line"></i> Avance
-              </a>
-            <?php elseif ($tipo === 'nueva' && $subtipo === 'petrolizadora'): ?>
-              <a href="avance_petrolizadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Petrolizadora">
-                <i class="bi bi-bar-chart-line"></i> Avance
-              </a>
+              <?php if ($tipo === 'usada'): ?>
+                <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
+                  <i class="bi bi-file-earmark-text"></i> Recibo
+                </a>
+              <?php elseif ($tipo === 'nueva' && $subtipo === 'bachadora'): ?>
+                <a href="avance_bachadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance de Bachadora">
+                  <i class="bi bi-bar-chart-line"></i> Avance
+                </a>
+              <?php elseif ($tipo === 'nueva' && $subtipo === 'esparcidor de sello'): ?>
+                <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Esparcidor">
+                  <i class="bi bi-bar-chart-line"></i> Avance
+                </a>
+              <?php elseif ($tipo === 'nueva' && $subtipo === 'petrolizadora'): ?>
+                <a href="avance_petrolizadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Petrolizadora">
+                  <i class="bi bi-bar-chart-line"></i> Avance
+                </a>
+              <?php endif; ?>
+            <?php else: ?>
+              <span class="text-secondary">Sin permisos</span>
             <?php endif; ?>
           </td>
         </tr>
