@@ -51,32 +51,36 @@ if (!isset($_SESSION['usuario'])) {
 <h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
 <form action="procesar_agregar.php" enctype="multipart/form-data" method="POST">
 <div class="mb-3">
-<label class="form-label form-label text-warning">Nombre</label>
-<input class="form-control form-control mb-3" name="nombre" required="" type="text"/>
+<label class="form-label text-warning">Nombre</label>
+<input class="form-control mb-3" name="nombre" required="" type="text"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Marca</label>
-<input class="form-control form-control mb-3" name="marca" required="" type="text"/>
+<label class="form-label text-warning">Marca</label>
+<input class="form-control mb-3" name="marca" required="" type="text"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Modelo</label>
-<input class="form-control form-control mb-3" name="modelo" required="" type="text"/>
+<label class="form-label text-warning">Modelo</label>
+<input class="form-control mb-3" name="modelo" required="" type="text"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Ubicación</label>
-<input class="form-control form-control mb-3" name="ubicacion" required="" type="text"/>
+<label class="form-label text-warning">Número de serie</label>
+<input class="form-control mb-3" name="numero_serie" required="" type="text"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Tipo</label>
-<select class="form-select form-control mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
+<label class="form-label text-warning">Ubicación</label>
+<input class="form-control mb-3" name="ubicacion" required="" type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Tipo</label>
+<select class="form-select mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
 <option value="">Seleccionar</option>
 <option value="nueva">Produccion Nueva</option>
 <option value="usada">Usada</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">
-<label class="form-label form-label text-warning">Subtipo</label>
-<select class="form-select form-control mb-3" name="subtipo">
+<label class="form-label text-warning">Subtipo</label>
+<select class="form-select mb-3" name="subtipo">
 <option value="Petrolizadora">Petrolizadora</option>
 <option value="Esparcidor de sello">Esparcidor de sello</option>
 <option value="Tanque de almacén">Tanque de almacén</option>
@@ -85,8 +89,8 @@ if (!isset($_SESSION['usuario'])) {
 </select>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Imagen</label>
-<input accept="image/*" class="form-control form-control mb-3" name="imagen" type="file"/>
+<label class="form-label text-warning">Imagen</label>
+<input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
 <div class="d-grid">
 <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
