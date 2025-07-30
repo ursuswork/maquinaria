@@ -6,23 +6,26 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// Obtener filtros desde GET o establecer valores por defecto
+// Filtros
 $tipo_filtro = isset($_GET['tipo']) ? strtolower(trim($_GET['tipo'])) : 'todas';
 $subtipo_filtro = isset($_GET['subtipo']) ? strtolower(trim($_GET['subtipo'])) : 'todos';
 
-// Construir condiciones del WHERE
+// Armar WHERE dinámico
 $where = [];
 if ($tipo_filtro !== 'todas') {
-    $where[] = "LOWER(TRIM(tipo_maquinaria)) = '$tipo_filtro'";
+    $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = '$tipo_filtro'";
 }
 if ($subtipo_filtro !== 'todos' && $subtipo_filtro !== '') {
-    $where[] = "LOWER(TRIM(subtipo)) = '$subtipo_filtro'";
+    $where[] = "LOWER(TRIM(m.subtipo)) = '$subtipo_filtro'";
 }
-$sql = "SELECT * FROM maquinaria";
+
+$sql = "SELECT m.*, r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo
+        FROM maquinaria m
+        LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria";
 if (count($where)) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
-$sql .= " ORDER BY tipo_maquinaria ASC, nombre ASC";
+$sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 
 $resultado = $conn->query($sql);
 ?>
@@ -43,6 +46,9 @@ $resultado = $conn->query($sql);
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 6px; }
     .btn-flotante { position: fixed; bottom: 20px; right: 20px; background-color: #ffc107; color: #001f3f; padding: 12px 18px; border-radius: 50px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
     .imagen-thumbnail { width: 80px; height: auto; border-radius: 4px; }
+    .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
+    .progress-bar { font-weight: bold; background-color: #28a745 !important; color: white; }
+    .text-light.small.mt-1 { font-size: 0.85rem; color: #ffc107 !important; }
   </style>
 </head>
 <body>
@@ -54,7 +60,7 @@ $resultado = $conn->query($sql);
       <a href="logout.php" class="btn btn-outline-light">Cerrar sesión</a>
     </div>
   </div>
-  <!-- Filtros de tipo -->
+  <!-- Filtros -->
   <ul class="nav nav-tabs mb-2">
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
@@ -86,81 +92,82 @@ $resultado = $conn->query($sql);
   <?php endif; ?>
 
   <!-- Tabla de resultados -->
- <!-- ... encabezado, filtros y demás ... -->
-<table class="table table-hover table-bordered text-white">
-  <thead>
-    <tr>
-      <th>Imagen</th>
-      <th>Nombre</th>
-      <th>Modelo</th>
-      <th>Ubicación</th>
-      <th>Tipo</th>
-      <th>Subtipo</th>
-      <th>Avance / Condición</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
+  <table class="table table-hover table-bordered text-white">
+    <thead>
+      <tr>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Modelo</th>
+        <th>Ubicación</th>
+        <th>Tipo</th>
+        <th>Subtipo</th>
+        <th>Avance / Condición</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
     <?php if ($resultado->num_rows > 0): ?>
       <?php while($fila = $resultado->fetch_assoc()): ?>
-        <tr>
-          <td>
-            <?php if (!empty($fila['imagen'])): ?>
-              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
-            <?php else: ?>
-              Sin imagen
-            <?php endif; ?>
-          </td>
-          <td><?= htmlspecialchars($fila['nombre']) ?></td>
-          <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
-          <td>
-            <?= strtolower($fila['tipo_maquinaria']) === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?>
-          </td>
-          <td><?= htmlspecialchars($fila['subtipo']) ?></td>
-          <td>
-            <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
-              <?php if (!is_null($fila['condicion_estimada'])): ?>
-                <div class="progress" style="height:22px;">
-                  <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%;">
-                    <?= intval($fila['condicion_estimada']) ?>%
-                  </div>
+      <tr>
+        <td>
+          <?php if (!empty($fila['imagen'])): ?>
+            <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
+          <?php else: ?>
+            Sin imagen
+          <?php endif; ?>
+        </td>
+        <td><?= htmlspecialchars($fila['nombre']) ?></td>
+        <td><?= htmlspecialchars($fila['modelo']) ?></td>
+        <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
+        <td>
+          <?= strtolower($fila['tipo_maquinaria']) === 'nueva' ? '<span class="badge-nueva">Nueva</span>' : 'Usada' ?>
+        </td>
+        <td><?= htmlspecialchars($fila['subtipo']) ?></td>
+        <td>
+          <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
+            <?php if (!is_null($fila['condicion_estimada'])): ?>
+              <div class="progress mb-1">
+                <div class="progress-bar" style="width:<?= intval($fila['condicion_estimada']) ?>%;">
+                  <?= intval($fila['condicion_estimada']) ?>%
                 </div>
-                <?php if (!empty($fila['fecha_recibo'])): ?>
-                  <div class="text-light small mt-1">
-                    🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong>
-                  </div>
-                <?php endif; ?>
-              <?php else: ?>
-                <span class="text-warning">Sin recibo</span>
+              </div>
+              <div class="text-center" style="font-size:1.3rem; color: #ffc107;">
+                <?= intval($fila['condicion_estimada']) ?>%
+              </div>
+              <?php if (!empty($fila['fecha_recibo'])): ?>
+                <div class="text-light small mt-1">
+                  🗓 <strong><?= date('d/m/Y', strtotime($fila['fecha_recibo'])) ?></strong>
+                </div>
               <?php endif; ?>
-            <?php elseif (strtolower($fila['tipo_maquinaria']) === 'nueva'): ?>
-              <!-- Aquí puedes mostrar el avance de nueva si lo tienes -->
-              <span class="text-secondary">N/A</span>
+            <?php else: ?>
+              <span class="text-warning">Sin recibo</span>
             <?php endif; ?>
-          </td>
-          <td>
-            <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-pencil-square"></i>
+          <?php elseif (strtolower($fila['tipo_maquinaria']) === 'nueva'): ?>
+            <span class="text-secondary">N/A</span>
+          <?php endif; ?>
+        </td>
+        <td>
+          <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
+            <i class="bi bi-pencil-square"></i>
+          </a>
+          <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
+            <i class="bi bi-trash"></i>
+          </a>
+          <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
+            <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
+              <i class="bi bi-file-earmark-text"></i> Recibo
             </a>
-            <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')">
-              <i class="bi bi-trash"></i>
-            </a>
-            <?php if (strtolower($fila['tipo_maquinaria']) === 'usada'): ?>
-              <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
-                <i class="bi bi-file-earmark-text"></i> Recibo
-              </a>
-            <?php endif; ?>
-          </td>
-        </tr>
+          <?php endif; ?>
+        </td>
+      </tr>
       <?php endwhile; ?>
     <?php else: ?>
       <tr>
         <td colspan="8" class="text-center text-warning">No se encontraron registros.</td>
       </tr>
     <?php endif; ?>
-  </tbody>
-</table>
+    </tbody>
+  </table>
 </div>
 </body>
 </html>
