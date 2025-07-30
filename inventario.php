@@ -201,7 +201,7 @@ $resultado = $conn->query($sql);
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
       <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
-      <a href="exportar_excel.php" class="btn btn-exportar"><i class="bi bi-file-earmark-excel"></i> Exportar</a>
+      <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
       <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
     </div>
   </div>
