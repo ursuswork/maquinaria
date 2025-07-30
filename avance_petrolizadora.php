@@ -81,6 +81,9 @@ foreach ($etapas as $grupo) {
   }
 }
 $porcentaje = $peso_total > 0 ? round(($peso_actual / $peso_total) * 100) : 0;
+// Guarda el avance actualizado en una fila especial (etapa IS NULL) para el porcentaje total
+$conn->query("DELETE FROM avance_petrolizadora WHERE id_maquinaria = $id_maquinaria AND etapa IS NULL");
+$conn->query("INSERT INTO avance_petrolizadora (id_maquinaria, etapa, avance) VALUES ($id_maquinaria, NULL, $porcentaje)");
 ?>
 
 <!DOCTYPE html>
