@@ -287,13 +287,14 @@ $resultado = $conn->query($sql);
           $puede_eliminar = false;
           $puede_recibo = false;
           $puede_avance = false;
+
           if ($usuario === 'jabri') {
-            $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
+          $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-            $puede_editar = $puede_eliminar = $puede_avance = true;
+          $puede_editar = $puede_eliminar = $puede_avance = true; 
           } elseif ($rol === 'usada' && $tipo === 'usada') {
-            $puede_editar = $puede_eliminar = $puede_recibo = true;
-          }
+          $puede_editar = $puede_eliminar = $puede_recibo = true;
+        }
         ?>
         <tr>
           <td>
