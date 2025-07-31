@@ -266,16 +266,17 @@ $resultado = $conn->query($sql);
     <table class="table table-hover table-bordered text-white align-middle">
       <thead>
         <tr>
-          <th>Imagen</th>
-          <th>Nombre</th>
-          <th>Modelo</th>
-          <th>Número Serie</th>
-          <th>Ubicación</th>
-          <th>Tipo</th>
-          <th>Subtipo</th>
-          <th style="min-width:160px;">Avance / Condición</th>
-          <th style="min-width:135px;">Acciones</th>
-        </tr>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Modelo</th>
+        <th>Número Serie</th>
+        <th><strong>Año</strong></th> <!-- AÑADIDO AÑO -->
+        <th>Ubicación</th>
+        <th>Tipo</th>
+        <th>Subtipo</th>
+        <th style="min-width:160px;">Avance / Condición</th>
+        <th style="min-width:135px;">Acciones</th>
+      </tr>
       </thead>
       <tbody>
       <?php if ($resultado->num_rows > 0): ?>
