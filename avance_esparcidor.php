@@ -6,9 +6,10 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// Control de roles (solo 'produccion' puede modificar avances de esparcidor)
-$rol = $_SESSION['rol'] ?? 'consulta'; // Asegúrate que en tu login se guarde esto en $_SESSION
-$puede_modificar = ($rol === 'produccion'); // Ajusta si quieres permitir otros roles también
+// Control de roles (solo 'produccion' o 'jabri' pueden modificar avances de esparcidor)
+$rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
+$usuario = $_SESSION['usuario'] ?? '';
+$puede_modificar = ($rol === 'produccion' || $usuario === 'jabri');
 
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
@@ -207,4 +208,3 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
   </div>
 </body>
 </html>
-

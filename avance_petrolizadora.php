@@ -6,9 +6,10 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// Control de roles (solo 'produccion' puede modificar avances de petrolizadora)
-$rol = $_SESSION['rol'] ?? 'consulta'; // Asegúrate que esté en $_SESSION['rol']
-$puede_modificar = ($rol === 'produccion'); // Cambia si otro rol debe editar
+// Permite modificar solo si es produccion O si es jabri
+$rol = $_SESSION['rol'] ?? 'consulta';
+$usuario = $_SESSION['usuario'] ?? '';
+$puede_modificar = ($rol === 'produccion' || $usuario === 'jabri');
 
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {

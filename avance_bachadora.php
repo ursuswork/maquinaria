@@ -8,6 +8,7 @@ include 'conexion.php';
 
 // ------ CONTROL DE ROLES ------
 $rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
+$usuario = $_SESSION['usuario'] ?? '';
 
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
@@ -47,8 +48,11 @@ $etapas_bachadora = [
 
 $etapas = $etapas_arma + $etapas_bachadora;
 
-// Solo se procesa el POST si es usuario de rol "produccion"
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $rol === 'produccion') {
+// Permiso para editar: jabri siempre puede, produccion solo si rol=produccion
+$puede_editar = ($usuario === 'jabri' || $rol === 'produccion');
+
+// Solo se procesa el POST si puede editar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_editar) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
   $existe = $conn->query("SELECT 1 FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
   if ($existe->num_rows == 0) {
@@ -166,8 +170,8 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
       </div>
     </div>
 
-    <!-- Solo muestra el formulario si el usuario es produccion -->
-    <?php if ($rol === 'produccion'): ?>
+    <!-- Solo muestra el formulario si puede editar -->
+    <?php if ($puede_editar): ?>
     <form method="post">
       <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
       <?php foreach ($etapas_arma as $etapa => $peso): ?>

@@ -6,7 +6,8 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// ROL DEL USUARIO
+// USUARIO Y ROL DEL USUARIO
+$usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta'; // 'produccion', 'usada', 'consulta'
 
 // Filtros
@@ -203,7 +204,7 @@ $resultado = $conn->query($sql);
   <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
-      <?php if ($rol != 'consulta'): ?>
+      <?php if ($usuario === 'jabri' || $rol != 'consulta'): ?>
         <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
       <?php endif; ?>
       <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
@@ -277,8 +278,13 @@ $resultado = $conn->query($sql);
           $subtipo = strtolower($fila['subtipo']);
           // Permisos
           $puede_editar = false;
-          if ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) $puede_editar = true;
-          if ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) $puede_editar = true;
+          if ($usuario === 'jabri') {
+            $puede_editar = true;
+          } elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
+            $puede_editar = true;
+          } elseif ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) {
+            $puede_editar = true;
+          }
         ?>
         <tr>
           <td>

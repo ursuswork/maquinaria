@@ -7,6 +7,7 @@ if (!isset($_SESSION['usuario'])) {
 include 'conexion.php';
 
 // ------ INTEGRACION DE ROL ------
+$usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
 
 $id = intval($_GET['id'] ?? 0);
@@ -21,10 +22,15 @@ if (!$maquinaria) {
 
 $tipo = strtolower($maquinaria['tipo_maquinaria']);
 
-// Permisos: produccion=nueva/camion, usada=usada/camion, consulta=ninguno
+// Permisos: jabri = todo; produccion=nueva/camion, usada=usada/camion, consulta=ninguno
 $puede_editar = false;
-if ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) $puede_editar = true;
-if ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) $puede_editar = true;
+if ($usuario === 'jabri') {
+    $puede_editar = true;
+} elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
+    $puede_editar = true;
+} elseif ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) {
+    $puede_editar = true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">

@@ -6,8 +6,9 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
-// Control de acceso según rol
+// Control de acceso según rol o usuario jabri
 $rol = $_SESSION['rol'] ?? '';
+$usuario = $_SESSION['usuario'] ?? '';
 $permitir_modificar = false;
 $id_maquinaria = intval($_GET['id'] ?? 0);
 if ($id_maquinaria <= 0) die("ID inválido");
@@ -16,7 +17,11 @@ $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")
 if (!$maquinaria) die("Maquinaria no encontrada");
 
 $tipo_maquinaria = strtolower($maquinaria['tipo_maquinaria']);
-if ($rol === 'admin') {
+
+// <<<<<< MODIFICADO PARA JABRI
+if ($usuario === 'jabri') {
+    $permitir_modificar = true;
+} else if ($rol === 'admin') {
     $permitir_modificar = true;
 } elseif ($rol === 'usada' && ($tipo_maquinaria === 'usada' || $tipo_maquinaria === 'camion')) {
     $permitir_modificar = true;
@@ -30,6 +35,7 @@ if ($rol === 'admin') {
     // Por defecto, acceso denegado
     die("Acceso denegado para su usuario.");
 }
+// >>>>>> FIN MODIFICACION
 
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
