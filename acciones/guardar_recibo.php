@@ -21,7 +21,7 @@ $secciones = [
 ];
 $pesos = ["MOTOR"=>15,"SISTEMA MECANICO"=>15,"SISTEMA HIDRAULICO"=>30,"SISTEMA ELECTRICO Y ELECTRONICO"=>25,"ESTETICO"=>5,"CONSUMIBLES"=>10];
 
-// Lógica de avance igual que en JS
+// Calcula el avance
 $total_avance = 0;
 foreach ($secciones as $seccion => $items) {
     $buenos = 0;
@@ -36,12 +36,14 @@ foreach ($secciones as $seccion => $items) {
 }
 $condicion_estimada = round($total_avance);
 
-// Ahora arma el query como antes
+// Prepara query de campos y valores
 $set = [];
-foreach ($componentes as $k => $v) {
-    $k = $conn->real_escape_string($k);
-    $v = $conn->real_escape_string($v);
-    $set[] = "`$k` = '$v'";
+foreach ($secciones as $seccion => $items) {
+    foreach ($items as $item) {
+        $k = $conn->real_escape_string($item);
+        $v = isset($componentes[$item]) ? $conn->real_escape_string($componentes[$item]) : '';
+        $set[] = "`$k` = '$v'";
+    }
 }
 $set[] = "condicion_estimada = $condicion_estimada";
 $set[] = "observaciones = '$observaciones'";
@@ -49,7 +51,7 @@ $set[] = "empresa_origen = '$empresa_origen'";
 $set[] = "empresa_destino = '$empresa_destino'";
 $set[] = "fecha = NOW()";
 
-// ¿Ya existe un recibo para este id_maquinaria?
+// ¿Ya existe?
 $existe = $conn->query("SELECT 1 FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->num_rows > 0;
 if ($existe) {
     $sql = "UPDATE recibo_unidad SET " . implode(",", $set) . " WHERE id_maquinaria = $id_maquinaria";
