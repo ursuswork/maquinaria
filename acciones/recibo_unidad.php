@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario'])) {
 }
 include '../conexion.php';
 
-// Control de acceso según rol o usuario jabri
+// CONTROL DE ACCESO SEGÚN ROL
 $rol = $_SESSION['rol'] ?? '';
 $usuario = $_SESSION['usuario'] ?? '';
 $permitir_modificar = false;
@@ -17,6 +17,24 @@ $maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")
 if (!$maquinaria) die("Maquinaria no encontrada");
 
 $tipo_maquinaria = strtolower($maquinaria['tipo_maquinaria']);
+
+// Permisos igual que inventario/avances:
+if ($usuario === 'jabri') {
+    $permitir_modificar = true;
+} elseif ($rol === 'admin') {
+    $permitir_modificar = true;
+} elseif ($rol === 'usada' && ($tipo_maquinaria === 'usada' || $tipo_maquinaria === 'camion')) {
+    $permitir_modificar = true;
+} elseif ($rol === 'produccion' && ($tipo_maquinaria === 'nueva' || $tipo_maquinaria === 'camion')) {
+    $permitir_modificar = true;
+} elseif ($rol === 'camiones' && $tipo_maquinaria === 'camion') {
+    $permitir_modificar = true;
+} elseif ($rol === 'consulta') {
+    $permitir_modificar = false;
+} else {
+    // Por defecto, acceso denegado
+    die("Acceso denegado para su usuario.");
+}
 
 // <<<<<< MODIFICADO PARA JABRI
 if ($usuario === 'jabri') {
