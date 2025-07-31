@@ -6,14 +6,30 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// Permite modificar solo si es produccion O si es jabri
-$rol = $_SESSION['rol'] ?? 'consulta';
+// ------ ROLES Y USUARIO ------
+$rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
 $usuario = $_SESSION['usuario'] ?? '';
-$puede_modificar = ($rol === 'produccion' || $usuario === 'jabri');
 
 $id_maquinaria = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id_maquinaria <= 0) {
   die("ID de maquinaria no válido");
+}
+
+$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
+if (!$maquinaria) {
+  die("Maquinaria no encontrada.");
+}
+
+$tipo = strtolower($maquinaria['tipo_maquinaria']);
+
+// Permisos como inventario
+$puede_modificar = false;
+if ($usuario === 'jabri') {
+    $puede_modificar = true;
+} elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
+    $puede_modificar = true;
+} elseif ($rol == 'usada' && $tipo == 'usada') {
+    $puede_modificar = true;
 }
 
 // Etapas y pesos
@@ -62,10 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_mo
   header("Location: avance_petrolizadora.php?id=$id_maquinaria");
   exit;
 }
-
-// Consulta maquinaria
-$maquinaria = $conn->query("SELECT * FROM maquinaria WHERE id = $id_maquinaria")->fetch_assoc();
-if (!$maquinaria) die("Maquinaria no encontrada");
 
 // Etapas completadas
 $completadas = [];
