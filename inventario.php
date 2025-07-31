@@ -4,10 +4,13 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
+$usuario = $_SESSION['usuario'] ?? '';
 include 'conexion.php';
 
-// USUARIO Y ROL DEL USUARIO
-$usuario = $_SESSION['usuario'] ?? '';
+// HORA MÉXICO
+date_default_timezone_set('America/Mexico_City');
+
+// ROL DEL USUARIO
 $rol = $_SESSION['rol'] ?? 'consulta'; // 'produccion', 'usada', 'consulta'
 
 // Filtros
@@ -36,9 +39,9 @@ if ($tipo_filtro === 'camion') {
 $sql = "
 SELECT m.*,
        r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo,
-       ab.avance AS avance_bachadora, ab.fecha_actualizacion AS fecha_bachadora,
-       ae.avance AS avance_esparcidor, ae.fecha_actualizacion AS fecha_esparcidor,
-       ap.avance AS avance_petrolizadora, ap.fecha_actualizacion AS fecha_petrolizadora
+       ab.avance AS avance_bachadora, ab.updated_at AS fecha_bachadora,
+       ae.avance AS avance_esparcidor, ae.updated_at AS fecha_esparcidor,
+       ap.avance AS avance_petrolizadora, ap.updated_at AS fecha_petrolizadora
 FROM maquinaria m
 LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria AND ab.etapa IS NULL
@@ -163,7 +166,7 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 8px; }
     .badge-camion { background: #09a11383; color: #fff;padding: 6px 12px; border-radius: 8px; }
-    .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; }
+    .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; cursor: pointer; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar {
       font-weight: bold;
@@ -174,7 +177,7 @@ $resultado = $conn->query($sql);
       box-shadow: 0 2px 8px #0002 inset;
     }
     .fecha-actualizacion {
-      color: #012a5c;
+      color: #87d0ff;
       font-size: 0.96rem;
       font-weight: bold;
       margin-top: 2px;
@@ -196,6 +199,13 @@ $resultado = $conn->query($sql);
       .titulo-maquinaria { font-size: 2rem; }
       .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
       .top-bar-btns { justify-content: center; }
+    }
+    /* Modal grande */
+    .modal-img {
+      max-width: 98vw;
+      max-height: 90vh;
+      margin: auto;
+      display: block;
     }
   </style>
 </head>
@@ -289,7 +299,7 @@ $resultado = $conn->query($sql);
         <tr>
           <td>
             <?php if (!empty($fila['imagen'])): ?>
-              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>">
+              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>" onclick="mostrarModalImagen('imagenes/<?= htmlspecialchars($fila['imagen']) ?>', '<?= htmlspecialchars($fila['nombre']) ?>')">
             <?php else: ?>
               Sin imagen
             <?php endif; ?>
@@ -315,8 +325,8 @@ $resultado = $conn->query($sql);
                     echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
                     if (!empty($fila['fecha_recibo'])) {
                         echo '<div class="fecha-actualizacion">Actualizado: '.
-                             date('d/m/Y', strtotime($fila['fecha_recibo'])).
-                             '</div>';
+                             date('d/m/Y H:i', strtotime($fila['fecha_recibo'])).
+                             ' hrs</div>';
                     }
                 } else {
                     echo '<span class="text-warning">Sin recibo</span>';
@@ -327,8 +337,8 @@ $resultado = $conn->query($sql);
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
                         if (!empty($fila['fecha_bachadora'])) {
                             echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y', strtotime($fila['fecha_bachadora'])).
-                                 '</div>';
+                                 date('d/m/Y H:i', strtotime($fila['fecha_bachadora'])).
+                                 ' hrs</div>';
                         }
                     }
                 } elseif ($subtipo === 'esparcidor de sello') {
@@ -336,8 +346,8 @@ $resultado = $conn->query($sql);
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
                         if (!empty($fila['fecha_esparcidor'])) {
                             echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y', strtotime($fila['fecha_esparcidor'])).
-                                 '</div>';
+                                 date('d/m/Y H:i', strtotime($fila['fecha_esparcidor'])).
+                                 ' hrs</div>';
                         }
                     }
                 } elseif ($subtipo === 'petrolizadora') {
@@ -345,8 +355,8 @@ $resultado = $conn->query($sql);
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
                         if (!empty($fila['fecha_petrolizadora'])) {
                             echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y', strtotime($fila['fecha_petrolizadora'])).
-                                 '</div>';
+                                 date('d/m/Y H:i', strtotime($fila['fecha_petrolizadora'])).
+                                 ' hrs</div>';
                         }
                     }
                 } else {
@@ -397,5 +407,29 @@ $resultado = $conn->query($sql);
     </table>
   </div>
 </div>
+
+<!-- MODAL DE IMAGEN GRANDE -->
+<div class="modal fade" id="modalImagenGrande" tabindex="-1" aria-labelledby="modalImagenGrandeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-warning" id="modalImagenGrandeLabel"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="" id="imagenGrandeModal" class="modal-img" alt="Imagen grande">
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function mostrarModalImagen(src, titulo) {
+  document.getElementById('imagenGrandeModal').src = src;
+  document.getElementById('modalImagenGrandeLabel').textContent = titulo;
+  var modal = new bootstrap.Modal(document.getElementById('modalImagenGrande'));
+  modal.show();
+}
+</script>
 </body>
 </html>
