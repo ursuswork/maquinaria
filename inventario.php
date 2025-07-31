@@ -269,7 +269,6 @@ $resultado = $conn->query($sql);
           <th>Imagen</th>
           <th>Nombre</th>
           <th>Modelo</th>
-          <th>Año</th>
           <th>Número Serie</th>
           <th>Ubicación</th>
           <th>Tipo</th>
@@ -290,14 +289,13 @@ $resultado = $conn->query($sql);
           $puede_avance = false;
 
           if ($usuario === 'jabri') {
-          $puede_editar = $puede_eliminar = $puede_avance = true;
-          if ($tipo === 'usada') $puede_recibo = true;
+            $puede_editar = $puede_eliminar = $puede_avance = true;
+            if ($tipo === 'usada') $puede_recibo = true;
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-          $puede_editar = $puede_eliminar = $puede_avance = true; 
+            $puede_editar = $puede_eliminar = $puede_avance = true; 
           } elseif ($rol === 'usada' && $tipo === 'usada') {
-          $puede_editar = $puede_eliminar = $puede_recibo = true;
-        }
-
+            $puede_editar = $puede_eliminar = $puede_recibo = true;
+          }
         ?>
         <tr>
           <td>
