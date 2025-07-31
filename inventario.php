@@ -231,7 +231,7 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
+      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camiones</a>
     </li>
   </ul>
   <?php if ($tipo_filtro === 'nueva'): ?>
