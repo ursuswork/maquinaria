@@ -10,8 +10,9 @@ $stmt->bind_param("ss", $usuario, $password);
 $stmt->execute();
 $resultado = $stmt->get_result();
 
-if ($resultado->num_rows == 1) {
-    $_SESSION['usuario'] = $usuario;
+if ($fila = $resultado->fetch_assoc()) {
+    $_SESSION['usuario'] = $fila['usuario'];
+    $_SESSION['rol'] = $fila['rol']; // ¡¡IMPORTANTE!! Guarda el rol real aquí
     header("Location: inventario.php");
     exit;
 } else {
