@@ -4,8 +4,20 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
-// --- SOLO "jabri" PUEDE AGREGAR MAQUINARIA ---
-if (($_SESSION['usuario'] ?? '') !== 'jabri') {
+
+// --- SOLO "jabri" puede todo, pero roles deciden qué pueden agregar ---
+$usuario = $_SESSION['usuario'] ?? '';
+$rol = $_SESSION['rol'] ?? 'consulta';
+
+$tipos_permitidos = [];
+if ($usuario === 'jabri') {
+  $tipos_permitidos = ['nueva', 'usada', 'camion'];
+} elseif ($rol === 'produccion') {
+  $tipos_permitidos = ['nueva', 'camion'];
+} elseif ($rol === 'usada') {
+  $tipos_permitidos = ['usada'];
+} else {
+  // Consulta u otro: No puede entrar
   header("Location: inventario.php");
   exit;
 }
@@ -85,9 +97,15 @@ if (($_SESSION['usuario'] ?? '') !== 'jabri') {
 <label class="form-label text-warning">Tipo</label>
 <select class="form-select mb-3" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required="">
   <option value="">Seleccionar</option>
-  <option value="nueva">Producción Nueva</option>
-  <option value="usada">Usada</option>
-  <option value="camion">Camión</option>
+  <?php if (in_array('nueva', $tipos_permitidos)): ?>
+    <option value="nueva">Producción Nueva</option>
+  <?php endif; ?>
+  <?php if (in_array('usada', $tipos_permitidos)): ?>
+    <option value="usada">Usada</option>
+  <?php endif; ?>
+  <?php if (in_array('camion', $tipos_permitidos)): ?>
+    <option value="camion">Camión</option>
+  <?php endif; ?>
 </select>
 </div>
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">

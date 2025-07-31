@@ -22,13 +22,13 @@ if (!$maquinaria) {
 
 $tipo = strtolower($maquinaria['tipo_maquinaria']);
 
-// Permisos: jabri = todo; produccion=nueva/camion, usada=usada/camion, consulta=ninguno
+// Permisos: jabri=todo; produccion=nueva/camion; usada=usada; consulta=ninguno
 $puede_editar = false;
 if ($usuario === 'jabri') {
     $puede_editar = true;
-} elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
+} elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
     $puede_editar = true;
-} elseif ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) {
+} elseif ($rol === 'usada' && $tipo === 'usada') {
     $puede_editar = true;
 }
 ?>
@@ -84,28 +84,36 @@ if ($usuario === 'jabri') {
 <form action="procesar_editar.php" enctype="multipart/form-data" method="POST">
 <input class="form-control mb-3" name="id" type="hidden" value="<?= $maquinaria['id'] ?>"/>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Nombre</label>
-<input class="form-control form-control mb-3" name="nombre" required type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
+<label class="form-label text-warning">Nombre</label>
+<input class="form-control mb-3" name="nombre" required type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Modelo</label>
-<input class="form-control form-control mb-3" name="modelo" required type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
+<label class="form-label text-warning">Marca</label>
+<input class="form-control mb-3" name="marca" required type="text" value="<?= htmlspecialchars($maquinaria['marca']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Ubicación</label>
-<input class="form-control form-control mb-3" name="ubicacion" required type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
+<label class="form-label text-warning">Modelo</label>
+<input class="form-control mb-3" name="modelo" required type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Tipo</label>
-<select class="form-select form-control mb-3" id="tipo" name="tipo_maquinaria" required>
+<label class="form-label text-warning">Año</label>
+<input class="form-control mb-3" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>" value="<?= htmlspecialchars($maquinaria['anio'] ?? '') ?>"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Ubicación</label>
+<input class="form-control mb-3" name="ubicacion" required type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Tipo</label>
+<select class="form-select mb-3" id="tipo" name="tipo_maquinaria" required>
 <option value="nueva" <?= $maquinaria['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
 <option value="usada" <?= $maquinaria['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
 <option value="camion" <?= $maquinaria['tipo_maquinaria'] == 'camion' ? 'selected' : '' ?>>Camión</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo-container" style="display: none;">
-<label class="form-label form-label text-warning">Subtipo</label>
-<select class="form-select form-control mb-3" name="subtipo">
+<label class="form-label text-warning">Subtipo</label>
+<select class="form-select mb-3" name="subtipo">
 <option value="">Selecciona una opción</option>
 <option value="petrolizadora" <?= $maquinaria['subtipo'] == 'petrolizadora' ? 'selected' : '' ?>>Petrolizadora</option>
 <option value="esparcidor de sello" <?= $maquinaria['subtipo'] == 'esparcidor de sello' ? 'selected' : '' ?>>Esparcidor de sello</option>
@@ -115,19 +123,19 @@ if ($usuario === 'jabri') {
 </select>
 </div>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Número de serie</label>
-<input class="form-control form-control mb-3" name="numero_serie" required type="text" value="<?= htmlspecialchars($maquinaria['numero_serie']) ?>"/>
+<label class="form-label text-warning">Número de serie</label>
+<input class="form-control mb-3" name="numero_serie" required type="text" value="<?= htmlspecialchars($maquinaria['numero_serie']) ?>"/>
 </div>
 <?php if (!empty($maquinaria['imagen'])): ?>
-<label class="form-label form-label text-warning">Imagen actual:</label>
+<label class="form-label text-warning">Imagen actual:</label>
 <img class="preview" src="imagenes/<?= $maquinaria['imagen'] ?>"/>
 <?php endif; ?>
 <div class="mb-3">
-<label class="form-label form-label text-warning">Nueva imagen (opcional)</label>
-<input accept="image/*" class="form-control form-control mb-3" name="imagen" type="file"/>
+<label class="form-label text-warning">Nueva imagen (opcional)</label>
+<input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
 <div class="d-grid mb-2">
-<button class="btn btn-primary btn btn-warning w-100 mt-3" type="submit">Guardar Cambios</button>
+<button class="btn btn-warning w-100 mt-3" type="submit">Guardar Cambios</button>
 </div>
 </form>
 <?php else: ?>
@@ -137,7 +145,9 @@ if ($usuario === 'jabri') {
 <!-- Solo muestra los datos -->
 <ul class="list-group">
   <li class="list-group-item bg-dark text-warning"><b>Nombre:</b> <?= htmlspecialchars($maquinaria['nombre']) ?></li>
+  <li class="list-group-item bg-dark text-warning"><b>Marca:</b> <?= htmlspecialchars($maquinaria['marca']) ?></li>
   <li class="list-group-item bg-dark text-warning"><b>Modelo:</b> <?= htmlspecialchars($maquinaria['modelo']) ?></li>
+  <li class="list-group-item bg-dark text-warning"><b>Año:</b> <?= htmlspecialchars($maquinaria['anio'] ?? '') ?></li>
   <li class="list-group-item bg-dark text-warning"><b>Ubicación:</b> <?= htmlspecialchars($maquinaria['ubicacion']) ?></li>
   <li class="list-group-item bg-dark text-warning"><b>Tipo:</b> <?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></li>
   <li class="list-group-item bg-dark text-warning"><b>Subtipo:</b> <?= htmlspecialchars($maquinaria['subtipo']) ?></li>

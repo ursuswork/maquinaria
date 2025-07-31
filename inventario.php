@@ -4,14 +4,10 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
-$usuario = $_SESSION['usuario'] ?? '';
 include 'conexion.php';
 
-// HORA MÉXICO
-date_default_timezone_set('America/Mexico_City');
-
-// ROL DEL USUARIO
-$rol = $_SESSION['rol'] ?? 'consulta'; // 'produccion', 'usada', 'consulta'
+$usuario = $_SESSION['usuario'] ?? '';
+$rol = $_SESSION['rol'] ?? 'consulta';
 
 // Filtros
 $busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
@@ -35,13 +31,12 @@ if ($tipo_filtro === 'camion') {
   $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'camion'";
 }
 
-// JOINS para avances y fechas
 $sql = "
 SELECT m.*,
        r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo,
-       ab.avance AS avance_bachadora, ab.updated_at AS fecha_bachadora,
-       ae.avance AS avance_esparcidor, ae.updated_at AS fecha_esparcidor,
-       ap.avance AS avance_petrolizadora, ap.updated_at AS fecha_petrolizadora
+       ab.avance AS avance_bachadora, ab.fecha_actualizacion AS fecha_bachadora,
+       ae.avance AS avance_esparcidor, ae.fecha_actualizacion AS fecha_esparcidor,
+       ap.avance AS avance_petrolizadora, ap.fecha_actualizacion AS fecha_petrolizadora
 FROM maquinaria m
 LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
 LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria AND ab.etapa IS NULL
@@ -54,7 +49,6 @@ if (count($where)) {
 $sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 $resultado = $conn->query($sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -166,7 +160,7 @@ $resultado = $conn->query($sql);
     .table tbody tr:nth-child(odd) { background-color: #002b5c; }
     .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 8px; }
     .badge-camion { background: #09a11383; color: #fff;padding: 6px 12px; border-radius: 8px; }
-    .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; cursor: pointer; }
+    .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; cursor:pointer; }
     .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
     .progress-bar {
       font-weight: bold;
@@ -177,7 +171,7 @@ $resultado = $conn->query($sql);
       box-shadow: 0 2px 8px #0002 inset;
     }
     .fecha-actualizacion {
-      color: #87d0ff;
+      color: #012a5c;
       font-size: 0.96rem;
       font-weight: bold;
       margin-top: 2px;
@@ -194,18 +188,20 @@ $resultado = $conn->query($sql);
       transition: background 0.18s;
     }
     .btn-avance:hover { background: #015b65; }
+    /* Lightbox */
+    .lightbox {
+      display:none;
+      position:fixed; z-index:1001; left:0; top:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.8); justify-content:center; align-items:center;
+    }
+    .lightbox img { max-width:90vw; max-height:85vh; border-radius:15px; box-shadow:0 8px 40px #000a; }
+    .lightbox.active { display:flex; }
+    .lightbox:active { display:none; }
     @media (max-width: 992px) {
       .container-custom { padding: 16px 2px; }
       .titulo-maquinaria { font-size: 2rem; }
       .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
       .top-bar-btns { justify-content: center; }
-    }
-    /* Modal grande */
-    .modal-img {
-      max-width: 98vw;
-      max-height: 90vh;
-      margin: auto;
-      display: block;
     }
   </style>
 </head>
@@ -214,10 +210,12 @@ $resultado = $conn->query($sql);
   <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
-      <?php if ($usuario === 'jabri' || $rol != 'consulta'): ?>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
         <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
       <?php endif; ?>
-      <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
+        <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
+      <?php endif; ?>
       <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
     </div>
   </div>
@@ -236,7 +234,6 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
     </li>
   </ul>
-
   <?php if ($tipo_filtro === 'nueva'): ?>
   <ul class="nav nav-pills mb-3 ms-3">
     <li class="nav-item">
@@ -253,7 +250,6 @@ $resultado = $conn->query($sql);
     </li>
   </ul>
   <?php endif; ?>
-
   <!-- Búsqueda -->
   <form class="mb-3" method="GET">
     <div class="input-group">
@@ -288,18 +284,21 @@ $resultado = $conn->query($sql);
           $subtipo = strtolower($fila['subtipo']);
           // Permisos
           $puede_editar = false;
+          $puede_eliminar = false;
+          $puede_recibo = false;
+          $puede_avance = false;
           if ($usuario === 'jabri') {
-            $puede_editar = true;
-          } elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
-            $puede_editar = true;
-          } elseif ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) {
-            $puede_editar = true;
+            $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
+          } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
+            $puede_editar = $puede_eliminar = $puede_avance = true;
+          } elseif ($rol === 'usada' && $tipo === 'usada') {
+            $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
         ?>
         <tr>
           <td>
             <?php if (!empty($fila['imagen'])): ?>
-              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>" onclick="mostrarModalImagen('imagenes/<?= htmlspecialchars($fila['imagen']) ?>', '<?= htmlspecialchars($fila['nombre']) ?>')">
+              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>" onclick="abrirLightbox(this.src)">
             <?php else: ?>
               Sin imagen
             <?php endif; ?>
@@ -324,9 +323,8 @@ $resultado = $conn->query($sql);
                 if (!is_null($fila['condicion_estimada'])) {
                     echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
                     if (!empty($fila['fecha_recibo'])) {
-                        echo '<div class="fecha-actualizacion">Actualizado: '.
-                             date('d/m/Y H:i', strtotime($fila['fecha_recibo'])).
-                             ' hrs</div>';
+                        $fecha_mx = (new DateTime($fila['fecha_recibo'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
+                        echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
                     }
                 } else {
                     echo '<span class="text-warning">Sin recibo</span>';
@@ -336,27 +334,24 @@ $resultado = $conn->query($sql);
                     if (!is_null($fila['avance_bachadora'])) {
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
                         if (!empty($fila['fecha_bachadora'])) {
-                            echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y H:i', strtotime($fila['fecha_bachadora'])).
-                                 ' hrs</div>';
+                            $fecha_mx = (new DateTime($fila['fecha_bachadora'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
+                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
                         }
                     }
                 } elseif ($subtipo === 'esparcidor de sello') {
                     if (!is_null($fila['avance_esparcidor'])) {
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
                         if (!empty($fila['fecha_esparcidor'])) {
-                            echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y H:i', strtotime($fila['fecha_esparcidor'])).
-                                 ' hrs</div>';
+                            $fecha_mx = (new DateTime($fila['fecha_esparcidor'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
+                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
                         }
                     }
                 } elseif ($subtipo === 'petrolizadora') {
                     if (!is_null($fila['avance_petrolizadora'])) {
                         echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
                         if (!empty($fila['fecha_petrolizadora'])) {
-                            echo '<div class="fecha-actualizacion">Actualizado: '.
-                                 date('d/m/Y H:i', strtotime($fila['fecha_petrolizadora'])).
-                                 ' hrs</div>';
+                            $fecha_mx = (new DateTime($fila['fecha_petrolizadora'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
+                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
                         }
                     }
                 } else {
@@ -372,28 +367,31 @@ $resultado = $conn->query($sql);
               <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
                 <i class="bi bi-pencil-square"></i>
               </a>
+            <?php endif; ?>
+            <?php if ($puede_eliminar): ?>
               <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
                 <i class="bi bi-trash"></i>
               </a>
-              <?php if ($tipo === 'usada'): ?>
-                <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
-                  <i class="bi bi-file-earmark-text"></i> Recibo
-                </a>
-              <?php elseif ($tipo === 'nueva' && $subtipo === 'bachadora'): ?>
-                <a href="avance_bachadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance de Bachadora">
-                  <i class="bi bi-bar-chart-line"></i> Avance
-                </a>
-              <?php elseif ($tipo === 'nueva' && $subtipo === 'esparcidor de sello'): ?>
-                <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Esparcidor">
-                  <i class="bi bi-bar-chart-line"></i> Avance
-                </a>
-              <?php elseif ($tipo === 'nueva' && $subtipo === 'petrolizadora'): ?>
-                <a href="avance_petrolizadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Petrolizadora">
-                  <i class="bi bi-bar-chart-line"></i> Avance
-                </a>
-              <?php endif; ?>
-            <?php else: ?>
-              <span class="text-secondary">Sin permisos</span>
+            <?php endif; ?>
+            <?php if ($puede_recibo): ?>
+              <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
+                <i class="bi bi-file-earmark-text"></i> Recibo
+              </a>
+            <?php endif; ?>
+            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'bachadora'): ?>
+              <a href="avance_bachadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance de Bachadora">
+                <i class="bi bi-bar-chart-line"></i> Avance
+              </a>
+            <?php endif; ?>
+            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'esparcidor de sello'): ?>
+              <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Esparcidor">
+                <i class="bi bi-bar-chart-line"></i> Avance
+              </a>
+            <?php endif; ?>
+            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'petrolizadora'): ?>
+              <a href="avance_petrolizadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Petrolizadora">
+                <i class="bi bi-bar-chart-line"></i> Avance
+              </a>
             <?php endif; ?>
           </td>
         </tr>
@@ -407,29 +405,22 @@ $resultado = $conn->query($sql);
     </table>
   </div>
 </div>
-
-<!-- MODAL DE IMAGEN GRANDE -->
-<div class="modal fade" id="modalImagenGrande" tabindex="-1" aria-labelledby="modalImagenGrandeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-warning" id="modalImagenGrandeLabel"></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body text-center">
-        <img src="" id="imagenGrandeModal" class="modal-img" alt="Imagen grande">
-      </div>
-    </div>
-  </div>
+<!-- Lightbox para ver imagen grande -->
+<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+  <img src="" id="img-lightbox">
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function mostrarModalImagen(src, titulo) {
-  document.getElementById('imagenGrandeModal').src = src;
-  document.getElementById('modalImagenGrandeLabel').textContent = titulo;
-  var modal = new bootstrap.Modal(document.getElementById('modalImagenGrande'));
-  modal.show();
+function abrirLightbox(src) {
+  document.getElementById('img-lightbox').src = src;
+  document.getElementById('lightbox').classList.add('active');
 }
+function cerrarLightbox() {
+  document.getElementById('img-lightbox').src = '';
+  document.getElementById('lightbox').classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') cerrarLightbox();
+});
 </script>
 </body>
 </html>

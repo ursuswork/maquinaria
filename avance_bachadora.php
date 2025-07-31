@@ -6,7 +6,7 @@ if (!isset($_SESSION['usuario'])) {
 }
 include 'conexion.php';
 
-// ------ CONTROL DE ROLES ------
+// ------ CONTROL DE ROLES Y USUARIO ------
 $rol = $_SESSION['rol'] ?? 'consulta'; // produccion, usada, consulta
 $usuario = $_SESSION['usuario'] ?? '';
 
@@ -20,6 +20,19 @@ if (!$maquinaria) {
   die("❌ Maquinaria no encontrada.");
 }
 
+$tipo = strtolower($maquinaria['tipo_maquinaria']);
+
+// Permisos: jabri = todo; produccion=nueva/camion, usada=usada, consulta=ver
+$puede_editar = false;
+if ($usuario === 'jabri') {
+    $puede_editar = true;
+} elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
+    $puede_editar = true;
+} elseif ($rol == 'usada' && $tipo == 'usada') {
+    $puede_editar = true;
+}
+
+// Etapas
 $etapas_arma = [
   "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
   "Trazar,cortar,rolar cuerpo" => 5,
@@ -47,9 +60,6 @@ $etapas_bachadora = [
 ];
 
 $etapas = $etapas_arma + $etapas_bachadora;
-
-// Permiso para editar: jabri siempre puede, produccion solo si rol=produccion
-$puede_editar = ($usuario === 'jabri' || $rol === 'produccion');
 
 // Solo se procesa el POST si puede editar
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_editar) {
