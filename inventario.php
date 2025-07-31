@@ -269,6 +269,7 @@ $resultado = $conn->query($sql);
           <th>Imagen</th>
           <th>Nombre</th>
           <th>Modelo</th>
+          <th>Año</th>
           <th>Número Serie</th>
           <th>Ubicación</th>
           <th>Tipo</th>
