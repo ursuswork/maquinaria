@@ -266,17 +266,17 @@ $resultado = $conn->query($sql);
     <table class="table table-hover table-bordered text-white align-middle">
       <thead>
         <tr>
-        <th>Imagen</th>
-        <th>Nombre</th>
-        <th>Modelo</th>
-        <th>Número Serie</th>
-        <th><strong>Año</strong></th> <!-- AÑADIDO AÑO -->
-        <th>Ubicación</th>
-        <th>Tipo</th>
-        <th>Subtipo</th>
-        <th style="min-width:160px;">Avance / Condición</th>
-        <th style="min-width:135px;">Acciones</th>
-      </tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Modelo</th>
+          <th>Número Serie</th>
+          <th><strong>Año</strong></th>
+          <th>Ubicación</th>
+          <th>Tipo</th>
+          <th>Subtipo</th>
+          <th style="min-width:160px;">Avance / Condición</th>
+          <th style="min-width:135px;">Acciones</th>
+        </tr>
       </thead>
       <tbody>
       <?php if ($resultado->num_rows > 0): ?>
@@ -290,13 +290,12 @@ $resultado = $conn->query($sql);
           $puede_avance = false;
 
           if ($usuario === 'jabri') {
-            $puede_editar = $puede_eliminar = $puede_avance = true;
-            if ($tipo === 'usada') $puede_recibo = true;
+          $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-            $puede_editar = $puede_eliminar = $puede_avance = true; 
+          $puede_editar = $puede_eliminar = $puede_avance = true; 
           } elseif ($rol === 'usada' && $tipo === 'usada') {
-            $puede_editar = $puede_eliminar = $puede_recibo = true;
-          }
+          $puede_editar = $puede_eliminar = $puede_recibo = true;
+        }
         ?>
         <tr>
           <td>
@@ -309,6 +308,7 @@ $resultado = $conn->query($sql);
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
+          <td><?= htmlspecialchars($fila['anio']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td>
             <?php
@@ -376,7 +376,7 @@ $resultado = $conn->query($sql);
                 <i class="bi bi-trash"></i>
               </a>
             <?php endif; ?>
-            <?php if ($puede_recibo): ?>
+            <?php if ($puede_recibo && $tipo === 'usada'): // <-- SOLO PARA USADA! ?>
               <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
                 <i class="bi bi-file-earmark-text"></i> Recibo
               </a>
@@ -401,14 +401,15 @@ $resultado = $conn->query($sql);
         <?php endwhile; ?>
       <?php else: ?>
         <tr>
-          <td colspan="9" class="text-center text-warning">No se encontraron registros.</td>
+          <td colspan="10" class="text-center text-warning">No se encontraron registros.</td>
         </tr>
       <?php endif; ?>
       </tbody>
     </table>
   </div>
 </div>
-<!-- Lightbox para ver imagen grande -->
+
+<!-- Lightbox para imagen -->
 <div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
   <img src="" id="img-lightbox">
 </div>
