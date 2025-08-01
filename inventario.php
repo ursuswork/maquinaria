@@ -210,10 +210,10 @@ $resultado = $conn->query($sql);
   <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada' || $rol === 'camiones'): ?>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
         <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
       <?php endif; ?>
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada' || $rol === 'camiones'): ?>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
         <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
       <?php endif; ?>
       <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
@@ -225,7 +225,7 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Produccion Nueva</a>
+      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
@@ -247,12 +247,6 @@ $resultado = $conn->query($sql);
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacen' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacen">Tanque de almacén</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frio' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frio">Planta de mezcla en frío</a>
     </li>
   </ul>
   <?php endif; ?>
@@ -289,24 +283,23 @@ $resultado = $conn->query($sql);
         <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
-          $capacidad = isset($fila['capacidad']) ? $fila['capacidad'] : '';
-
           // Permisos
           $puede_editar = false;
           $puede_eliminar = false;
           $puede_recibo = false;
           $puede_avance = false;
 
+          // Recibo para usada y camiones
           if ($usuario === 'jabri') {
             $puede_editar = $puede_eliminar = $puede_avance = true;
             $puede_recibo = ($tipo === 'usada' || $tipo === 'camion');
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
             $puede_editar = $puede_eliminar = $puede_avance = true;
+            $puede_recibo = ($tipo === 'camion');
           } elseif ($rol === 'usada' && $tipo === 'usada') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
-          } elseif ($rol === 'camiones' && $tipo === 'camion') {
-            $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
+
         ?>
         <tr>
           <td>
@@ -318,7 +311,7 @@ $resultado = $conn->query($sql);
           </td>
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['anio'] ?? '') ?></td>
+          <td><?= htmlspecialchars($fila['anio']) ?></td>
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td>
@@ -330,10 +323,12 @@ $resultado = $conn->query($sql);
             ?>
           </td>
           <td>
-            <?= htmlspecialchars($fila['subtipo']) ?>
-            <?php if (!empty($fila['capacidad'])): ?>
-              <br><span class="badge bg-info text-dark"><?= htmlspecialchars($fila['capacidad']) ?></span>
-            <?php endif; ?>
+            <?php
+              $st = htmlspecialchars($fila['subtipo']);
+              $cp = htmlspecialchars($fila['capacidad']);
+              echo $st;
+              if ($cp) echo "<br><span style='color:#ffd700;font-size:0.97em;'>$cp</span>";
+            ?>
           </td>
           <td>
             <?php
@@ -443,4 +438,3 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
-
