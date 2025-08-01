@@ -186,26 +186,26 @@ function mostrarCapacidad() {
     let options = "";
 
     if(subtipo === "petrolizadora") {
-        options += "<option value='6000 L'>6,000 L</option>";
-        options += "<option value='8000 L'>8,000 L</option>";
-        options += "<option value='10000 L'>10,000 L</option>";
-        options += "<option value='12000 L'>12,000 L</option>";
-        options += "<option value='15000 L'>15,000 L</option>";
-        options += "<option value='18000 L'>18,000 L</option>";
-        options += "<option value='20000 L'>20,000 L</option>";
+        options += "<option value='6000 Lts'>6,000 Lts</option>";
+        options += "<option value='8000 Lts'>8,000 Lts</option>";
+        options += "<option value='10000 Lts'>10,000 Lts</option>";
+        options += "<option value='12000 Lts'>12,000 Lts</option>";
+        options += "<option value='15000 Lts'>15,000 Lts</option>";
+        options += "<option value='18000 Lts'>18,000 Lts</option>";
+        options += "<option value='20000 Lts'>20,000 Lts</option>";
         capacidadCont.style.display = "block";
     } else if(subtipo === "bachadora") {
-        options += "<option value='1000 L'>1,000 L</option>";
-        options += "<option value='2000 L'>2,000 L</option>";
+        options += "<option value='1000 Lts'>1,000 Lts</option>";
+        options += "<option value='2000 Lts'>2,000 Lts</option>";
         capacidadCont.style.display = "block";
     } else if(subtipo === "tanque de almacén") {
-        options += "<option value='40 L'>40 L</option>";
-        options += "<option value='60 L'>60 L</option>";
-        options += "<option value='80 L'>80 L</option>";
+        options += "<option value='40,000 Lts'>40,000 Lts</option>";
+        options += "<option value='60,000 Lts'>60,000 Lts</option>";
+        options += "<option value='80,000 Lts'>80,000 Lts</option>";
         capacidadCont.style.display = "block";
     } else if(subtipo === "planta de mezcla en frío") {
-        options += "<option value='70 T'>70 toneladas</option>";
-        options += "<option value='150 T'>150 toneladas</option>";
+        options += "<option value='70 Ton'>70 toneladas</option>";
+        options += "<option value='150 Ton'>150 toneladas</option>";
         capacidadCont.style.display = "block";
     } else {
         capacidadCont.style.display = "none";
