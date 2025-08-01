@@ -22,13 +22,13 @@ if (!$maquinaria) {
 
 $tipo = strtolower($maquinaria['tipo_maquinaria']);
 
-// Permisos: jabri=todo; produccion=nueva/camion; usada=usada; consulta=ninguno
+// Permisos: jabri = todo; produccion=nueva/camion, usada=usada/camion, consulta=ninguno
 $puede_editar = false;
 if ($usuario === 'jabri') {
     $puede_editar = true;
-} elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
+} elseif ($rol == 'produccion' && ($tipo == 'nueva' || $tipo == 'camion')) {
     $puede_editar = true;
-} elseif ($rol === 'usada' && $tipo === 'usada') {
+} elseif ($rol == 'usada' && ($tipo == 'usada' || $tipo == 'camion')) {
     $puede_editar = true;
 }
 ?>
@@ -84,89 +84,135 @@ if ($usuario === 'jabri') {
 <form action="procesar_editar.php" enctype="multipart/form-data" method="POST">
 <input class="form-control mb-3" name="id" type="hidden" value="<?= $maquinaria['id'] ?>"/>
 <div class="mb-3">
-<label class="form-label text-warning">Nombre</label>
-<input class="form-control mb-3" name="nombre" required type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
+<label class="form-label form-label text-warning">Nombre</label>
+<input class="form-control form-control mb-3" name="nombre" required type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label text-warning">Marca</label>
-<input class="form-control mb-3" name="marca" required type="text" value="<?= htmlspecialchars($maquinaria['marca']) ?>"/>
+<label class="form-label form-label text-warning">Modelo</label>
+<input class="form-control form-control mb-3" name="modelo" required type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label text-warning">Modelo</label>
-<input class="form-control mb-3" name="modelo" required type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
+<label class="form-label form-label text-warning">Marca</label>
+<input class="form-control form-control mb-3" name="marca" required type="text" value="<?= htmlspecialchars($maquinaria['marca']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label text-warning">Año</label>
-<input class="form-control mb-3" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>" value="<?= htmlspecialchars($maquinaria['anio'] ?? '') ?>"/>
+<label class="form-label form-label text-warning">Año</label>
+<input class="form-control form-control mb-3" name="anio" type="number" value="<?= htmlspecialchars($maquinaria['anio']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label text-warning">Ubicación</label>
-<input class="form-control mb-3" name="ubicacion" required type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
+<label class="form-label form-label text-warning">Ubicación</label>
+<input class="form-control form-control mb-3" name="ubicacion" required type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
 </div>
 <div class="mb-3">
-<label class="form-label text-warning">Tipo</label>
-<select class="form-select mb-3" id="tipo" name="tipo_maquinaria" required>
+<label class="form-label form-label text-warning">Tipo</label>
+<select class="form-select form-control mb-3" id="tipo" name="tipo_maquinaria" required>
 <option value="nueva" <?= $maquinaria['tipo_maquinaria'] == 'nueva' ? 'selected' : '' ?>>Nueva</option>
 <option value="usada" <?= $maquinaria['tipo_maquinaria'] == 'usada' ? 'selected' : '' ?>>Usada</option>
 <option value="camion" <?= $maquinaria['tipo_maquinaria'] == 'camion' ? 'selected' : '' ?>>Camión</option>
 </select>
 </div>
 <div class="mb-3" id="subtipo-container" style="display: none;">
-<label class="form-label text-warning">Subtipo</label>
-<select class="form-select mb-3" name="subtipo">
+<label class="form-label form-label text-warning">Subtipo</label>
+<select class="form-select form-control mb-3" name="subtipo" id="subtipo">
 <option value="">Selecciona una opción</option>
-<option value="petrolizadora" <?= $maquinaria['subtipo'] == 'petrolizadora' ? 'selected' : '' ?>>Petrolizadora</option>
-<option value="esparcidor de sello" <?= $maquinaria['subtipo'] == 'esparcidor de sello' ? 'selected' : '' ?>>Esparcidor de sello</option>
-<option value="tanque de almacen" <?= $maquinaria['subtipo'] == 'tanque de almacen' ? 'selected' : '' ?>>Tanque de almacén</option>
-<option value="bachadora" <?= $maquinaria['subtipo'] == 'bachadora' ? 'selected' : '' ?>>Bachadora</option>
-<option value="planta de mezcla en frio" <?= $maquinaria['subtipo'] == 'planta de mezcla en frio' ? 'selected' : '' ?>>Planta de mezcla en frío</option>
+<option value="Petrolizadora" <?= $maquinaria['subtipo'] == 'Petrolizadora' ? 'selected' : '' ?>>Petrolizadora</option>
+<option value="Esparcidor de sello" <?= $maquinaria['subtipo'] == 'Esparcidor de sello' ? 'selected' : '' ?>>Esparcidor de sello</option>
+<option value="Tanque de almacén" <?= $maquinaria['subtipo'] == 'Tanque de almacén' ? 'selected' : '' ?>>Tanque de almacén</option>
+<option value="Bachadora" <?= $maquinaria['subtipo'] == 'Bachadora' ? 'selected' : '' ?>>Bachadora</option>
+<option value="Planta de mezcla en frío" <?= $maquinaria['subtipo'] == 'Planta de mezcla en frío' ? 'selected' : '' ?>>Planta de mezcla en frío</option>
 </select>
 </div>
-<div class="mb-3">
-<label class="form-label text-warning">Número de serie</label>
-<input class="form-control mb-3" name="numero_serie" required type="text" value="<?= htmlspecialchars($maquinaria['numero_serie']) ?>"/>
+<!-- Petrolizadora -->
+<div class="mb-3" id="capacidad_petrolizadora_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Petrolizadora</label>
+  <select class="form-select mb-3" name="capacidad_petrolizadora" id="capacidad_petrolizadora">
+    <option value="">Seleccionar capacidad</option>
+    <option value="6000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '6000' ? 'selected' : '' ?>>6,000 L</option>
+    <option value="8000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '8000' ? 'selected' : '' ?>>8,000 L</option>
+    <option value="10000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '10000' ? 'selected' : '' ?>>10,000 L</option>
+    <option value="12000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '12000' ? 'selected' : '' ?>>12,000 L</option>
+    <option value="15000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '15000' ? 'selected' : '' ?>>15,000 L</option>
+    <option value="18000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '18000' ? 'selected' : '' ?>>18,000 L</option>
+    <option value="20000" <?= ($maquinaria['capacidad_petrolizadora'] ?? '') == '20000' ? 'selected' : '' ?>>20,000 L</option>
+  </select>
 </div>
-<?php if (!empty($maquinaria['imagen'])): ?>
-<label class="form-label text-warning">Imagen actual:</label>
-<img class="preview" src="imagenes/<?= $maquinaria['imagen'] ?>"/>
-<?php endif; ?>
+<!-- Bachadora -->
+<div class="mb-3" id="capacidad_bachadora_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Bachadora</label>
+  <select class="form-select mb-3" name="capacidad_bachadora" id="capacidad_bachadora">
+    <option value="">Seleccionar capacidad</option>
+    <option value="1000" <?= ($maquinaria['capacidad_bachadora'] ?? '') == '1000' ? 'selected' : '' ?>>1,000 L</option>
+    <option value="2000" <?= ($maquinaria['capacidad_bachadora'] ?? '') == '2000' ? 'selected' : '' ?>>2,000 L</option>
+  </select>
+</div>
+<!-- Tanque de Almacén -->
+<div class="mb-3" id="capacidad_tanque_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Tanque de Almacén</label>
+  <select class="form-select mb-3" name="capacidad_tanque" id="capacidad_tanque">
+    <option value="">Seleccionar capacidad</option>
+    <option value="40" <?= ($maquinaria['capacidad_tanque'] ?? '') == '40' ? 'selected' : '' ?>>40,000 L</option>
+    <option value="60" <?= ($maquinaria['capacidad_tanque'] ?? '') == '60' ? 'selected' : '' ?>>60,000 L</option>
+    <option value="80" <?= ($maquinaria['capacidad_tanque'] ?? '') == '80' ? 'selected' : '' ?>>80,000 L</option>
+  </select>
+</div>
+<!-- Planta de Mezcla en Frío -->
+<div class="mb-3" id="capacidad_planta_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Planta de mezcla en frío</label>
+  <select class="form-select mb-3" name="capacidad_planta" id="capacidad_planta">
+    <option value="">Seleccionar capacidad</option>
+    <option value="70" <?= ($maquinaria['capacidad_planta'] ?? '') == '70' ? 'selected' : '' ?>>70 toneladas</option>
+    <option value="150" <?= ($maquinaria['capacidad_planta'] ?? '') == '150' ? 'selected' : '' ?>>150 toneladas</option>
+  </select>
+</div>
+
 <div class="mb-3">
-<label class="form-label text-warning">Nueva imagen (opcional)</label>
+<label class="form-label form-label text-warning">Número de serie</label>
+<input class="form-control mb-3" name="numero_serie" type="text" value="<?= htmlspecialchars($maquinaria['numero_serie']) ?>"/>
+</div>
+
+<div class="mb-3">
+<?php if (!empty($maquinaria['imagen'])): ?>
+<img class="preview" src="imagenes/<?= htmlspecialchars($maquinaria['imagen']) ?>" alt="Imagen previa"/>
+<?php endif; ?>
+<label class="form-label form-label text-warning">Imagen (opcional)</label>
 <input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
 </div>
+
 <div class="d-grid mb-2">
-<button class="btn btn-warning w-100 mt-3" type="submit">Guardar Cambios</button>
+    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Guardar Cambios</button>
 </div>
 </form>
-<?php else: ?>
-<div class="alert alert-warning text-center">
-  <b>No tienes permisos para editar esta maquinaria.</b>
+<div class="text-center mt-2">
+    <a href="inventario.php" class="btn btn-outline-info w-100">← Volver a Inventario</a>
 </div>
-<!-- Solo muestra los datos -->
-<ul class="list-group">
-  <li class="list-group-item bg-dark text-warning"><b>Nombre:</b> <?= htmlspecialchars($maquinaria['nombre']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Marca:</b> <?= htmlspecialchars($maquinaria['marca']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Modelo:</b> <?= htmlspecialchars($maquinaria['modelo']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Año:</b> <?= htmlspecialchars($maquinaria['anio'] ?? '') ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Ubicación:</b> <?= htmlspecialchars($maquinaria['ubicacion']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Tipo:</b> <?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Subtipo:</b> <?= htmlspecialchars($maquinaria['subtipo']) ?></li>
-  <li class="list-group-item bg-dark text-warning"><b>Número de serie:</b> <?= htmlspecialchars($maquinaria['numero_serie']) ?></li>
-  <?php if (!empty($maquinaria['imagen'])): ?>
-  <li class="list-group-item bg-dark text-warning"><img class="preview" src="imagenes/<?= $maquinaria['imagen'] ?>"/></li>
-  <?php endif; ?>
-</ul>
+<?php else: ?>
+<div class="alert alert-danger">No tienes permisos para editar esta maquinaria.</div>
 <?php endif; ?>
-<a class="btn btn-regresar w-100 text-center" href="inventario.php">← Volver al Inventario</a>
 </div>
 <script>
-    const tipo = document.getElementById("tipo");
-    const subtipoContainer = document.getElementById("subtipo-container");
-    function toggleSubtipo() {
-      subtipoContainer.style.display = tipo.value === "nueva" ? "block" : "none";
-    }
-    tipo && tipo.addEventListener("change", toggleSubtipo);
-    toggleSubtipo();
+function mostrarSubtipo() {
+  const tipo = document.getElementById('tipo').value;
+  const subtipoContainer = document.getElementById('subtipo-container');
+  subtipoContainer.style.display = (tipo === 'nueva') ? 'block' : 'none';
+  mostrarCapacidad();
+}
+function mostrarCapacidad() {
+  const tipo = document.getElementById('tipo').value;
+  const subtipo = document.getElementById('subtipo')?.value;
+  document.getElementById('capacidad_petrolizadora_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Petrolizadora') ? 'block' : 'none';
+  document.getElementById('capacidad_bachadora_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Bachadora') ? 'block' : 'none';
+  document.getElementById('capacidad_tanque_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Tanque de almacén') ? 'block' : 'none';
+  document.getElementById('capacidad_planta_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Planta de mezcla en frío') ? 'block' : 'none';
+}
+// Inicializar valores
+document.getElementById('tipo').addEventListener('change', mostrarSubtipo);
+document.getElementById('subtipo').addEventListener('change', mostrarCapacidad);
+window.onload = function() {
+  mostrarSubtipo();
+  mostrarCapacidad();
+};
 </script>
-</div></body>
+</div>
+</body>
 </html>
+

@@ -4,6 +4,7 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
+
 // --- SOLO "jabri" puede todo, pero roles deciden qué pueden agregar ---
 $usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta';
@@ -16,6 +17,7 @@ if ($usuario === 'jabri') {
 } elseif ($rol === 'usada') {
   $tipos_permitidos = ['usada'];
 } else {
+  // Consulta u otro: No puede entrar
   header("Location: inventario.php");
   exit;
 }
@@ -42,6 +44,9 @@ if ($usuario === 'jabri') {
         font-weight: bold;
         border: none;
     }
+    .btn-outline-success, .btn-outline-warning, .btn-outline-danger {
+        font-weight: bold;
+    }
     .container-ficha {
         background-color: #002b5c;
         padding: 2rem;
@@ -50,6 +55,12 @@ if ($usuario === 'jabri') {
         max-width: 900px;
         margin: auto;
         border-left: 5px solid #ffc107;
+    }
+    h3, h5 {
+        color: #ffffff;
+        border-bottom: 2px solid #ffc107;
+        padding-bottom: .5rem;
+        margin-bottom: 1.5rem;
     }
 </style>
 </head>
@@ -100,15 +111,18 @@ if ($usuario === 'jabri') {
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">
 <label class="form-label text-warning">Subtipo</label>
 <select class="form-select mb-3" name="subtipo" id="subtipo" onchange="mostrarCapacidad()">
-<option value="Petrolizadora">Petrolizadora</option>
-<option value="Esparcidor de sello">Esparcidor de sello</option>
-<option value="Tanque de almacén">Tanque de almacén</option>
-<option value="Bachadora">Bachadora</option>
-<option value="Planta de mezcla en frío">Planta de mezcla en frío</option>
+  <option value="">Selecciona una opción</option>
+  <option value="Petrolizadora">Petrolizadora</option>
+  <option value="Esparcidor de sello">Esparcidor de sello</option>
+  <option value="Tanque de almacén">Tanque de almacén</option>
+  <option value="Bachadora">Bachadora</option>
+  <option value="Planta de mezcla en frío">Planta de mezcla en frío</option>
 </select>
 </div>
-<div class="mb-3" id="capacidad_contenedor" style="display:none;">
-  <label class="form-label text-warning">Capacidad</label>
+
+<!-- Petrolizadora -->
+<div class="mb-3" id="capacidad_petrolizadora_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Petrolizadora</label>
   <select class="form-select mb-3" name="capacidad_petrolizadora" id="capacidad_petrolizadora">
     <option value="">Seleccionar capacidad</option>
     <option value="6000">6,000 L</option>
@@ -120,6 +134,35 @@ if ($usuario === 'jabri') {
     <option value="20000">20,000 L</option>
   </select>
 </div>
+<!-- Bachadora -->
+<div class="mb-3" id="capacidad_bachadora_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Bachadora</label>
+  <select class="form-select mb-3" name="capacidad_bachadora" id="capacidad_bachadora">
+    <option value="">Seleccionar capacidad</option>
+    <option value="1000">1,000 L</option>
+    <option value="2000">2,000 L</option>
+  </select>
+</div>
+<!-- Tanque de Almacén -->
+<div class="mb-3" id="capacidad_tanque_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Tanque de Almacén</label>
+  <select class="form-select mb-3" name="capacidad_tanque" id="capacidad_tanque">
+    <option value="">Seleccionar capacidad</option>
+    <option value="40">40,000 L</option>
+    <option value="60">60,000 L</option>
+    <option value="80">80,000 L</option>
+  </select>
+</div>
+<!-- Planta de Mezcla en Frío -->
+<div class="mb-3" id="capacidad_planta_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad Planta de mezcla en frío</label>
+  <select class="form-select mb-3" name="capacidad_planta" id="capacidad_planta">
+    <option value="">Seleccionar capacidad</option>
+    <option value="70">70 toneladas</option>
+    <option value="150">150 toneladas</option>
+  </select>
+</div>
+
 <div class="mb-3">
 <label class="form-label text-warning">Imagen</label>
 <input accept="image/*" class="form-control mb-3" name="imagen" type="file"/>
@@ -137,19 +180,17 @@ if ($usuario === 'jabri') {
 <script>
 function mostrarSubtipo() {
   const tipo = document.getElementById('tipo_maquinaria').value;
-  const subtipo = document.getElementById('subtipo_contenedor');
-  subtipo.style.display = (tipo === 'nueva') ? 'block' : 'none';
+  const subtipoContainer = document.getElementById('subtipo_contenedor');
+  subtipoContainer.style.display = (tipo === 'nueva') ? 'block' : 'none';
   mostrarCapacidad();
 }
 function mostrarCapacidad() {
   const tipo = document.getElementById('tipo_maquinaria').value;
   const subtipo = document.getElementById('subtipo')?.value;
-  const capacidad = document.getElementById('capacidad_contenedor');
-  if (tipo === 'nueva' && subtipo === 'Petrolizadora') {
-    capacidad.style.display = 'block';
-  } else {
-    capacidad.style.display = 'none';
-  }
+  document.getElementById('capacidad_petrolizadora_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Petrolizadora') ? 'block' : 'none';
+  document.getElementById('capacidad_bachadora_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Bachadora') ? 'block' : 'none';
+  document.getElementById('capacidad_tanque_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Tanque de almacén') ? 'block' : 'none';
+  document.getElementById('capacidad_planta_contenedor').style.display = (tipo === 'nueva' && subtipo === 'Planta de mezcla en frío') ? 'block' : 'none';
 }
 document.getElementById('tipo_maquinaria').addEventListener('change', mostrarSubtipo);
 document.getElementById('subtipo').addEventListener('change', mostrarCapacidad);
