@@ -210,10 +210,10 @@ $resultado = $conn->query($sql);
   <div class="top-bar">
     <div class="titulo-maquinaria">Maquinaria</div>
     <div class="top-bar-btns">
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada' || $rol === 'camiones'): ?>
         <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
       <?php endif; ?>
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
+      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada' || $rol === 'camiones'): ?>
         <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
       <?php endif; ?>
       <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
@@ -225,13 +225,13 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a>
+      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camiones</a>
+      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
     </li>
   </ul>
   <?php if ($tipo_filtro === 'nueva'): ?>
@@ -249,10 +249,10 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacen' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacen">Tanque de Almacén</a>
+      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacen' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacen">Tanque de almacén</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frio' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frio">Planta de Mezcla en Frío</a>
+      <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frio' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frio">Planta de mezcla en frío</a>
     </li>
   </ul>
   <?php endif; ?>
@@ -289,6 +289,8 @@ $resultado = $conn->query($sql);
         <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
+          $capacidad = isset($fila['capacidad']) ? $fila['capacidad'] : '';
+
           // Permisos
           $puede_editar = false;
           $puede_eliminar = false;
@@ -297,11 +299,15 @@ $resultado = $conn->query($sql);
 
           if ($usuario === 'jabri') {
             $puede_editar = $puede_eliminar = $puede_avance = true;
-            // El recibo solo para maquinaria usada aunque sea jabri
-            $puede_recibo = ($tipo === 'usada');
+            // Recibo solo en usada y camión
+            $puede_recibo = ($tipo === 'usada' || $tipo === 'camion');
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
             $puede_editar = $puede_eliminar = $puede_avance = true;
+            // Si quieres que producción tenga recibo en camión, descomenta:
+            // $puede_recibo = ($tipo === 'camion');
           } elseif ($rol === 'usada' && $tipo === 'usada') {
+            $puede_editar = $puede_eliminar = $puede_recibo = true;
+          } elseif ($rol === 'camiones' && $tipo === 'camion') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
         ?>
@@ -315,7 +321,7 @@ $resultado = $conn->query($sql);
           </td>
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['anio']) ?></td>
+          <td><?= htmlspecialchars($fila['anio'] ?? '') ?></td>
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td>
@@ -327,23 +333,10 @@ $resultado = $conn->query($sql);
             ?>
           </td>
           <td>
-            <?php
-              $texto_subtipo = htmlspecialchars($fila['subtipo']);
-              $texto_cap = '';
-              if ($subtipo === 'petrolizadora' && !empty($fila['capacidad_petrolizadora'])) {
-                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_petrolizadora']) . ' Lts';
-              }
-              elseif ($subtipo === 'bachadora' && !empty($fila['capacidad_bachadora'])) {
-                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_bachadora']) . ' Lts';
-              }
-              elseif ($subtipo === 'tanque de almacen' && !empty($fila['capacidad_tanque'])) {
-                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_tanque']) . ' Lts';
-              }
-              elseif ($subtipo === 'planta de mezcla en frio' && !empty($fila['capacidad_planta'])) {
-                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_planta']) . ' Ton';
-              }
-              echo $texto_subtipo . $texto_cap;
-            ?>
+            <?= htmlspecialchars($fila['subtipo']) ?>
+            <?php if (!empty($fila['capacidad'])): ?>
+              <br><span class="badge bg-info text-dark"><?= htmlspecialchars($fila['capacidad']) ?></span>
+            <?php endif; ?>
           </td>
           <td>
             <?php
