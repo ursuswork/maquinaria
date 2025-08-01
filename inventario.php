@@ -248,6 +248,12 @@ $resultado = $conn->query($sql);
     <li class="nav-item">
       <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacen' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacen">Tanque de Almacén</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frio' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frio">Planta de Mezcla en Frío</a>
+    </li>
   </ul>
   <?php endif; ?>
   <!-- Búsqueda -->
@@ -269,11 +275,11 @@ $resultado = $conn->query($sql);
           <th>Imagen</th>
           <th>Nombre</th>
           <th>Modelo</th>
+          <th>Año</th>
           <th>Número Serie</th>
-          <th><strong>Año</strong></th>
           <th>Ubicación</th>
           <th>Tipo</th>
-          <th>Subtipo</th>
+          <th>Subtipo / Capacidad</th>
           <th style="min-width:160px;">Avance / Condición</th>
           <th style="min-width:135px;">Acciones</th>
         </tr>
@@ -290,12 +296,14 @@ $resultado = $conn->query($sql);
           $puede_avance = false;
 
           if ($usuario === 'jabri') {
-          $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
+            $puede_editar = $puede_eliminar = $puede_avance = true;
+            // El recibo solo para maquinaria usada aunque sea jabri
+            $puede_recibo = ($tipo === 'usada');
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-          $puede_editar = $puede_eliminar = $puede_avance = true; 
+            $puede_editar = $puede_eliminar = $puede_avance = true;
           } elseif ($rol === 'usada' && $tipo === 'usada') {
-          $puede_editar = $puede_eliminar = $puede_recibo = true;
-        }
+            $puede_editar = $puede_eliminar = $puede_recibo = true;
+          }
         ?>
         <tr>
           <td>
@@ -307,8 +315,8 @@ $resultado = $conn->query($sql);
           </td>
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['anio']) ?></td>
+          <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td>
             <?php
@@ -318,7 +326,25 @@ $resultado = $conn->query($sql);
               else echo ucfirst($tipo);
             ?>
           </td>
-          <td><?= htmlspecialchars($fila['subtipo']) ?></td>
+          <td>
+            <?php
+              $texto_subtipo = htmlspecialchars($fila['subtipo']);
+              $texto_cap = '';
+              if ($subtipo === 'petrolizadora' && !empty($fila['capacidad_petrolizadora'])) {
+                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_petrolizadora']) . ' Lts';
+              }
+              elseif ($subtipo === 'bachadora' && !empty($fila['capacidad_bachadora'])) {
+                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_bachadora']) . ' Lts';
+              }
+              elseif ($subtipo === 'tanque de almacen' && !empty($fila['capacidad_tanque'])) {
+                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_tanque']) . ' Lts';
+              }
+              elseif ($subtipo === 'planta de mezcla en frio' && !empty($fila['capacidad_planta'])) {
+                $texto_cap = ' - ' . htmlspecialchars($fila['capacidad_planta']) . ' Ton';
+              }
+              echo $texto_subtipo . $texto_cap;
+            ?>
+          </td>
           <td>
             <?php
             // AVANCES y FECHAS según tipo/subtipo
@@ -376,7 +402,7 @@ $resultado = $conn->query($sql);
                 <i class="bi bi-trash"></i>
               </a>
             <?php endif; ?>
-            <?php if ($puede_recibo && $tipo === 'usada'): // <-- SOLO PARA USADA! ?>
+            <?php if ($puede_recibo): ?>
               <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
                 <i class="bi bi-file-earmark-text"></i> Recibo
               </a>
@@ -408,8 +434,7 @@ $resultado = $conn->query($sql);
     </table>
   </div>
 </div>
-
-<!-- Lightbox para imagen -->
+<!-- Lightbox para ver imagen grande -->
 <div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
   <img src="" id="img-lightbox">
 </div>
