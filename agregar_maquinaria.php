@@ -4,7 +4,6 @@ if (!isset($_SESSION['usuario'])) {
   header("Location: index.php");
   exit;
 }
-
 // --- SOLO "jabri" puede todo, pero roles deciden qué pueden agregar ---
 $usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta';
@@ -17,7 +16,6 @@ if ($usuario === 'jabri') {
 } elseif ($rol === 'usada') {
   $tipos_permitidos = ['usada'];
 } else {
-  // Consulta u otro: No puede entrar
   header("Location: inventario.php");
   exit;
 }
@@ -44,9 +42,6 @@ if ($usuario === 'jabri') {
         font-weight: bold;
         border: none;
     }
-    .btn-outline-success, .btn-outline-warning, .btn-outline-danger {
-        font-weight: bold;
-    }
     .container-ficha {
         background-color: #002b5c;
         padding: 2rem;
@@ -55,12 +50,6 @@ if ($usuario === 'jabri') {
         max-width: 900px;
         margin: auto;
         border-left: 5px solid #ffc107;
-    }
-    h3, h5 {
-        color: #ffffff;
-        border-bottom: 2px solid #ffc107;
-        padding-bottom: .5rem;
-        margin-bottom: 1.5rem;
     }
 </style>
 </head>
@@ -110,13 +99,26 @@ if ($usuario === 'jabri') {
 </div>
 <div class="mb-3" id="subtipo_contenedor" style="display: none;">
 <label class="form-label text-warning">Subtipo</label>
-<select class="form-select mb-3" name="subtipo">
+<select class="form-select mb-3" name="subtipo" id="subtipo" onchange="mostrarCapacidad()">
 <option value="Petrolizadora">Petrolizadora</option>
 <option value="Esparcidor de sello">Esparcidor de sello</option>
 <option value="Tanque de almacén">Tanque de almacén</option>
 <option value="Bachadora">Bachadora</option>
 <option value="Planta de mezcla en frío">Planta de mezcla en frío</option>
 </select>
+</div>
+<div class="mb-3" id="capacidad_contenedor" style="display:none;">
+  <label class="form-label text-warning">Capacidad</label>
+  <select class="form-select mb-3" name="capacidad_petrolizadora" id="capacidad_petrolizadora">
+    <option value="">Seleccionar capacidad</option>
+    <option value="6000">6,000 L</option>
+    <option value="8000">8,000 L</option>
+    <option value="10000">10,000 L</option>
+    <option value="12000">12,000 L</option>
+    <option value="15000">15,000 L</option>
+    <option value="18000">18,000 L</option>
+    <option value="20000">20,000 L</option>
+  </select>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Imagen</label>
@@ -133,11 +135,24 @@ if ($usuario === 'jabri') {
 </div>
 </div>
 <script>
-    function mostrarSubtipo() {
-      const tipo = document.getElementById('tipo_maquinaria').value;
-      const subtipo = document.getElementById('subtipo_contenedor');
-      subtipo.style.display = (tipo === 'nueva') ? 'block' : 'none';
-    }
+function mostrarSubtipo() {
+  const tipo = document.getElementById('tipo_maquinaria').value;
+  const subtipo = document.getElementById('subtipo_contenedor');
+  subtipo.style.display = (tipo === 'nueva') ? 'block' : 'none';
+  mostrarCapacidad();
+}
+function mostrarCapacidad() {
+  const tipo = document.getElementById('tipo_maquinaria').value;
+  const subtipo = document.getElementById('subtipo')?.value;
+  const capacidad = document.getElementById('capacidad_contenedor');
+  if (tipo === 'nueva' && subtipo === 'Petrolizadora') {
+    capacidad.style.display = 'block';
+  } else {
+    capacidad.style.display = 'none';
+  }
+}
+document.getElementById('tipo_maquinaria').addEventListener('change', mostrarSubtipo);
+document.getElementById('subtipo').addEventListener('change', mostrarCapacidad);
 </script>
 </div>
 </body>
