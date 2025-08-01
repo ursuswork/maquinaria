@@ -299,12 +299,9 @@ $resultado = $conn->query($sql);
 
           if ($usuario === 'jabri') {
             $puede_editar = $puede_eliminar = $puede_avance = true;
-            // Recibo solo en usada y camión
             $puede_recibo = ($tipo === 'usada' || $tipo === 'camion');
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
             $puede_editar = $puede_eliminar = $puede_avance = true;
-            // Si quieres que producción tenga recibo en camión, descomenta:
-            // $puede_recibo = ($tipo === 'camion');
           } elseif ($rol === 'usada' && $tipo === 'usada') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
           } elseif ($rol === 'camiones' && $tipo === 'camion') {
@@ -341,7 +338,7 @@ $resultado = $conn->query($sql);
           <td>
             <?php
             // AVANCES y FECHAS según tipo/subtipo
-            if ($tipo === 'usada') {
+            if ($tipo === 'usada' || $tipo === 'camion') {
                 if (!is_null($fila['condicion_estimada'])) {
                     echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
                     if (!empty($fila['fecha_recibo'])) {
@@ -446,3 +443,4 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
