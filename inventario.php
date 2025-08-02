@@ -48,22 +48,6 @@ if (count($where)) {
 }
 $sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 $resultado = $conn->query($sql);
-
-// FUNCION PARA SUBTIPO Y CAPACIDAD EN UNA SOLA COLUMNA
-function mostrarSubtipoCap($subtipo, $capacidad) {
-    $texto = '';
-    if ($subtipo) $texto .= ucfirst($subtipo);
-    if ($capacidad && $subtipo) {
-        if ($subtipo == 'planta de mezcla en frío') {
-            $texto .= " / $capacidad toneladas";
-        } else {
-            $texto .= " / $capacidad litros";
-        }
-    } elseif ($capacidad && !$subtipo) {
-        $texto = $capacidad;
-    }
-    return $texto;
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -168,6 +152,8 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
       border: none;
       font-size: 1.05rem;
       letter-spacing: 1px;
+      text-align: center;
+      vertical-align: middle;
     }
     .table tbody tr {
       transition: background 0.14s;
@@ -204,6 +190,9 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
       transition: background 0.18s;
     }
     .btn-avance:hover { background: #015b65; }
+    .text-center-middle {
+      text-align: center; vertical-align: middle !important;
+    }
     /* Lightbox */
     .lightbox {
       display:none;
@@ -247,7 +236,7 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
       <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
+      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camiones</a>
     </li>
   </ul>
   <?php if ($tipo_filtro === 'nueva'): ?>
@@ -265,7 +254,7 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
       <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacén' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacén">Tanque de Almacén</a>
+      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacén' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacén">Tanque de almacén</a>
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frío' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frío">Planta de mezcla en frío</a>
@@ -294,7 +283,7 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
           <th>Número Serie</th>
           <th>Año</th>
           <th>Ubicación</th>
-          <th>Tipo</th>
+          <th class="text-center-middle">Tipo</th>
           <th>Subtipo / Capacidad</th>
           <th style="min-width:160px;">Avance / Condición</th>
           <th style="min-width:135px;">Acciones</th>
@@ -305,7 +294,8 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
         <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
-          $capacidad = $fila['capacidad'] ?? '';
+          $capacidad = $fila['capacidad'] ?? null;
+
           // Permisos
           $puede_editar = false;
           $puede_eliminar = false;
@@ -313,9 +303,12 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
           $puede_avance = false;
 
           if ($usuario === 'jabri') {
-            $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
+            $puede_editar = $puede_eliminar = $puede_avance = true;
+            // Recibo SOLO en USADA y CAMIÓN para jabri
+            if ($tipo === 'usada' || $tipo === 'camion') $puede_recibo = true;
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-            $puede_editar = $puede_eliminar = $puede_avance = true; 
+            $puede_editar = $puede_eliminar = $puede_avance = true;
+            if ($tipo === 'camion') $puede_recibo = true;
           } elseif ($rol === 'usada' && $tipo === 'usada') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
@@ -333,7 +326,7 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['anio']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
-          <td>
+          <td class="text-center-middle">
             <?php
               if ($tipo === 'nueva') echo '<span class="badge-nueva">Producción Nueva</span>';
               elseif ($tipo === 'usada') echo 'Usada';
@@ -341,21 +334,31 @@ function mostrarSubtipoCap($subtipo, $capacidad) {
               else echo ucfirst($tipo);
             ?>
           </td>
-          <td><?= mostrarSubtipoCap($fila['subtipo'], $fila['capacidad']) ?></td>
+          <td>
+            <?php
+              $txt = '';
+              if ($subtipo && $capacidad) {
+                if (in_array($subtipo, ['petrolizadora', 'bachadora', 'tanque de almacén'])) {
+                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " litros)";
+                } elseif ($subtipo === 'planta de mezcla en frío') {
+                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " toneladas)";
+                } else {
+                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . ")";
+                }
+              } elseif ($subtipo) {
+                $txt = ucfirst($subtipo);
+              } elseif ($capacidad) {
+                $txt = number_format($capacidad, 0, '.', ',');
+              } else {
+                $txt = '-';
+              }
+              echo $txt;
+            ?>
+          </td>
           <td>
             <?php
             // AVANCES y FECHAS según tipo/subtipo
-            if ($tipo === 'usada') {
-                if (!is_null($fila['condicion_estimada'])) {
-                    echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
-                    if (!empty($fila['fecha_recibo'])) {
-                        $fecha_mx = (new DateTime($fila['fecha_recibo'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                        echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                    }
-                } else {
-                    echo '<span class="text-warning">Sin recibo</span>';
-                }
-            } elseif ($tipo === 'camion') {
+            if ($tipo === 'usada' || $tipo === 'camion') {
                 if (!is_null($fila['condicion_estimada'])) {
                     echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
                     if (!empty($fila['fecha_recibo'])) {
@@ -460,3 +463,4 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
