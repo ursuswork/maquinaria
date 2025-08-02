@@ -9,444 +9,204 @@ include 'conexion.php';
 $usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta';
 
-// Filtros
-$busqueda    = isset($_GET['busqueda']) ? $conn->real_escape_string($_GET['busqueda']) : '';
-$tipo_filtro = strtolower(trim($_GET['tipo'] ?? 'todas'));
-$subtipo_filtro = strtolower(trim($_GET['subtipo'] ?? 'todos'));
-
-$where = [];
-if ($busqueda !== '') {
-  $where[] = "(m.nombre LIKE '%$busqueda%' OR m.modelo LIKE '%$busqueda%' OR m.numero_serie LIKE '%$busqueda%')";
+// Permisos
+if (!($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada')) {
+  header("Location: inventario.php");
+  exit;
 }
-if ($tipo_filtro === 'nueva') {
-  $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'nueva'";
-  if ($subtipo_filtro !== 'todos') {
-    $where[] = "LOWER(TRIM(m.subtipo)) = '" . $conn->real_escape_string($subtipo_filtro) . "'";
+
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $nombre = trim($_POST['nombre']);
+  $marca = trim($_POST['marca']);
+  $modelo = trim($_POST['modelo']);
+  $ubicacion = trim($_POST['ubicacion']);
+  $numero_serie = trim($_POST['numero_serie']);
+  $anio = intval($_POST['anio']);
+  $tipo_maquinaria = $_POST['tipo_maquinaria'];
+  $subtipo = ($tipo_maquinaria == 'nueva') ? ($_POST['subtipo'] ?? '') : null;
+  $capacidad = isset($_POST['capacidad']) ? trim($_POST['capacidad']) : null;
+
+  // Subida de imagen
+  $nombre_imagen = null;
+  if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+    $extension = pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION);
+    $nombre_imagen = time() . '_' . uniqid() . '.' . $extension;
+    if (!is_dir('imagenes')) mkdir('imagenes', 0755, true);
+    $ruta_destino = 'imagenes/' . $nombre_imagen;
+    if (!move_uploaded_file($_FILES['imagen']['tmp_name'], $ruta_destino)) {
+      $error = "❌ Error al mover la imagen a '$ruta_destino'. Verifica permisos.";
+    }
+  }
+
+  if (!$error) {
+    $stmt = $conn->prepare("INSERT INTO maquinaria (nombre, marca, modelo, ubicacion, numero_serie, anio, tipo_maquinaria, subtipo, capacidad, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssssss", $nombre, $marca, $modelo, $ubicacion, $numero_serie, $anio, $tipo_maquinaria, $subtipo, $capacidad, $nombre_imagen);
+
+    if ($stmt->execute()) {
+      header("Location: inventario.php");
+      exit;
+    } else {
+      $error = "❌ Error al guardar: " . $stmt->error;
+    }
   }
 }
-if ($tipo_filtro === 'usada') {
-  $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'usada'";
-}
-if ($tipo_filtro === 'camion') {
-  $where[] = "LOWER(TRIM(m.tipo_maquinaria)) = 'camion'";
-}
-
-// **Incluye capacidad explícitamente**
-$sql = "
-SELECT m.*, m.capacidad,
-       r.condicion_estimada, r.observaciones, r.fecha AS fecha_recibo,
-       ab.avance AS avance_bachadora, ab.fecha_actualizacion AS fecha_bachadora,
-       ae.avance AS avance_esparcidor, ae.fecha_actualizacion AS fecha_esparcidor,
-       ap.avance AS avance_petrolizadora, ap.fecha_actualizacion AS fecha_petrolizadora
-FROM maquinaria m
-LEFT JOIN recibo_unidad r ON m.id = r.id_maquinaria
-LEFT JOIN avance_bachadora ab ON m.id = ab.id_maquinaria AND ab.etapa IS NULL
-LEFT JOIN avance_esparcidor ae ON m.id = ae.id_maquinaria AND ae.etapa IS NULL
-LEFT JOIN avance_petrolizadora ap ON m.id = ap.id_maquinaria AND ap.etapa IS NULL
-";
-if (count($where)) {
-    $sql .= " WHERE " . implode(" AND ", $where);
-}
-$sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
-$resultado = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Maquinaria</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    body { background-color: #001f3f; color: #ffffff; }
-    .container-custom {
-      background: #012a5c;
-      border-radius: 32px;
-      padding: 40px 32px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.18);
-      margin-top: 40px;
+<meta charset="utf-8"/>
+<title>Agregar Maquinaria</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<style>
+    body { background-color: #012a5c; color: #ffffff; padding: 2rem; font-family: 'Segoe UI', sans-serif; }
+    .form-control, .form-select {
+        margin-bottom: 1rem;
+        background-color: #003366;
+        color: white;
+        border: 1px solid #0059b3;
     }
-    .titulo-maquinaria {
-      font-size: 2.5rem;
-      font-weight: bold;
-      text-align: center;
-      letter-spacing: 2px;
-      margin-bottom: 30px;
-      color: #ffc107;
-      text-shadow: 0 3px 12px #0e222e44;
+    .form-label { color: #ffc107; font-weight: 600; }
+    .btn-warning, .btn-success, .btn-primary {
+        width: auto;
+        font-weight: bold;
+        border: none;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      gap: 12px;
-      flex-wrap: wrap;
+    .btn-outline-success, .btn-outline-warning, .btn-outline-danger {
+        font-weight: bold;
     }
-    .top-bar-btns {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .container-ficha {
+        background-color: #002b5c;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 20px #000;
+        max-width: 900px;
+        margin: auto;
+        border-left: 5px solid #ffc107;
     }
-    .btn-agregar {
-      background: #28a745;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 22px;
-      padding: 7px 22px;
-      border: none;
-      font-size: 1.09rem;
-      transition: background 0.17s;
+    h3, h5 {
+        color: #ffffff;
+        border-bottom: 2px solid #ffc107;
+        padding-bottom: .5rem;
+        margin-bottom: 1.5rem;
     }
-    .btn-agregar:hover { background: #218838; color: #fff; }
-    .btn-exportar {
-      background: #ffc107;
-      color: #001f3f;
-      font-weight: bold;
-      border-radius: 22px;
-      padding: 7px 26px;
-      font-size: 1.1rem;
-      transition: background 0.17s;
-      border: none;
-    }
-    .btn-exportar:hover { background: #ffca2c; }
-    .btn-salir {
-      background: #e74c3c;
-      color: #fff;
-      font-weight: bold;
-      border-radius: 22px;
-      padding: 7px 19px;
-      font-size: 1.06rem;
-      transition: background 0.15s;
-      border: none;
-    }
-    .btn-salir:hover { background: #c0392b; color: #fff; }
-    .nav-tabs .nav-link,
-    .nav-pills .nav-link {
-      background: #175266 !important;
-      color: #fff !important;
-      border: none !important;
-      font-weight: bold;
-      margin-right: 6px;
-      border-radius: 16px 16px 0 0 !important;
-      transition: background 0.2s, color 0.2s;
-    }
-    .nav-tabs .nav-link.active,
-    .nav-pills .nav-link.active {
-      background: #ffc107 !important;
-      color: #032c3b !important;
-    }
-    .nav-pills .nav-link {
-      border-radius: 18px !important;
-    }
-    .table {
-      border-radius: 18px;
-      overflow: hidden;
-      background: #012a5c;
-      box-shadow: 0 3px 18px #00000018;
-    }
-    .table thead th {
-      background-color: #004080;
-      color: #ffffff;
-      font-weight: 700;
-      border: none;
-      font-size: 1.05rem;
-      letter-spacing: 1px;
-    }
-    .table tbody tr {
-      transition: background 0.14s;
-    }
-    .table tbody tr:nth-child(even) { background-color: #003366; }
-    .table tbody tr:nth-child(odd) { background-color: #002b5c; }
-    .badge-nueva { background-color: #ffc107; color: #001f3f; padding: 6px 12px; border-radius: 8px; }
-    .badge-camion { background: #09a11383; color: #fff;padding: 6px 12px; border-radius: 8px; }
-    .imagen-thumbnail { width: 82px; height: auto; border-radius: 8px; border: 2px solid #27a0b6; cursor:pointer; }
-    .progress { height: 22px; border-radius: 20px; background-color: #002b5c; overflow: hidden; }
-    .progress-bar {
-      font-weight: bold;
-      background-color: #0c6f23ff !important;
-      color: #fff;
-      font-size: 1.1rem;
-      transition: width 0.5s;
-      box-shadow: 0 2px 8px #0002 inset;
-    }
-    .fecha-actualizacion {
-      color: #012a5c;
-      font-size: 0.96rem;
-      font-weight: bold;
-      margin-top: 2px;
-      margin-bottom: 3px;
-    }
-    .btn-avance {
-      background: #007b91;
-      border: none;
-      color: #fff;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      padding: 5px 13px;
-      margin-top: 4px;
-      transition: background 0.18s;
-    }
-    .btn-avance:hover { background: #015b65; }
-    /* Lightbox */
-    .lightbox {
-      display:none;
-      position:fixed; z-index:1001; left:0; top:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.8); justify-content:center; align-items:center;
-    }
-    .lightbox img { max-width:90vw; max-height:85vh; border-radius:15px; box-shadow:0 8px 40px #000a; }
-    .lightbox.active { display:flex; }
-    .lightbox:active { display:none; }
-    @media (max-width: 992px) {
-      .container-custom { padding: 16px 2px; }
-      .titulo-maquinaria { font-size: 2rem; }
-      .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-      .top-bar-btns { justify-content: center; }
-    }
-  </style>
+    .text-warning { color: #ffc107 !important; }
+</style>
 </head>
 <body>
-<div class="container container-custom">
-  <div class="top-bar">
-    <div class="titulo-maquinaria">Maquinaria</div>
-    <div class="top-bar-btns">
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
-        <a href="agregar_maquinaria.php" class="btn btn-agregar"><i class="bi bi-plus-circle"></i> Agregar Maquinaria</a>
-      <?php endif; ?>
-      <?php if ($usuario === 'jabri' || $rol === 'produccion' || $rol === 'usada'): ?>
-        <a href="exportar_excel.php?tipo=<?= urlencode($tipo_filtro ?? '') ?>&busqueda=<?= urlencode($busqueda ?? '') ?>" class="btn btn-outline-warning me-2">Exportar</a>
-      <?php endif; ?>
-      <a href="logout.php" class="btn btn-salir"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
-    </div>
-  </div>
-  <!-- Filtros -->
-  <ul class="nav nav-tabs mb-2">
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camiones</a>
-    </li>
-  </ul>
-  <?php if ($tipo_filtro === 'nueva'): ?>
-  <ul class="nav nav-pills mb-3 ms-3">
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'todos' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=todos">Todos</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'bachadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=bachadora">Bachadora</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'esparcidor de sello' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=esparcidor de sello">Esparcidor de Sello</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
-    </li>
-  </ul>
-  <?php endif; ?>
-  <!-- Búsqueda -->
-  <form class="mb-3" method="GET">
-    <div class="input-group">
-      <input type="hidden" name="tipo" value="<?= htmlspecialchars($tipo_filtro) ?>">
-      <?php if ($tipo_filtro === 'nueva'): ?>
-        <input type="hidden" name="subtipo" value="<?= htmlspecialchars($subtipo_filtro) ?>">
-      <?php endif; ?>
-      <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre, modelo o número de serie" value="<?= htmlspecialchars($busqueda) ?>">
-      <button class="btn btn-warning" type="submit">Buscar</button>
-    </div>
-  </form>
-  <!-- Tabla -->
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered text-white align-middle">
-      <thead>
-        <tr>
-          <th>Imagen</th>
-          <th>Nombre</th>
-          <th>Modelo</th>
-          <th>Número Serie</th>
-          <th>Año</th>
-          <th>Ubicación</th>
-          <th>Tipo</th>
-          <th>Subtipo / Capacidad</th>
-          <th style="min-width:160px;">Avance / Condición</th>
-          <th style="min-width:135px;">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-      <?php if ($resultado->num_rows > 0): ?>
-        <?php while($fila = $resultado->fetch_assoc()):
-          $tipo = strtolower($fila['tipo_maquinaria']);
-          $subtipo = strtolower($fila['subtipo']);
-          // Permisos
-          $puede_editar = false;
-          $puede_eliminar = false;
-          $puede_recibo = false;
-          $puede_avance = false;
-
-          if ($usuario === 'jabri') {
-            $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
-          } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-            $puede_editar = $puede_eliminar = $puede_avance = true; 
-          } elseif ($rol === 'usada' && $tipo === 'usada') {
-            $puede_editar = $puede_eliminar = $puede_recibo = true;
-          }
-        ?>
-        <tr>
-          <td>
-            <?php if (!empty($fila['imagen'])): ?>
-              <img src="imagenes/<?= htmlspecialchars($fila['imagen']) ?>" class="imagen-thumbnail" alt="Imagen de <?= htmlspecialchars($fila['nombre']) ?>" onclick="abrirLightbox(this.src)">
-            <?php else: ?>
-              Sin imagen
-            <?php endif; ?>
-          </td>
-          <td><?= htmlspecialchars($fila['nombre']) ?></td>
-          <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
-          <td><?= htmlspecialchars($fila['anio']) ?></td>
-          <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
-          <td>
-            <?php
-              if ($tipo === 'nueva') echo '<span class="badge-nueva">Nueva</span>';
-              elseif ($tipo === 'usada') echo 'Usada';
-              elseif ($tipo === 'camion') echo '<span class="badge-camion">Camión</span>';
-              else echo ucfirst($tipo);
-            ?>
-          </td>
-          <td>
-            <?= htmlspecialchars($fila['subtipo']) ?>
-            <?php if (!empty($fila['capacidad'])): ?>
-              /
-              <?= htmlspecialchars($fila['capacidad']) ?>
-              <?php
-                if ($tipo === 'nueva') {
-                  if ($subtipo === 'petrolizadora' || $subtipo === 'bachadora' || $subtipo === 'tanque de almacén') echo ' litros';
-                  if ($subtipo === 'planta de mezcla en frío') echo ' toneladas';
-                }
-              ?>
-            <?php endif; ?>
-          </td>
-          <td>
-            <?php
-            // AVANCES y FECHAS según tipo/subtipo
-            if ($tipo === 'usada') {
-                if (!is_null($fila['condicion_estimada'])) {
-                    echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
-                    if (!empty($fila['fecha_recibo'])) {
-                        $fecha_mx = (new DateTime($fila['fecha_recibo'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                        echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                    }
-                } else {
-                    echo '<span class="text-warning">Sin recibo</span>';
-                }
-            } elseif ($tipo === 'nueva') {
-                if ($subtipo === 'bachadora') {
-                    if (!is_null($fila['avance_bachadora'])) {
-                        echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_bachadora']).'%;">'.intval($fila['avance_bachadora']).'%</div></div>';
-                        if (!empty($fila['fecha_bachadora'])) {
-                            $fecha_mx = (new DateTime($fila['fecha_bachadora'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                        }
-                    }
-                } elseif ($subtipo === 'esparcidor de sello') {
-                    if (!is_null($fila['avance_esparcidor'])) {
-                        echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_esparcidor']).'%;">'.intval($fila['avance_esparcidor']).'%</div></div>';
-                        if (!empty($fila['fecha_esparcidor'])) {
-                            $fecha_mx = (new DateTime($fila['fecha_esparcidor'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                        }
-                    }
-                } elseif ($subtipo === 'petrolizadora') {
-                    if (!is_null($fila['avance_petrolizadora'])) {
-                        echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['avance_petrolizadora']).'%;">'.intval($fila['avance_petrolizadora']).'%</div></div>';
-                        if (!empty($fila['fecha_petrolizadora'])) {
-                            $fecha_mx = (new DateTime($fila['fecha_petrolizadora'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                            echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                        }
-                    }
-                } else {
-                    echo '<span class="text-secondary">N/A</span>';
-                }
-            } elseif ($tipo === 'camion') {
-                if (!is_null($fila['condicion_estimada'])) {
-                    echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
-                    if (!empty($fila['fecha_recibo'])) {
-                        $fecha_mx = (new DateTime($fila['fecha_recibo'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
-                        echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
-                    }
-                } else {
-                    echo '<span class="text-warning">Sin recibo</span>';
-                }
-            } else {
-                echo '<span class="text-secondary">N/A</span>';
-            }
-            ?>
-          </td>
-          <td>
-            <?php if ($puede_editar): ?>
-              <a href="editar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            <?php endif; ?>
-            <?php if ($puede_eliminar): ?>
-              <a href="eliminar_maquinaria.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')" title="Eliminar">
-                <i class="bi bi-trash"></i>
-              </a>
-            <?php endif; ?>
-            <?php if ($puede_recibo): ?>
-              <a href="acciones/recibo_unidad.php?id=<?= $fila['id'] ?>" class="btn btn-sm btn-outline-warning" title="Editar recibo de unidad">
-                <i class="bi bi-file-earmark-text"></i> Recibo
-              </a>
-            <?php endif; ?>
-            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'bachadora'): ?>
-              <a href="avance_bachadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance de Bachadora">
-                <i class="bi bi-bar-chart-line"></i> Avance
-              </a>
-            <?php endif; ?>
-            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'esparcidor de sello'): ?>
-              <a href="avance_esparcidor.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Esparcidor">
-                <i class="bi bi-bar-chart-line"></i> Avance
-              </a>
-            <?php endif; ?>
-            <?php if ($puede_avance && $tipo === 'nueva' && $subtipo === 'petrolizadora'): ?>
-              <a href="avance_petrolizadora.php?id=<?= $fila['id'] ?>" class="btn btn-avance" title="Avance Petrolizadora">
-                <i class="bi bi-bar-chart-line"></i> Avance
-              </a>
-            <?php endif; ?>
-          </td>
-        </tr>
-        <?php endwhile; ?>
-      <?php else: ?>
-        <tr>
-          <td colspan="10" class="text-center text-warning">No se encontraron registros.</td>
-        </tr>
-      <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+<div class="container-ficha">
+<div class="contenedor-formulario">
+<h4 class="text-center mb-4 text-primary">Agregar Maquinaria</h4>
+<?php if ($error): ?><div class="alert alert-danger"><?= $error ?></div><?php endif; ?>
+<form action="" enctype="multipart/form-data" method="POST">
+<div class="mb-3">
+<label class="form-label text-warning">Nombre</label>
+<input class="form-control" name="nombre" required type="text"/>
 </div>
-<!-- Lightbox para ver imagen grande -->
-<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
-  <img src="" id="img-lightbox">
+<div class="mb-3">
+<label class="form-label text-warning">Marca</label>
+<input class="form-control" name="marca" required type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Modelo</label>
+<input class="form-control" name="modelo" required type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Año</label>
+<input class="form-control" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>" />
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Número de serie</label>
+<input class="form-control" name="numero_serie" required type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Ubicación</label>
+<input class="form-control" name="ubicacion" required type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Tipo</label>
+<select class="form-select" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required>
+  <option value="">Seleccionar</option>
+  <option value="nueva">Producción Nueva</option>
+  <option value="usada">Usada</option>
+  <option value="camion">Camión</option>
+</select>
+</div>
+<div class="mb-3" id="subtipo_contenedor" style="display:none;">
+<label class="form-label text-warning">Subtipo</label>
+<select class="form-select" name="subtipo" id="subtipo_maquina" onchange="mostrarCapacidad()">
+  <option value="">Seleccionar</option>
+  <option value="petrolizadora">Petrolizadora</option>
+  <option value="esparcidor de sello">Esparcidor de sello</option>
+  <option value="tanque de almacén">Tanque de almacén</option>
+  <option value="bachadora">Bachadora</option>
+  <option value="planta de mezcla en frío">Planta de mezcla en frío</option>
+</select>
+</div>
+<div class="mb-3" id="capacidad_contenedor" style="display:none;">
+<label class="form-label text-warning">Capacidad</label>
+<select class="form-select" name="capacidad" id="capacidad_maquina">
+  <option value="">Seleccionar capacidad</option>
+  <!-- Las opciones se llenan por JS -->
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label text-warning">Imagen</label>
+<input accept="image/*" class="form-control" name="imagen" type="file"/>
+</div>
+<div class="d-grid mb-2">
+    <button class="btn btn-success btn btn-warning w-100 mt-3" type="submit">Agregar Maquinaria</button>
+</div>
+</form>
+<div class="text-center mt-2">
+    <a href="inventario.php" class="btn btn-outline-info w-100">
+        ← Volver a Inventario
+    </a>
+</div>
 </div>
 <script>
-function abrirLightbox(src) {
-  document.getElementById('img-lightbox').src = src;
-  document.getElementById('lightbox').classList.add('active');
+function mostrarSubtipo() {
+  const tipo = document.getElementById('tipo_maquinaria').value;
+  const subtipoCont = document.getElementById('subtipo_contenedor');
+  subtipoCont.style.display = (tipo === 'nueva') ? 'block' : 'none';
+  mostrarCapacidad();
 }
-function cerrarLightbox() {
-  document.getElementById('img-lightbox').src = '';
-  document.getElementById('lightbox').classList.remove('active');
+function mostrarCapacidad() {
+  const subtipo = document.getElementById('subtipo_maquina') ? document.getElementById('subtipo_maquina').value : '';
+  const capacidadCont = document.getElementById('capacidad_contenedor');
+  const selectCap = document.getElementById('capacidad_maquina');
+  capacidadCont.style.display = 'none';
+  selectCap.innerHTML = "<option value=''>Seleccionar capacidad</option>";
+  let opciones = [];
+  if (subtipo === 'petrolizadora') {
+    opciones = ['6000','8000','10000','12000','15000','18000','20000'];
+    capacidadCont.style.display = 'block';
+  }
+  if (subtipo === 'bachadora') {
+    opciones = ['1000','2000'];
+    capacidadCont.style.display = 'block';
+  }
+  if (subtipo === 'tanque de almacén') {
+    opciones = ['40','60','80'];
+    capacidadCont.style.display = 'block';
+  }
+  if (subtipo === 'planta de mezcla en frío') {
+    opciones = ['70','150'];
+    capacidadCont.style.display = 'block';
+  }
+  for (let op of opciones) {
+    let texto = op;
+    if (subtipo === 'petrolizadora' || subtipo === 'bachadora' || subtipo === 'tanque de almacén') texto += " litros";
+    if (subtipo === 'planta de mezcla en frío') texto += " toneladas";
+    selectCap.innerHTML += `<option value="${op}">${texto}</option>`;
+  }
 }
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') cerrarLightbox();
+// Mostrar correcto subtipo/capacidad al volver atrás
+document.addEventListener('DOMContentLoaded', function() {
+  mostrarSubtipo();
 });
 </script>
+</div>
 </body>
 </html>
