@@ -269,9 +269,9 @@ $resultado = $conn->query($sql);
           <th>Imagen</th>
           <th>Nombre</th>
           <th>Modelo</th>
-          <th>Año</th>
           <th>Número Serie</th>
           <th>Ubicación</th>
+          <th>Año</th>
           <th>Tipo</th>
           <th>Subtipo / Capacidad</th>
           <th style="min-width:160px;">Avance / Condición</th>
@@ -283,23 +283,24 @@ $resultado = $conn->query($sql);
         <?php while($fila = $resultado->fetch_assoc()):
           $tipo = strtolower($fila['tipo_maquinaria']);
           $subtipo = strtolower($fila['subtipo']);
+          $capacidad = $fila['capacidad'] ?? '';
           // Permisos
           $puede_editar = false;
           $puede_eliminar = false;
           $puede_recibo = false;
           $puede_avance = false;
 
-          // Recibo para usada y camiones
           if ($usuario === 'jabri') {
             $puede_editar = $puede_eliminar = $puede_avance = true;
-            $puede_recibo = ($tipo === 'usada' || $tipo === 'camion');
+            // Solo permitir recibo para usada y camión
+            if ($tipo === 'usada' || $tipo === 'camion') {
+              $puede_recibo = true;
+            }
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
             $puede_editar = $puede_eliminar = $puede_avance = true;
-            $puede_recibo = ($tipo === 'camion');
           } elseif ($rol === 'usada' && $tipo === 'usada') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
-
         ?>
         <tr>
           <td>
@@ -311,9 +312,9 @@ $resultado = $conn->query($sql);
           </td>
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
-          <td><?= htmlspecialchars($fila['anio']) ?></td>
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
           <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
+          <td><?= htmlspecialchars($fila['anio']) ?></td>
           <td>
             <?php
               if ($tipo === 'nueva') echo '<span class="badge-nueva">Nueva</span>';
@@ -325,9 +326,18 @@ $resultado = $conn->query($sql);
           <td>
             <?php
               $st = htmlspecialchars($fila['subtipo']);
-              $cp = htmlspecialchars($fila['capacidad']);
-              echo $st;
-              if ($cp) echo "<br><span style='color:#ffd700;font-size:0.97em;'>$cp</span>";
+              $cap = htmlspecialchars($fila['capacidad']);
+              if ($st && $cap) {
+                echo "$st / $cap";
+                if ($st == 'petrolizadora' || $st == 'bachadora' || $st == 'tanque de almacén') echo " litros";
+                if ($st == 'planta de mezcla en frío') echo " toneladas";
+              } elseif ($st) {
+                echo $st;
+              } elseif ($cap) {
+                echo $cap;
+              } else {
+                echo "-";
+              }
             ?>
           </td>
           <td>
@@ -438,3 +448,4 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
