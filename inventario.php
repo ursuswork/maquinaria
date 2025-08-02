@@ -48,6 +48,22 @@ if (count($where)) {
 }
 $sql .= " ORDER BY m.tipo_maquinaria ASC, m.nombre ASC";
 $resultado = $conn->query($sql);
+
+// FUNCION PARA SUBTIPO Y CAPACIDAD EN UNA SOLA COLUMNA
+function mostrarSubtipoCap($subtipo, $capacidad) {
+    $texto = '';
+    if ($subtipo) $texto .= ucfirst($subtipo);
+    if ($capacidad && $subtipo) {
+        if ($subtipo == 'planta de mezcla en frío') {
+            $texto .= " / $capacidad toneladas";
+        } else {
+            $texto .= " / $capacidad litros";
+        }
+    } elseif ($capacidad && !$subtipo) {
+        $texto = $capacidad;
+    }
+    return $texto;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -225,13 +241,13 @@ $resultado = $conn->query($sql);
       <a class="nav-link <?= $tipo_filtro === 'todas' ? 'active' : '' ?>" href="?tipo=todas">Todas</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Nueva</a>
+      <a class="nav-link <?= $tipo_filtro === 'nueva' ? 'active' : '' ?>" href="?tipo=nueva">Producción Nueva</a>
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $tipo_filtro === 'usada' ? 'active' : '' ?>" href="?tipo=usada">Usada</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camiones</a>
+      <a class="nav-link <?= $tipo_filtro === 'camion' ? 'active' : '' ?>" href="?tipo=camion">Camión</a>
     </li>
   </ul>
   <?php if ($tipo_filtro === 'nueva'): ?>
@@ -247,6 +263,12 @@ $resultado = $conn->query($sql);
     </li>
     <li class="nav-item">
       <a class="nav-link <?= $subtipo_filtro === 'petrolizadora' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=petrolizadora">Petrolizadora</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $subtipo_filtro === 'tanque de almacén' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=tanque de almacén">Tanque de Almacén</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <?= $subtipo_filtro === 'planta de mezcla en frío' ? 'active' : '' ?>" href="?tipo=nueva&subtipo=planta de mezcla en frío">Planta de mezcla en frío</a>
     </li>
   </ul>
   <?php endif; ?>
@@ -270,8 +292,8 @@ $resultado = $conn->query($sql);
           <th>Nombre</th>
           <th>Modelo</th>
           <th>Número Serie</th>
-          <th>Ubicación</th>
           <th>Año</th>
+          <th>Ubicación</th>
           <th>Tipo</th>
           <th>Subtipo / Capacidad</th>
           <th style="min-width:160px;">Avance / Condición</th>
@@ -291,13 +313,9 @@ $resultado = $conn->query($sql);
           $puede_avance = false;
 
           if ($usuario === 'jabri') {
-            $puede_editar = $puede_eliminar = $puede_avance = true;
-            // Solo permitir recibo para usada y camión
-            if ($tipo === 'usada' || $tipo === 'camion') {
-              $puede_recibo = true;
-            }
+            $puede_editar = $puede_eliminar = $puede_recibo = $puede_avance = true;
           } elseif ($rol === 'produccion' && ($tipo === 'nueva' || $tipo === 'camion')) {
-            $puede_editar = $puede_eliminar = $puede_avance = true;
+            $puede_editar = $puede_eliminar = $puede_avance = true; 
           } elseif ($rol === 'usada' && $tipo === 'usada') {
             $puede_editar = $puede_eliminar = $puede_recibo = true;
           }
@@ -313,37 +331,31 @@ $resultado = $conn->query($sql);
           <td><?= htmlspecialchars($fila['nombre']) ?></td>
           <td><?= htmlspecialchars($fila['modelo']) ?></td>
           <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
-          <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td><?= htmlspecialchars($fila['anio']) ?></td>
+          <td><?= htmlspecialchars($fila['ubicacion']) ?></td>
           <td>
             <?php
-              if ($tipo === 'nueva') echo '<span class="badge-nueva">Nueva</span>';
+              if ($tipo === 'nueva') echo '<span class="badge-nueva">Producción Nueva</span>';
               elseif ($tipo === 'usada') echo 'Usada';
               elseif ($tipo === 'camion') echo '<span class="badge-camion">Camión</span>';
               else echo ucfirst($tipo);
             ?>
           </td>
-          <td>
-            <?php
-              $st = htmlspecialchars($fila['subtipo']);
-              $cap = htmlspecialchars($fila['capacidad']);
-              if ($st && $cap) {
-                echo "$st / $cap";
-                if ($st == 'petrolizadora' || $st == 'bachadora' || $st == 'tanque de almacén') echo " litros";
-                if ($st == 'planta de mezcla en frío') echo " toneladas";
-              } elseif ($st) {
-                echo $st;
-              } elseif ($cap) {
-                echo $cap;
-              } else {
-                echo "-";
-              }
-            ?>
-          </td>
+          <td><?= mostrarSubtipoCap($fila['subtipo'], $fila['capacidad']) ?></td>
           <td>
             <?php
             // AVANCES y FECHAS según tipo/subtipo
-            if ($tipo === 'usada' || $tipo === 'camion') {
+            if ($tipo === 'usada') {
+                if (!is_null($fila['condicion_estimada'])) {
+                    echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
+                    if (!empty($fila['fecha_recibo'])) {
+                        $fecha_mx = (new DateTime($fila['fecha_recibo'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('America/Mexico_City'))->format('d/m/Y H:i');
+                        echo '<div class="fecha-actualizacion">Actualizado: '.$fecha_mx.'</div>';
+                    }
+                } else {
+                    echo '<span class="text-warning">Sin recibo</span>';
+                }
+            } elseif ($tipo === 'camion') {
                 if (!is_null($fila['condicion_estimada'])) {
                     echo '<div class="progress mb-1"><div class="progress-bar" style="width:'.intval($fila['condicion_estimada']).'%;">'.intval($fila['condicion_estimada']).'%</div></div>';
                     if (!empty($fila['fecha_recibo'])) {
@@ -448,4 +460,3 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
-
