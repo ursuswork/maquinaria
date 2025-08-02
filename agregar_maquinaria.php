@@ -188,7 +188,7 @@ function mostrarCapacidad() {
     capacidadCont.style.display = 'block';
   }
   if (subtipo === 'tanque de almacén') {
-    opciones = ['40','60','80'];
+    opciones = ['40000','60000','80000'];
     capacidadCont.style.display = 'block';
   }
   if (subtipo === 'planta de mezcla en frío') {
@@ -197,7 +197,8 @@ function mostrarCapacidad() {
   }
   for (let op of opciones) {
     let texto = op;
-    if (subtipo === 'petrolizadora' || subtipo === 'bachadora' || subtipo === 'tanque de almacén') texto += " litros";
+    if (subtipo === 'petrolizadora' || subtipo === 'bachadora') texto += " litros";
+    if (subtipo === 'tanque de almacén') texto = (op/1000) + ",000 litros";
     if (subtipo === 'planta de mezcla en frío') texto += " toneladas";
     selectCap.innerHTML += `<option value="${op}">${texto}</option>`;
   }

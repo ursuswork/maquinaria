@@ -17,10 +17,10 @@ if (!$maquinaria) {
   exit;
 }
 
+// --- SOLO "jabri" puede todo, pero roles deciden qué pueden editar ---
 $usuario = $_SESSION['usuario'] ?? '';
 $rol = $_SESSION['rol'] ?? 'consulta';
 
-// Permisos
 $tipos_permitidos = [];
 if ($usuario === 'jabri') {
   $tipos_permitidos = ['nueva', 'usada', 'camion'];
@@ -33,7 +33,7 @@ if ($usuario === 'jabri') {
   exit;
 }
 
-$error = '';
+// Procesa POST para guardar cambios
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $nombre = trim($_POST['nombre']);
   $marca = trim($_POST['marca']);
@@ -74,18 +74,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <style>
-    body { background-color: #012a5c; color: #fff; padding: 2rem; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: #012a5c; color: #ffffff; padding: 2rem; font-family: 'Segoe UI', sans-serif; }
     .form-control, .form-select {
-      margin-bottom: 1rem;
-      background-color: #003366;
-      color: white;
-      border: 1px solid #0059b3;
+        margin-bottom: 1rem;
+        background-color: #003366;
+        color: white;
+        border: 1px solid #0059b3;
     }
     .form-label { color: #ffc107; font-weight: 600; }
     .btn-warning, .btn-success, .btn-primary {
         width: auto;
         font-weight: bold;
         border: none;
+    }
+    .btn-outline-success, .btn-outline-warning, .btn-outline-danger {
+        font-weight: bold;
     }
     .container-ficha {
         background-color: #002b5c;
@@ -96,7 +99,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin: auto;
         border-left: 5px solid #ffc107;
     }
-    h4 { color: #ffffff; border-bottom: 2px solid #ffc107; padding-bottom: .5rem; margin-bottom: 1.5rem; }
+    h3, h5 {
+        color: #ffffff;
+        border-bottom: 2px solid #ffc107;
+        padding-bottom: .5rem;
+        margin-bottom: 1.5rem;
+    }
     .text-warning { color: #ffc107 !important; }
 </style>
 </head>
@@ -104,44 +112,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container-ficha">
 <div class="contenedor-formulario">
 <h4 class="text-center mb-4 text-primary">Editar Maquinaria</h4>
-<?php if ($error): ?><div class="alert alert-danger"><?= $error ?></div><?php endif; ?>
+<?php if (isset($error)): ?><div class="alert alert-danger"><?= $error ?></div><?php endif; ?>
 <form action="" enctype="multipart/form-data" method="POST">
 <div class="mb-3">
 <label class="form-label text-warning">Nombre</label>
-<input class="form-control" name="nombre" required type="text" value="<?= htmlspecialchars($_POST['nombre'] ?? $maquinaria['nombre']) ?>"/>
+<input class="form-control" name="nombre" required type="text" value="<?= htmlspecialchars($maquinaria['nombre']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Marca</label>
-<input class="form-control" name="marca" required type="text" value="<?= htmlspecialchars($_POST['marca'] ?? $maquinaria['marca']) ?>"/>
+<input class="form-control" name="marca" required type="text" value="<?= htmlspecialchars($maquinaria['marca']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Modelo</label>
-<input class="form-control" name="modelo" required type="text" value="<?= htmlspecialchars($_POST['modelo'] ?? $maquinaria['modelo']) ?>"/>
+<input class="form-control" name="modelo" required type="text" value="<?= htmlspecialchars($maquinaria['modelo']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Año</label>
-<input class="form-control" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>" value="<?= htmlspecialchars($_POST['anio'] ?? $maquinaria['anio']) ?>"/>
+<input class="form-control" name="anio" type="number" min="1950" max="<?= date('Y')+1 ?>" value="<?= htmlspecialchars($maquinaria['anio']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Número de serie</label>
-<input class="form-control" name="numero_serie" required type="text" value="<?= htmlspecialchars($_POST['numero_serie'] ?? $maquinaria['numero_serie']) ?>"/>
+<input class="form-control" name="numero_serie" required type="text" value="<?= htmlspecialchars($maquinaria['numero_serie']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Ubicación</label>
-<input class="form-control" name="ubicacion" required type="text" value="<?= htmlspecialchars($_POST['ubicacion'] ?? $maquinaria['ubicacion']) ?>"/>
+<input class="form-control" name="ubicacion" required type="text" value="<?= htmlspecialchars($maquinaria['ubicacion']) ?>"/>
 </div>
 <div class="mb-3">
 <label class="form-label text-warning">Tipo</label>
 <select class="form-select" id="tipo_maquinaria" name="tipo_maquinaria" onchange="mostrarSubtipo()" required>
   <option value="">Seleccionar</option>
   <?php if (in_array('nueva', $tipos_permitidos)): ?>
-    <option value="nueva" <?= (($maquinaria['tipo_maquinaria']=='nueva' || ($_POST['tipo_maquinaria'] ?? '')=='nueva')?'selected':''); ?>>Producción Nueva</option>
+    <option value="nueva" <?= $maquinaria['tipo_maquinaria']=='nueva'?'selected':''; ?>>Producción Nueva</option>
   <?php endif; ?>
   <?php if (in_array('usada', $tipos_permitidos)): ?>
-    <option value="usada" <?= (($maquinaria['tipo_maquinaria']=='usada' || ($_POST['tipo_maquinaria'] ?? '')=='usada')?'selected':''); ?>>Usada</option>
+    <option value="usada" <?= $maquinaria['tipo_maquinaria']=='usada'?'selected':''; ?>>Usada</option>
   <?php endif; ?>
   <?php if (in_array('camion', $tipos_permitidos)): ?>
-    <option value="camion" <?= (($maquinaria['tipo_maquinaria']=='camion' || ($_POST['tipo_maquinaria'] ?? '')=='camion')?'selected':''); ?>>Camión</option>
+    <option value="camion" <?= $maquinaria['tipo_maquinaria']=='camion'?'selected':''; ?>>Camión</option>
   <?php endif; ?>
 </select>
 </div>
@@ -149,11 +157,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <label class="form-label text-warning">Subtipo</label>
 <select class="form-select" name="subtipo" id="subtipo_maquina" onchange="mostrarCapacidad()">
   <option value="">Seleccionar</option>
-  <option value="petrolizadora" <?= (($maquinaria['subtipo']=='petrolizadora' || ($_POST['subtipo'] ?? '')=='petrolizadora')?'selected':''); ?>>Petrolizadora</option>
-  <option value="esparcidor de sello" <?= (($maquinaria['subtipo']=='esparcidor de sello' || ($_POST['subtipo'] ?? '')=='esparcidor de sello')?'selected':''); ?>>Esparcidor de sello</option>
-  <option value="tanque de almacén" <?= (($maquinaria['subtipo']=='tanque de almacén' || ($_POST['subtipo'] ?? '')=='tanque de almacén')?'selected':''); ?>>Tanque de almacén</option>
-  <option value="bachadora" <?= (($maquinaria['subtipo']=='bachadora' || ($_POST['subtipo'] ?? '')=='bachadora')?'selected':''); ?>>Bachadora</option>
-  <option value="planta de mezcla en frío" <?= (($maquinaria['subtipo']=='planta de mezcla en frío' || ($_POST['subtipo'] ?? '')=='planta de mezcla en frío')?'selected':''); ?>>Planta de mezcla en frío</option>
+  <option value="petrolizadora" <?= $maquinaria['subtipo']=='petrolizadora'?'selected':''; ?>>Petrolizadora</option>
+  <option value="esparcidor de sello" <?= $maquinaria['subtipo']=='esparcidor de sello'?'selected':''; ?>>Esparcidor de sello</option>
+  <option value="tanque de almacén" <?= $maquinaria['subtipo']=='tanque de almacén'?'selected':''; ?>>Tanque de almacén</option>
+  <option value="bachadora" <?= $maquinaria['subtipo']=='bachadora'?'selected':''; ?>>Bachadora</option>
+  <option value="planta de mezcla en frío" <?= $maquinaria['subtipo']=='planta de mezcla en frío'?'selected':''; ?>>Planta de mezcla en frío</option>
 </select>
 </div>
 <div class="mb-3" id="capacidad_contenedor" style="display:none;">
@@ -203,37 +211,36 @@ function mostrarCapacidad() {
     capacidadCont.style.display = 'block';
   }
   if (subtipo === 'tanque de almacén') {
-    opciones = ['40','60','80'];
+    opciones = ['40000','60000','80000'];
     capacidadCont.style.display = 'block';
   }
   if (subtipo === 'planta de mezcla en frío') {
     opciones = ['70','150'];
     capacidadCont.style.display = 'block';
   }
-  // Valor anterior: preferimos POST, sino del registro original
-  let old = "<?= htmlspecialchars($_POST['capacidad'] ?? $maquinaria['capacidad'] ?? '') ?>";
   for (let op of opciones) {
     let texto = op;
-    if (subtipo === 'petrolizadora' || subtipo === 'bachadora' || subtipo === 'tanque de almacén') texto += " litros";
+    if (subtipo === 'petrolizadora' || subtipo === 'bachadora') texto += " litros";
+    if (subtipo === 'tanque de almacén') texto = (op/1000) + ",000 litros";
     if (subtipo === 'planta de mezcla en frío') texto += " toneladas";
-    let selected = (op == old) ? 'selected' : '';
+    let selected = '';
+    <?php if (!empty($maquinaria['capacidad'])): ?>
+      if (op == "<?= htmlspecialchars($maquinaria['capacidad']) ?>") selected = 'selected';
+    <?php endif; ?>
     selectCap.innerHTML += `<option value="${op}" ${selected}>${texto}</option>`;
   }
 }
+
 // Al cargar, mostrar correctamente subtipo/capacidad según datos actuales
 document.addEventListener('DOMContentLoaded', function() {
   mostrarSubtipo();
-  <?php
-  $isNueva = ($_POST['tipo_maquinaria'] ?? $maquinaria['tipo_maquinaria'] ?? '') == 'nueva';
-  $hasSubtipo = ($_POST['subtipo'] ?? $maquinaria['subtipo'] ?? '');
-  $hasCap = ($_POST['capacidad'] ?? $maquinaria['capacidad'] ?? '');
-  if ($isNueva && $hasSubtipo) { ?>
+  <?php if ($maquinaria['tipo_maquinaria']=='nueva' && $maquinaria['subtipo']): ?>
     document.getElementById('subtipo_contenedor').style.display = 'block';
     mostrarCapacidad();
-    <?php if ($hasCap) { ?>
+    <?php if ($maquinaria['capacidad']): ?>
       document.getElementById('capacidad_contenedor').style.display = 'block';
-    <?php } ?>
-  <?php } ?>
+    <?php endif; ?>
+  <?php endif; ?>
 });
 </script>
 </div>
