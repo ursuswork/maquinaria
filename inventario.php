@@ -342,8 +342,6 @@ $resultado = $conn->query($sql);
                   $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " litros)";
                 } elseif ($subtipo === 'planta de mezcla en frío') {
                   $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " toneladas)";
-                } else {
-                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . ")";
                 }
               } elseif ($subtipo) {
                 $txt = ucfirst($subtipo);
