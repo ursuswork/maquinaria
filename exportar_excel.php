@@ -36,7 +36,7 @@ echo "<tr style='background:#175266;color:#fff;'>
   <th>Número de Serie</th>
   <th>Ubicación</th>
   <th>Tipo</th>
-  <th>Subtipo</th>
+  <th>Subtipo / Capacidad</th>
   <th>Condición Estimada / Avance (%)</th>
   <th>Fecha de Actualización</th>
 </tr>";
@@ -82,8 +82,9 @@ while ($fila = $resultado->fetch_assoc()) {
   $fecha_avance = "-";
   $tipo = strtolower($fila['tipo_maquinaria']);
   $subtipo = strtolower($fila['subtipo']);
+  $capacidad = $fila['capacidad'] ?? null;
 
-  if ($tipo === 'usada') {
+  if ($tipo === 'usada' || $tipo === 'camion') {
     if (!is_null($fila['condicion_estimada'])) {
       $avance = $fila['condicion_estimada'] . "%";
       $fecha_avance = $fila['fecha_recibo'] ? date('d/m/Y', strtotime($fila['fecha_recibo'])) : "-";
@@ -101,6 +102,24 @@ while ($fila = $resultado->fetch_assoc()) {
     }
   }
 
+  // --- Subtipo/Capacidad en una sola columna ---
+  $txt = '';
+  if ($subtipo && $capacidad) {
+    if (in_array($subtipo, ['petrolizadora', 'bachadora', 'tanque de almacén'])) {
+      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " litros)";
+    } elseif ($subtipo === 'planta de mezcla en frío') {
+      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " toneladas)";
+    } else {
+      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . ")";
+    }
+  } elseif ($subtipo) {
+    $txt = ucfirst($subtipo);
+  } elseif ($capacidad) {
+    $txt = number_format($capacidad, 0, '.', ',');
+  } else {
+    $txt = '-';
+  }
+
   echo "<tr>";
   echo "<td>{$fila['id']}</td>";
   echo "<td>" . htmlspecialchars($fila['nombre']) . "</td>";
@@ -109,7 +128,7 @@ while ($fila = $resultado->fetch_assoc()) {
   echo "<td>" . htmlspecialchars($fila['numero_serie'] ?? '-') . "</td>";
   echo "<td>" . htmlspecialchars($fila['ubicacion']) . "</td>";
   echo "<td>" . htmlspecialchars($fila['tipo_maquinaria']) . "</td>";
-  echo "<td>" . htmlspecialchars($fila['subtipo'] ?? '-') . "</td>";
+  echo "<td>$txt</td>";
   echo "<td>$avance</td>";
   echo "<td>$fecha_avance</td>";
   echo "</tr>";

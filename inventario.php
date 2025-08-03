@@ -338,11 +338,13 @@ $resultado = $conn->query($sql);
             <?php
               $txt = '';
               if ($subtipo && $capacidad) {
-                if (in_array($subtipo, ['petrolizadora', 'bachadora', 'tanque de almacén'])) {
-                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " litros)";
-                } elseif ($subtipo === 'planta de mezcla en frío') {
-                  $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " toneladas)";
-                }
+  if (in_array($subtipo, ['petrolizadora', 'bachadora', 'tanque de almacén'])) {
+    $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',') . " litros";
+  } elseif ($subtipo === 'planta de mezcla en frío') {
+    $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',') . " toneladas";
+  } else {
+    $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',');
+  }
               } elseif ($subtipo) {
                 $txt = ucfirst($subtipo);
               } elseif ($capacidad) {
