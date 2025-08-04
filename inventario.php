@@ -444,31 +444,36 @@ $resultado = $conn->query($sql);
     </table>
   </div>
 </div>
-<!-- Lightbox para ver imagen grande -->
+
 <!-- Lightbox para ver imagen grande -->
 <div class="lightbox" id="lightbox">
   <img src="" id="img-lightbox">
 </div>
 
 <script>
-const lightbox = document.getElementById('lightbox');
-const imgLightbox = document.getElementById('img-lightbox');
-
 function abrirLightbox(src) {
-  imgLightbox.src = src;
+  const lightbox = document.getElementById('lightbox');
+  const img = document.getElementById('img-lightbox');
+  img.src = src;
   lightbox.classList.add('active');
 }
 
-lightbox.addEventListener('click', () => {
-  imgLightbox.src = '';
-  lightbox.classList.remove('active');
+// Cierre con clic fuera de imagen o en la imagen
+document.getElementById('lightbox').addEventListener('click', function (e) {
+  if (e.target === this || e.target.id === 'img-lightbox') {
+    cerrarLightbox();
+  }
 });
 
+function cerrarLightbox() {
+  const img = document.getElementById('img-lightbox');
+  img.src = '';
+  document.getElementById('lightbox').classList.remove('active');
+}
+
+// Cierre con tecla Escape
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    imgLightbox.src = '';
-    lightbox.classList.remove('active');
-  }
+  if (e.key === 'Escape') cerrarLightbox();
 });
 </script>
 </body>
