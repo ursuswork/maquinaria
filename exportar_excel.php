@@ -41,7 +41,7 @@ echo "<tr style='background:#175266;color:#fff;'>
   <th>Fecha de Actualización</th>
 </tr>";
 
-// La consulta se ajusta a tu inventario completo con avances
+// Consulta igual que en inventario visual
 $sql = "
 SELECT 
   m.*, 
@@ -102,15 +102,15 @@ while ($fila = $resultado->fetch_assoc()) {
     }
   }
 
-  // --- Subtipo/Capacidad en una sola columna ---
+  // Subtipo/Capacidad juntos y sin paréntesis
   $txt = '';
   if ($subtipo && $capacidad) {
     if (in_array($subtipo, ['petrolizadora', 'bachadora', 'tanque de almacén'])) {
-      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " litros)";
+      $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',') . " litros";
     } elseif ($subtipo === 'planta de mezcla en frío') {
-      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . " toneladas)";
+      $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',') . " toneladas";
     } else {
-      $txt = ucfirst($subtipo) . " (" . number_format($capacidad, 0, '.', ',') . ")";
+      $txt = ucfirst($subtipo) . " " . number_format($capacidad, 0, '.', ',');
     }
   } elseif ($subtipo) {
     $txt = ucfirst($subtipo);

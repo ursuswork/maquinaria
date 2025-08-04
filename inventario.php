@@ -445,20 +445,30 @@ $resultado = $conn->query($sql);
   </div>
 </div>
 <!-- Lightbox para ver imagen grande -->
-<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+<!-- Lightbox para ver imagen grande -->
+<div class="lightbox" id="lightbox">
   <img src="" id="img-lightbox">
 </div>
+
 <script>
+const lightbox = document.getElementById('lightbox');
+const imgLightbox = document.getElementById('img-lightbox');
+
 function abrirLightbox(src) {
-  document.getElementById('img-lightbox').src = src;
-  document.getElementById('lightbox').classList.add('active');
+  imgLightbox.src = src;
+  lightbox.classList.add('active');
 }
-function cerrarLightbox() {
-  document.getElementById('img-lightbox').src = '';
-  document.getElementById('lightbox').classList.remove('active');
-}
+
+lightbox.addEventListener('click', () => {
+  imgLightbox.src = '';
+  lightbox.classList.remove('active');
+});
+
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') cerrarLightbox();
+  if (e.key === 'Escape') {
+    imgLightbox.src = '';
+    lightbox.classList.remove('active');
+  }
 });
 </script>
 </body>
