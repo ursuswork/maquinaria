@@ -193,16 +193,9 @@ document.addEventListener('DOMContentLoaded', calcularAvance);
 
 function seleccionar(id, valor, boton) {
   document.getElementById("comp_" + id).value = valor;
-
   let botones = boton.parentNode.querySelectorAll("button");
-  botones.forEach(b => b.classList.replace('btn-primary', 'btn-outline-primary'));
-  boton.classList.replace('btn-outline-primary', 'btn-primary');
-
-  const printTag = document.getElementById("print_" + id);
-  if (printTag) {
-    printTag.textContent = valor.charAt(0).toUpperCase() + valor.slice(1);
-  }
-
+  botones.forEach(b => b.classList.replace('btn-primary','btn-outline-primary'));
+  boton.classList.replace('btn-outline-primary','btn-primary');
   calcularAvance();
 }
 
