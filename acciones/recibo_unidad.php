@@ -155,17 +155,15 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
               <div class="col-md-4 mb-3">
                 <label class="form-label fw-bold text-warning"><?= $componente ?></label>
                 <input type="hidden" name="componentes[<?= htmlspecialchars($componente) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor ?>">
-                <div class="d-flex gap-2 align-items-center flex-wrap">
-  <?php if ($permitir_modificar): ?>
-    <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
-    <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
-    <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
-    <span id="print_<?= $id_hash ?>" class="d-none d-print-inline-block badge bg-warning text-dark ms-2 mt-2"><?= ucfirst($valor ?: '-') ?></span>
-  <?php else: ?>
-    <span class="badge bg-secondary"><?= ucfirst($valor ?: '-') ?></span>
-  <?php endif; ?>
-</div>
-
+                <div class="d-flex gap-2">
+                  <?php if ($permitir_modificar): ?>
+                    <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
+                    <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
+                    <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+                  <?php else: ?>
+                    <span class="badge bg-secondary"><?= ucfirst($valor ?: '-') ?></span>
+                  <?php endif; ?>
+                </div>
               </div>
             <?php endforeach; ?>
           </div>
@@ -191,11 +189,18 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
 <script>
 document.addEventListener('DOMContentLoaded', calcularAvance);
 
-function seleccionar(id, valor, boton) {
+ffunction seleccionar(id, valor, boton) {
   document.getElementById("comp_" + id).value = valor;
+
   let botones = boton.parentNode.querySelectorAll("button");
-  botones.forEach(b => b.classList.replace('btn-primary','btn-outline-primary'));
-  boton.classList.replace('btn-outline-primary','btn-primary');
+  botones.forEach(b => b.classList.replace('btn-primary', 'btn-outline-primary'));
+  boton.classList.replace('btn-outline-primary', 'btn-primary');
+
+  const printTag = document.getElementById("print_" + id);
+  if (printTag) {
+    printTag.textContent = valor.charAt(0).toUpperCase() + valor.slice(1);
+  }
+
   calcularAvance();
 }
 
