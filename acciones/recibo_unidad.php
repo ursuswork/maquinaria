@@ -32,29 +32,10 @@ if ($usuario === 'jabri') {
 } elseif ($rol === 'consulta') {
     $permitir_modificar = false;
 } else {
-    // Por defecto, acceso denegado
     die("Acceso denegado para su usuario.");
 }
 
-// <<<<<< MODIFICADO PARA JABRI
-if ($usuario === 'jabri') {
-    $permitir_modificar = true;
-} else if ($rol === 'admin') {
-    $permitir_modificar = true;
-} elseif ($rol === 'usada' && ($tipo_maquinaria === 'usada' || $tipo_maquinaria === 'camion')) {
-    $permitir_modificar = true;
-} elseif ($rol === 'produccion' && ($tipo_maquinaria === 'nueva' || $tipo_maquinaria === 'camion')) {
-    $permitir_modificar = true;
-} elseif ($rol === 'camiones' && $tipo_maquinaria === 'camion') {
-    $permitir_modificar = true;
-} elseif ($rol === 'consulta') {
-    $permitir_modificar = false;
-} else {
-    // Por defecto, acceso denegado
-    die("Acceso denegado para su usuario.");
-}
-// >>>>>> FIN MODIFICACION
-
+// Definición de secciones
 $secciones = [
   "MOTOR" => ["CILINDROS", "PISTONES", "ANILLOS", "INYECTORES", "BLOCK", "CABEZA", "VARILLAS", "RESORTES", "PUNTERIAS", "CIGÜEÑAL", "ARBOL DE ELEVAS", "RETENES", "LIGAS", "SENSORES", "POLEAS", "CONCHA", "CREMAYERA", "CLUTCH", "COPLES", "BOMBA DE INYECCION", "JUNTAS", "MARCHA", "TUBERIA", "ALTERNADOR", "FILTROS", "BASES", "SOPORTES", "TURBO", "ESCAPE", "CHICOTES"],
   "SISTEMA MECANICO" => ["TRANSMISIÓN", "DIFERENCIALES", "CARDÁN"],
@@ -63,10 +44,11 @@ $secciones = [
   "ESTETICO" => ["PINTURA", "CALCOMANIAS", "ASIENTO", "TAPICERIA", "TOLVAS", "CRISTALES", "ACCESORIOS", "SISTEMA DE RIEGO"],
   "CONSUMIBLES" => ["PUNTAS", "PORTA PUNTAS", "GARRAS", "CUCHILLAS", "CEPILLOS", "SEPARADORES", "LLANTAS", "RINES", "BANDAS / ORUGAS"]
 ];
+
 $pesos = ["MOTOR"=>15,"SISTEMA MECANICO"=>15,"SISTEMA HIDRAULICO"=>30,"SISTEMA ELECTRICO Y ELECTRONICO"=>25,"ESTETICO"=>5,"CONSUMIBLES"=>10];
+
 $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_maquinaria")->fetch_assoc();
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -100,108 +82,166 @@ $recibo = $conn->query("SELECT * FROM recibo_unidad WHERE id_maquinaria = $id_ma
       margin-bottom: 8px;
     }
     h1 { color: #ffc107; }
+
+    .seccion {
+      background-color: #012a4a;
+    }
+    .seccion label {
+      font-weight: bold;
+    }
+
+    /* Impresión: mostrar botones seleccionados como texto visible */
+    @media print {
+      body { background: white; color: black; }
+      .btn, .no-print, textarea, input, select { display: none !important; }
+      .ficha-maquina .dato {
+        background: transparent;
+        border: 1px solid #ccc;
+        color: black;
+      }
+      .barra-avance {
+        color: black !important;
+        background-color: #ccc !important;
+        border: 1px solid #999;
+      }
+      .seccion .form-label {
+        color: black !important;
+      }
+      .badge-seleccion {
+        display: inline-block;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 8px;
+        color: white;
+        background-color: #007bff;
+      }
+    }
+
+    .badge-seleccion {
+      display: none;
+    }
+    .badge-seleccion[data-visible="true"] {
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="text-center mb-4">Recibo de Unidad</h1>
-    <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
-      <div class="ficha-maquina row g-3 align-items-center">
-        <div class="col-md-6 mb-2">
-          <label class="fw-bold">Empresa Origen</label>
-          <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>" <?= !$permitir_modificar ? "readonly" : "" ?>>
-        </div>
-        <div class="col-md-6 mb-2">
-          <label class="fw-bold">Empresa Destino</label>
-          <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>" <?= !$permitir_modificar ? "readonly" : "" ?>>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Nombre</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['nombre']) ?></div>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Tipo</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Ubicación</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Número de Serie</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Marca</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['marca']) ?></div>
-        </div>
-        <div class="col-md-4 mb-2">
-          <label class="fw-bold">Modelo</label>
-          <div class="dato"><?= htmlspecialchars($maquinaria['modelo']) ?></div>
-        </div>
+<div class="container">
+  <h1 class="text-center mb-4">Recibo de Unidad</h1>
+  <form method="POST" action="guardar_recibo.php?id=<?= $id_maquinaria ?>" id="reciboForm">
+    <div class="ficha-maquina row g-3 align-items-center">
+      <div class="col-md-6 mb-2">
+        <label>Empresa Origen</label>
+        <input type="text" name="empresa_origen" class="form-control" value="<?= htmlspecialchars($recibo['empresa_origen'] ?? '') ?>" <?= !$permitir_modificar ? 'readonly' : '' ?>>
       </div>
-
-      <?php foreach ($secciones as $seccion => $componentes): ?>
-        <div class="seccion mb-4 p-3 rounded border border-warning">
-          <h5 class="text-warning"><?= $seccion ?> (<?= $pesos[$seccion] ?>%)</h5>
-          <div class="progress mb-3">
-            <div class="progress-bar bg-success barra-avance" id="barra_<?= strtolower(str_replace(' ', '_', $seccion)) ?>" style="width: 0%">0%</div>
-          </div>
-          <div class="row">
-            <?php foreach ($componentes as $componente):
-              $id_hash = md5($componente);
-              $valor = $recibo[$componente] ?? '';
-            ?>
-              <div class="col-md-4 mb-3">
-                <label class="form-label fw-bold text-warning"><?= $componente ?></label>
-                <input type="hidden" name="componentes[<?= htmlspecialchars($componente) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor ?>">
-                <div class="d-flex gap-2">
-                  <?php if ($permitir_modificar): ?>
-                    <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
-                    <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
-                    <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
-                  <?php else: ?>
-                    <span class="badge bg-secondary"><?= ucfirst($valor ?: '-') ?></span>
-                  <?php endif; ?>
-                </div>
+      <div class="col-md-6 mb-2">
+        <label>Empresa Destino</label>
+        <input type="text" name="empresa_destino" class="form-control" value="<?= htmlspecialchars($recibo['empresa_destino'] ?? '') ?>" <?= !$permitir_modificar ? 'readonly' : '' ?>>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Nombre</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['nombre']) ?></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Tipo</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['tipo_maquinaria']) ?></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Ubicación</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['ubicacion']) ?></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Número de Serie</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['numero_serie']) ?></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Marca</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['marca']) ?></div>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label>Modelo</label>
+        <div class="dato"><?= htmlspecialchars($maquinaria['modelo']) ?></div>
+      </div>
+    </div>
+    <?php foreach ($secciones as $seccion => $componentes): ?>
+      <div class="seccion mb-4 p-3 rounded border border-warning">
+        <h5 class="text-warning"><?= $seccion ?> (<?= $pesos[$seccion] ?>%)</h5>
+        <div class="progress mb-3">
+          <div class="progress-bar bg-success barra-avance" id="barra_<?= strtolower(str_replace(' ', '_', $seccion)) ?>" style="width: 0%">0%</div>
+        </div>
+        <div class="row">
+          <?php foreach ($componentes as $componente):
+            $id_hash = md5($componente);
+            $valor = $recibo[$componente] ?? '';
+          ?>
+            <div class="col-md-4 mb-3">
+              <label class="form-label text-warning"><?= $componente ?></label>
+              <input type="hidden" name="componentes[<?= htmlspecialchars($componente) ?>]" id="comp_<?= $id_hash ?>" value="<?= $valor ?>">
+              <div class="d-flex gap-2 flex-wrap">
+                <?php if ($permitir_modificar): ?>
+                  <button type="button" class="btn <?= $valor === 'bueno' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','bueno',this)">Bueno</button>
+                  <button type="button" class="btn <?= $valor === 'regular' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','regular',this)">Regular</button>
+                  <button type="button" class="btn <?= $valor === 'malo' ? 'btn-primary' : 'btn-outline-primary' ?> btn-sm w-100" onclick="seleccionar('<?= $id_hash ?>','malo',this)">Malo</button>
+                <?php else: ?>
+                  <span class="badge bg-secondary"><?= ucfirst($valor ?: '-') ?></span>
+                <?php endif; ?>
+                <span class="badge-seleccion" id="seleccion_<?= $id_hash ?>" data-visible="false"></span>
               </div>
-            <?php endforeach; ?>
-          </div>
+            </div>
+          <?php endforeach; ?>
         </div>
-      <?php endforeach; ?>
-      <div class="mb-3">
-        <label class="form-label fw-bold text-warning">Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3" <?= !$permitir_modificar ? "readonly" : "" ?>><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
       </div>
-      <div class="text-center my-4">
-        <h5 class="text-warning">Condición Total Estimada</h5>
-        <h1 id="total_avance" style="color: yellow; font-size: 3rem;">0%</h1>
-      </div>
-      <div class="text-center no-print mb-5">
-        <?php if ($permitir_modificar): ?>
+    <?php endforeach; ?>
+    <div class="mb-3">
+      <label class="form-label fw-bold text-warning">Observaciones</label>
+      <textarea name="observaciones" class="form-control" rows="3" <?= !$permitir_modificar ? "readonly" : "" ?>><?= htmlspecialchars($recibo['observaciones'] ?? '') ?></textarea>
+    </div>
+
+    <div class="text-center my-4">
+      <h5 class="text-warning">Condición Total Estimada</h5>
+      <h1 id="total_avance" style="color: yellow; font-size: 3rem;">0%</h1>
+    </div>
+
+    <div class="text-center no-print mb-5">
+      <?php if ($permitir_modificar): ?>
         <button type="submit" class="btn btn-warning px-4">Guardar Recibo</button>
-        <?php endif; ?>
-        <button type="button" onclick="window.print()" class="btn btn-outline-light ms-2">Imprimir</button>
-        <a href="../inventario.php" class="btn btn-outline-info ms-2">Volver a Inventario</a>
-      </div>
-    </form>
-  </div>
+      <?php endif; ?>
+      <button type="button" onclick="window.print()" class="btn btn-outline-light ms-2">Imprimir</button>
+      <a href="../inventario.php" class="btn btn-outline-info ms-2">Volver a Inventario</a>
+    </div>
+  </form>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', calcularAvance);
 
 function seleccionar(id, valor, boton) {
   document.getElementById("comp_" + id).value = valor;
-  let botones = boton.parentNode.querySelectorAll("button");
-  botones.forEach(b => b.classList.replace('btn-primary','btn-outline-primary'));
-  boton.classList.replace('btn-outline-primary','btn-primary');
+
+  const botones = boton.parentNode.querySelectorAll("button");
+  botones.forEach(b => b.classList.replace('btn-primary', 'btn-outline-primary'));
+  boton.classList.replace('btn-outline-primary', 'btn-primary');
+
+  // Mostrar selección para impresión
+  const etiqueta = document.getElementById("seleccion_" + id);
+  if (etiqueta) {
+    etiqueta.textContent = valor.charAt(0).toUpperCase() + valor.slice(1);
+    etiqueta.setAttribute("data-visible", "true");
+    etiqueta.style.display = "inline-block";
+    etiqueta.className = "badge bg-secondary print-visible";
+  }
+
   calcularAvance();
 }
 
 function calcularAvance() {
   const pesos = {
-    motor: 15, sistema_mecanico: 15,
-    sistema_hidraulico: 30, sistema_electrico_y_electronico: 25,
-    estetico: 5, consumibles: 10
+    motor: 15,
+    sistema_mecanico: 15,
+    sistema_hidraulico: 30,
+    sistema_electrico_y_electronico: 25,
+    estetico: 5,
+    consumibles: 10
   };
 
   const secciones = {
@@ -229,5 +269,25 @@ function calcularAvance() {
   document.getElementById("total_avance").textContent = Math.round(total) + "%";
 }
 </script>
+
+<style>
+@media print {
+  .no-print,
+  button,
+  a {
+    display: none !important;
+  }
+
+  .badge-seleccion[data-visible="true"] {
+    display: inline-block !important;
+    font-size: 0.9rem;
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+}
+</style>
 </body>
 </html>
