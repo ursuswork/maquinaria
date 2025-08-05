@@ -474,7 +474,7 @@ function cerrarLightbox() {
 // Cierre con tecla Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') cerrarLightbox();
-});
+}
 </script>
 </body>
 </html>
