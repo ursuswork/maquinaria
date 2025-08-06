@@ -145,7 +145,7 @@ body {
     }
     .btn-toggle {
       width: 90%;
-      margin: 4px auto;
+      margin: 1px auto;
       display: flex;
       align-items: center;
       justify-content: flex-start;
