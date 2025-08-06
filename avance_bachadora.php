@@ -153,17 +153,17 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
       border-color: #0059b3;
     }
     .completed {
-      background-color: #28a745 !important;
-      color: white !important;
-      font-weight: bold;
-      border: 2px solid #1c7c35 !important;
-    }
-    .fecha-actualizacion {
-      color: #eee;
-      font-size: 1rem;
-      text-align: right;
-      margin-bottom: -15px;
-    }
+  background-color: #1857c1 !important; /* Azul rey */
+  color: #fff !important;
+  font-weight: bold;
+  border: 2px solid #0d327a !important;
+  position: relative;
+}
+.completed .checkmark {
+  margin-right: 8px;
+  font-size: 1.2em;
+  vertical-align: middle;
+}
   </style>
 </head>
 <body>
@@ -184,18 +184,24 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
     <?php if ($puede_editar): ?>
     <form method="post">
       <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
-      <?php foreach ($etapas_arma as $etapa => $peso): ?>
-        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-        </button>
-      <?php endforeach; ?>
+<?php foreach ($etapas_arma as $etapa => $peso): ?>
+  <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+    <?php if (in_array($etapa, $realizadas)): ?>
+      <span class="checkmark">✔️</span>
+    <?php endif; ?>
+    <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+  </button>
+<?php endforeach; ?>
 
-      <h5 class="mt-4 text-white text-center">BACHADORA</h5>
-      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-        <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
-        </button>
-      <?php endforeach; ?>
+<h5 class="mt-4 text-white text-center">BACHADORA</h5>
+<?php foreach ($etapas_bachadora as $etapa => $peso): ?>
+  <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+    <?php if (in_array($etapa, $realizadas)): ?>
+      <span class="checkmark">✔️</span>
+    <?php endif; ?>
+    <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+  </button>
+<?php endforeach; ?>
     </form>
     <?php else: ?>
       <!-- Para usuarios sin permiso, solo muestra el listado -->
