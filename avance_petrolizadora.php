@@ -147,7 +147,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
       font-weight: bold;
       font-size: 1.2rem;
     }
-    ..btn-toggle {
+    .btn-toggle {
   width: 90%;
   margin: 6px auto;
   display: flex;
@@ -155,35 +155,40 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
   justify-content: space-between;
   border-radius: 1rem;
   font-size: 1rem;
-  padding: 10px 20px;
+  padding: 10px 28px 10px 20px; /* Más espacio a la derecha */
   text-align: left;
   color: white;
   background-color: #012a5c;
   border: 2px solid #004080;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   transition: all 0.2s ease-in-out;
-  min-height: 46px;
+  min-height: 54px; /* un poco más alto */
+  position: relative;
 }
 .btn-toggle:hover {
   background-color: #003366;
   border-color: #0059b3;
 }
 .checkmark-box {
-  width: 2.2em;
-  height: 2.2em;
-  background: rgba(255, 193, 7, 0.16); /* círculo amarillo translúcido */
+  width: 3em;
+  height: 3em;
+  background: rgba(255, 193, 7, 0.22); /* círculo amarillo translúcido */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.11);
+  pointer-events: none; /* evita clics accidentales en el círculo */
 }
 .checkmark-box svg {
-  width: 1.3em;
-  height: 1.3em;
+  width: 2.2em;
+  height: 2.2em;
   stroke: #ffc107;
-  stroke-width: 5;
+  stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
