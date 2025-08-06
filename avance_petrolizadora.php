@@ -222,13 +222,13 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
       <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
       <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
       <button type="submit" class="btn btn-toggle btn-outline-light">
-        <span><?= $etapa ?> (<?= $peso ?>%)</span>
-        <?php if ($ya): ?>
-          <span class="checkmark-box">
-            <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-          </span>
-        <?php endif; ?>
-      </button>
+  <span><?= $etapa ?> (<?= $peso ?>%)</span>
+  <?php if ($ya): ?>
+    <span class="checkmark">
+      <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+    </span>
+  <?php endif; ?>
+</button>
     </form>
   <?php else: ?>
     <div class="btn btn-toggle" style="pointer-events:none;">
