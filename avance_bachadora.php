@@ -71,10 +71,10 @@ foreach ($etapas_grupos as $grupo) {
 // Solo se procesa el POST si puede editar
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_editar) {
   $etapa = $conn->real_escape_string($_POST['etapa']);
-  $existe = $conn->query("SELECT 1 FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
-  if ($existe->num_rows == 0) {
+  $accion = $_POST['accion'] ?? '';
+  if ($accion === 'marcar') {
     $conn->query("INSERT INTO avance_bachadora (id_maquinaria, etapa, updated_at) VALUES ($id_maquinaria, '$etapa', NOW())");
-  } else {
+  } elseif ($accion === 'desmarcar') {
     $conn->query("DELETE FROM avance_bachadora WHERE id_maquinaria = $id_maquinaria AND etapa = '$etapa'");
   }
 }
@@ -207,21 +207,25 @@ h3, h5 {
       </div>
     </div>
     <?php if ($puede_editar): ?>
-    <form method="post">
       <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
         <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
-        <?php foreach ($etapas as $etapa => $peso): ?>
-          <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle">
-            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-            <?php if (in_array($etapa, $realizadas)): ?>
-              <span class="checkmark">
-                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-              </span>
-            <?php endif; ?>
-          </button>
+        <?php foreach ($etapas as $etapa => $peso): 
+          $ya = in_array($etapa, $realizadas);
+        ?>
+          <form method="post" class="mb-1" style="display:flex;">
+            <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
+            <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
+            <button type="submit" class="btn btn-toggle">
+              <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+              <?php if ($ya): ?>
+                <span class="checkmark">
+                  <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+                </span>
+              <?php endif; ?>
+            </button>
+          </form>
         <?php endforeach; ?>
       <?php endforeach; ?>
-    </form>
     <?php else: ?>
       <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
         <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
