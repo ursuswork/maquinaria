@@ -143,7 +143,7 @@ h3, h5 {
 }
 .btn-toggle {
   width: 90%;
-  margin: 8px auto;
+  margin: 6px auto;
   display: flex;
   align-items: center;
   justify-content: flex-start;
