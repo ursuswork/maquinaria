@@ -149,7 +149,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
     }
     .btn-toggle {
       width: 90%;
-      margin: 6px auto;
+      margin: 4px auto;
       display: flex;
       align-items: center;
       justify-content: flex-start;
