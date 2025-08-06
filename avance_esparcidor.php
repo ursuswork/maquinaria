@@ -170,7 +170,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
 }
 .checkmark {
   position: absolute;
-  right: 18px;
+  right: 10px; /* Puedes cambiar este valor para acercar/alejar la paloma del borde */
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -179,14 +179,14 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
   pointer-events: none;
 }
 .checkmark svg {
-  width: 2.2em;
-  height: 2.2em;
+  width: 2.7em;   /* Puedes hacerla más grande aún */
+  height: 2.7em;
   stroke: #ffc107;
-  stroke-width: 5;
+  stroke-width: 5; /* Más gruesa si gustas */
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  filter: drop-shadow(0 0 2px #001f3f);
+  filter: drop-shadow(0 0 3px #001f3f);
 }
     .fecha-actualizacion {
       font-size: 1rem;
