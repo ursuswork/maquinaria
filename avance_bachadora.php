@@ -32,34 +32,41 @@ if ($usuario === 'jabri') {
     $puede_editar = true;
 }
 
-// Etapas
-$etapas_arma = [
-  "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
-  "Trazar,cortar,rolar cuerpo" => 5,
-  "Armar cuerpo" => 5,
-  "Armar chasis" => 5,
-  "Armar flux" => 5,
-  "Colocar chasis y flux" => 5,
-  "Colocar tapas y tubulares" => 5,
-  "Colocar fibra de vidrio y lamina A.I" => 10,
-  "Colocar accesorios" => 5,
-  "Armar ejes" => 5,
-  "Armar jalon" => 5,
+// ETAPAS AGRUPADAS EN SECCIONES:
+$etapas_grupos = [
+  "ARMAR TANQUE" => [
+    "Trazar,cortar,rolar y hacer ceja a tapas" => 5,
+    "Trazar,cortar,rolar cuerpo" => 5,
+    "Armar cuerpo" => 5,
+    "Armar chasis" => 5,
+    "Armar flux" => 5,
+    "Colocar chasis y flux" => 5,
+    "Colocar tapas y tubulares" => 5,
+    "Colocar fibra de vidrio y lamina A.I" => 10,
+    "Colocar accesorios" => 5,
+    "Armar ejes" => 5,
+    "Armar jalon" => 5,
+  ],
+  "BACHADORA" => [
+    "Armar barra" => 5,
+    "Armar chasis de bomba y motor" => 5,
+    "Armar accesorios" => 5,
+    "Montar bomba y motor" => 5,
+    "Montar accesorios" => 5,
+    "Pintar" => 3,
+    "Instalacion electrica" => 2,
+    "Checar y tapar fugas" => 5,
+    "Probar equipo" => 5,
+  ],
 ];
 
-$etapas_bachadora = [
-  "Armar barra" => 5,
-  "Armar chasis de bomba y motor" => 5,
-  "Armar accesorios" => 5,
-  "Montar bomba y motor" => 5,
-  "Montar accesorios" => 5,
-  "Pintar" => 3,
-  "Instalacion electrica" => 2,
-  "Checar y tapar fugas" => 5,
-  "Probar equipo" => 5,
-];
-
-$etapas = $etapas_arma + $etapas_bachadora;
+// Flatten para sumar los pesos y checar completados fácilmente
+$etapas_flat = [];
+foreach ($etapas_grupos as $grupo) {
+  foreach ($grupo as $nombre => $peso) {
+    $etapas_flat[$nombre] = $peso;
+  }
+}
 
 // Solo se procesa el POST si puede editar
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['etapa']) && $puede_editar) {
@@ -78,9 +85,9 @@ while ($row = $res->fetch_assoc()) {
   $realizadas[] = $row['etapa'];
 }
 
-$peso_total = array_sum($etapas);
+$peso_total = array_sum($etapas_flat);
 $peso_completado = 0;
-foreach ($etapas as $nombre => $peso) {
+foreach ($etapas_flat as $nombre => $peso) {
   if (in_array($nombre, $realizadas)) {
     $peso_completado += $peso;
   }
@@ -157,7 +164,7 @@ h3, h5 {
   border-color: #0059b3;
 }
 .completed {
-  background-color: #1857c1 !important; /* Azul rey */
+  background-color: #1857c1 !important;
   color: #fff !important;
   font-weight: bold;
   border: 2px solid #0d327a !important;
@@ -204,57 +211,35 @@ h3, h5 {
         <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
       </div>
     </div>
-    <!-- Solo muestra el formulario si puede editar -->
     <?php if ($puede_editar): ?>
     <form method="post">
-      <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
-<?php foreach ($etapas_arma as $etapa => $peso): ?>
-  <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-    <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-    <?php if (in_array($etapa, $realizadas)): ?>
-      <span class="checkmark">
-        <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-      </span>
-    <?php endif; ?>
-  </button>
-<?php endforeach; ?>
-
-<h5 class="mt-4 text-white text-center">BACHADORA</h5>
-<?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-  <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-    <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-    <?php if (in_array($etapa, $realizadas)): ?>
-      <span class="checkmark">
-        <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-      </span>
-    <?php endif; ?>
-  </button>
-<?php endforeach; ?>
+      <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
+        <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
+        <?php foreach ($etapas as $etapa => $peso): ?>
+          <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+            <?php if (in_array($etapa, $realizadas)): ?>
+              <span class="checkmark">
+                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+              </span>
+            <?php endif; ?>
+          </button>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
     </form>
     <?php else: ?>
-      <!-- Para usuarios sin permiso, solo muestra el listado -->
-      <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
-      <?php foreach ($etapas_arma as $etapa => $peso): ?>
-        <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
-          <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-          <?php if (in_array($etapa, $realizadas)): ?>
-            <span class="checkmark">
-              <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-            </span>
-          <?php endif; ?>
-        </div>
-      <?php endforeach; ?>
-
-      <h5 class="mt-4 text-white text-center">BACHADORA</h5>
-      <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
-        <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
-          <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-          <?php if (in_array($etapa, $realizadas)): ?>
-            <span class="checkmark">
-              <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-            </span>
-          <?php endif; ?>
-        </div>
+      <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
+        <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
+        <?php foreach ($etapas as $etapa => $peso): ?>
+          <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
+            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+            <?php if (in_array($etapa, $realizadas)): ?>
+              <span class="checkmark">
+                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+              </span>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
       <?php endforeach; ?>
     <?php endif; ?>
 
