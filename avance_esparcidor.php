@@ -169,14 +169,18 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
   border: 2px solid #0d327a !important;
 }
 .checkmark {
-  margin-left: 12px;
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 .checkmark svg {
-  width: 2em;
-  height: 2em;
+  width: 2.2em;
+  height: 2.2em;
   stroke: #ffc107;
   stroke-width: 5;
   stroke-linecap: round;
@@ -216,14 +220,14 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
     <form method="POST" class="mb-1">
       <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
       <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-      <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
-        <span><?= $etapa ?> (<?= $peso ?>%)</span>
-        <?php if ($ya): ?>
-          <span class="checkmark">
-            <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-          </span>
-        <?php endif; ?>
-      </button>
+      <button type="submit" class="btn btn-toggle btn-outline-light">
+  <span><?= $etapa ?> (<?= $peso ?>%)</span>
+  <?php if ($ya): ?>
+    <span class="checkmark">
+      <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+    </span>
+  <?php endif; ?>
+</button>
     </form>
   <?php else: ?>
     <div class="btn btn-toggle <?= $ya ? 'completed' : '' ?>" style="pointer-events:none;">

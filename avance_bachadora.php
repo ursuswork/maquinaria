@@ -163,21 +163,24 @@ h3, h5 {
   border: 2px solid #0d327a !important;
 }
 .checkmark {
-  margin-left: 10px;
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  pointer-events: none;
 }
 .checkmark svg {
-  width: 2em;
-  height: 2em;
+  width: 2.2em;
+  height: 2.2em;
   stroke: #ffc107;
   stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  filter: drop-shadow(0 0 4px #012a5c);
+  filter: drop-shadow(0 0 2px #001f3f);
 }
 .fecha-actualizacion {
       font-size: 1rem;
@@ -201,7 +204,6 @@ h3, h5 {
         <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
       </div>
     </div>
-
     <!-- Solo muestra el formulario si puede editar -->
     <?php if ($puede_editar): ?>
     <form method="post">

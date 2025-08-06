@@ -183,7 +183,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
   width: 2.2em;
   height: 2.2em;
   stroke: #ffc107;
-  stroke-width: 6;
+  stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
@@ -227,6 +227,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
     <span class="checkmark">
       <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
     </span>
+    
   <?php endif; ?>
 </button>
     </form>
