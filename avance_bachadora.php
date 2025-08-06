@@ -180,11 +180,11 @@ h3, h5 {
   filter: drop-shadow(0 0 4px #012a5c);
 }
 .fecha-actualizacion {
-  color: #eee;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-top: 16px;
-  margin-bottom: -10px;
+      font-size: 1rem;
+      color: #87d0ff;
+      text-align: center;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
 }
   </style>
 </head>

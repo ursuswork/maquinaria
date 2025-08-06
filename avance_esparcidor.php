@@ -146,29 +146,44 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
       font-size: 1.2rem;
     }
     .btn-toggle {
-      width: 90%;
-      margin: 6px auto;
-      display: block;
-      border-radius: 1rem;
-      font-size: 1rem;
-      padding: 10px;
-      text-align: center;
-      color: white;
-      background-color: #012a5c;
-      border: 2px solid #004080;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      transition: all 0.2s ease-in-out;
-    }
-    .btn-toggle:hover {
-      background-color: #003366;
-      border-color: #0059b3;
-    }
-    .completed {
-      background-color: #28a745 !important;
-      color: white !important;
-      font-weight: bold;
-      border: 2px solid #1c7c35 !important;
-    }
+  width: 90%;
+  margin: 6px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1rem;
+  font-size: 1rem;
+  padding: 10px 20px;
+  text-align: left;
+  color: white;
+  background-color: #012a5c;
+  border: 2px solid #004080;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.2s ease-in-out;
+  min-height: 46px;
+}
+.completed {
+  background-color: #1857c1 !important;
+  color: #fff !important;
+  font-weight: bold;
+  border: 2px solid #0d327a !important;
+}
+.checkmark {
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.checkmark svg {
+  width: 2em;
+  height: 2em;
+  stroke: #ffc107;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(0 0 2px #001f3f);
+}
     .fecha-actualizacion {
       font-size: 1rem;
       color: #87d0ff;
@@ -193,25 +208,35 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
     <?php endif; ?>
 
     <?php foreach ($etapas as $grupo => $pasos): ?>
-      <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
-      <?php foreach ($pasos as $etapa => $peso):
-        $ya = in_array($etapa, $completadas);
-        if ($puede_modificar):
-      ?>
-        <form method="POST" class="mb-1">
-          <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
-          <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-          <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
-            <?= $etapa ?> (<?= $peso ?>%)
-          </button>
-        </form>
-      <?php else: ?>
-        <div class="btn btn-toggle <?= $ya ? 'completed' : '' ?>" style="pointer-events:none;">
-          <?= $etapa ?> (<?= $peso ?>%)
-        </div>
+  <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
+  <?php foreach ($pasos as $etapa => $peso):
+    $ya = in_array($etapa, $completadas);
+    if ($puede_modificar):
+  ?>
+    <form method="POST" class="mb-1">
+      <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
+      <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
+      <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
+        <span><?= $etapa ?> (<?= $peso ?>%)</span>
+        <?php if ($ya): ?>
+          <span class="checkmark">
+            <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+          </span>
+        <?php endif; ?>
+      </button>
+    </form>
+  <?php else: ?>
+    <div class="btn btn-toggle <?= $ya ? 'completed' : '' ?>" style="pointer-events:none;">
+      <span><?= $etapa ?> (<?= $peso ?>%)</span>
+      <?php if ($ya): ?>
+        <span class="checkmark">
+          <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+        </span>
       <?php endif; ?>
-      <?php endforeach; ?>
-    <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+  <?php endforeach; ?>
+<?php endforeach; ?>
 
     <div class="text-center mt-4">
       <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
