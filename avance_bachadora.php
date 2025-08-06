@@ -106,7 +106,7 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
+body {
   background-color: #001f3f;
   color: white;
   font-family: 'Segoe UI', sans-serif;
@@ -139,7 +139,7 @@ h3, h5 {
   margin: 8px auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   border-radius: 1rem;
   font-size: 1rem;
   padding: 12px 24px;
@@ -183,11 +183,11 @@ h3, h5 {
   filter: drop-shadow(0 0 2px #001f3f);
 }
 .fecha-actualizacion {
-      font-size: 1rem;
-      color: #87d0ff;
-      text-align: center;
-      margin-top: 0.5rem;
-      margin-bottom: 1.2rem;
+  font-size: 1rem;
+  color: #87d0ff;
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1.2rem;
 }
   </style>
 </head>
@@ -236,14 +236,24 @@ h3, h5 {
       <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
       <?php foreach ($etapas_arma as $etapa => $peso): ?>
         <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+          <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+          <?php if (in_array($etapa, $realizadas)): ?>
+            <span class="checkmark">
+              <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+            </span>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
 
       <h5 class="mt-4 text-white text-center">BACHADORA</h5>
       <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
         <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
-          <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
+          <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+          <?php if (in_array($etapa, $realizadas)): ?>
+            <span class="checkmark">
+              <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+            </span>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
     <?php endif; ?>
