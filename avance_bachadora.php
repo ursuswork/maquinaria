@@ -175,8 +175,8 @@ h3, h5 {
   pointer-events: none;
 }
 .checkmark svg {
-  width: 2.2em;
-  height: 2.2em;
+  width: 2.4em;
+  height: 2.4em;
   stroke: #ffc107;
   stroke-width: 5;
   stroke-linecap: round;
