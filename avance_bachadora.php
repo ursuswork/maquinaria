@@ -172,7 +172,7 @@ h3, h5 {
 .checkmark svg {
   width: 2em;
   height: 2em;
-  stroke: #fff;
+  stroke: #ffc107;
   stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
