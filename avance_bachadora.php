@@ -130,7 +130,7 @@ body {
     h3, h5 {
       color: #ffc107;
       text-align: center;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
     }
     .progress {
       height: 35px;
