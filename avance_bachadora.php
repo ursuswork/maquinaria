@@ -107,62 +107,84 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #001f3f;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .ficha {
-      background-color: #012a5c;
-      padding: 2rem;
-      border-radius: 1.5rem;
-      max-width: 900px;
-      margin: 2rem auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    }
-    h3, h5 {
-      color: #ffc107;
-      text-align: center;
-    }
-    .progress {
-      height: 35px;
-      background-color: #2c3e50;
-      border-radius: 1rem;
-      overflow: hidden;
-    }
-    .progress-bar {
-      background-color: #ffc107 !important;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-    .btn-toggle {
-      width: 90%;
-      margin: 8px auto;
-      display: block;
-      border-radius: 1rem;
-      font-size: 0.9rem;
-      padding: 12px;
-      text-align: center;
-      color: white;
-      background-color: #012a5c;
-      border: 2px solid #004080;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      transition: all 0.2s ease-in-out;
-    }
-    .btn-toggle:hover {
-      background-color: #003366;
-      border-color: #0059b3;
-    }
-    .completed {
+  background-color: #001f3f;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+.ficha {
+  background-color: #012a5c;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  max-width: 900px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+h3, h5 {
+  color: #ffc107;
+  text-align: center;
+}
+.progress {
+  height: 35px;
+  background-color: #2c3e50;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.progress-bar {
+  background-color: #ffc107 !important;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.btn-toggle {
+  width: 90%;
+  margin: 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1rem;
+  font-size: 1rem;
+  padding: 12px 24px;
+  text-align: left;
+  color: white;
+  background-color: #012a5c;
+  border: 2px solid #004080;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  min-height: 50px;
+}
+.btn-toggle:hover {
+  background-color: #003366;
+  border-color: #0059b3;
+}
+.completed {
   background-color: #1857c1 !important; /* Azul rey */
   color: #fff !important;
   font-weight: bold;
   border: 2px solid #0d327a !important;
-  position: relative;
 }
-.completed .checkmark {
-  margin-right: 8px;
-  font-size: 1.2em;
-  vertical-align: middle;
+.checkmark {
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.checkmark svg {
+  width: 2em;
+  height: 2em;
+  stroke: #fff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(0 0 4px #012a5c);
+}
+.fecha-actualizacion {
+  color: #eee;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-top: 16px;
+  margin-bottom: -10px;
 }
   </style>
 </head>
@@ -186,20 +208,24 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
       <h5 class="mt-4 text-white text-center">ARMAR TANQUE</h5>
 <?php foreach ($etapas_arma as $etapa => $peso): ?>
   <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+    <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
     <?php if (in_array($etapa, $realizadas)): ?>
-      <span class="checkmark">✔️</span>
+      <span class="checkmark">
+        <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+      </span>
     <?php endif; ?>
-    <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
   </button>
 <?php endforeach; ?>
 
 <h5 class="mt-4 text-white text-center">BACHADORA</h5>
 <?php foreach ($etapas_bachadora as $etapa => $peso): ?>
   <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
+    <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
     <?php if (in_array($etapa, $realizadas)): ?>
-      <span class="checkmark">✔️</span>
+      <span class="checkmark">
+        <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+      </span>
     <?php endif; ?>
-    <?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)
   </button>
 <?php endforeach; ?>
     </form>
