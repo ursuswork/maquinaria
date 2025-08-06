@@ -152,7 +152,7 @@ h3, h5 {
   padding: 12px 24px;
   text-align: left;
   color: white;
-  background-color: #012a5c;
+  background-color: #012a5c;  /* SIEMPRE azul oscuro, no cambia al marcar */
   border: 2px solid #004080;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   transition: all 0.2s ease-in-out;
@@ -163,12 +163,7 @@ h3, h5 {
   background-color: #003366;
   border-color: #0059b3;
 }
-.completed {
-  background-color: #1857c1 !important;
-  color: #fff !important;
-  font-weight: bold;
-  border: 2px solid #0d327a !important;
-}
+/* Ya NO hay reglas para .completed */
 .checkmark {
   position: absolute;
   right: 18px;
@@ -189,6 +184,7 @@ h3, h5 {
   fill: none;
   filter: drop-shadow(0 0 2px #001f3f);
 }
+
 .fecha-actualizacion {
   font-size: 1rem;
   color: #87d0ff;
@@ -216,29 +212,24 @@ h3, h5 {
       <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
         <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
         <?php foreach ($etapas as $etapa => $peso): ?>
-          <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>">
-            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-            <?php if (in_array($etapa, $realizadas)): ?>
-              <span class="checkmark">
-                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-              </span>
-            <?php endif; ?>
-          </button>
-        <?php endforeach; ?>
-      <?php endforeach; ?>
-    </form>
-    <?php else: ?>
-      <?php foreach ($etapas_grupos as $grupo => $etapas): ?>
-        <h5 class="mt-4 text-white text-center"><?= htmlspecialchars($grupo) ?></h5>
-        <?php foreach ($etapas as $etapa => $peso): ?>
-          <div class="btn btn-toggle <?= in_array($etapa, $realizadas) ? 'completed' : '' ?>" style="pointer-events:none;">
-            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-            <?php if (in_array($etapa, $realizadas)): ?>
-              <span class="checkmark">
-                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-              </span>
-            <?php endif; ?>
-          </div>
+         <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle">
+  <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+  <?php if (in_array($etapa, $realizadas)): ?>
+    <span class="checkmark">
+      <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+    </span>
+  <?php endif; ?>
+</button>
+
+<!-- Solo lectura -->
+<div class="btn btn-toggle" style="pointer-events:none;">
+  <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+  <?php if (in_array($etapa, $realizadas)): ?>
+    <span class="checkmark">
+      <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+    </span>
+  <?php endif; ?>
+</div>
         <?php endforeach; ?>
       <?php endforeach; ?>
     <?php endif; ?>
