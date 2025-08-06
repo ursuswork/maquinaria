@@ -199,9 +199,10 @@ body {
     <h3>Avance de Bachadora</h3>
     <h5><?= htmlspecialchars($maquinaria['nombre']) ?> (Modelo: <?= htmlspecialchars($maquinaria['modelo']) ?>)</h5>
     <?php if ($fecha_actualizacion): ?>
-      <div class="fecha-actualizacion">Actualizado: <?= date('d/m/Y H:i', strtotime($fecha_actualizacion)) ?></div>
+      <div class="fecha-actualizacion">
+        Última actualización: <?= date('d/m/Y H:i', strtotime($fecha_actualizacion)) ?>
+      </div>
     <?php endif; ?>
-
     <div class="mb-4">
       <div class="progress">
         <div class="progress-bar" role="progressbar" style="width: <?= $porcentaje ?>%;" aria-valuenow="<?= $porcentaje ?>" aria-valuemin="0" aria-valuemax="100"><?= $porcentaje ?>%</div>
