@@ -180,7 +180,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
   width: 2em;
   height: 2em;
   stroke: #ffc107;
-  stroke-width: 5;
+  stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
