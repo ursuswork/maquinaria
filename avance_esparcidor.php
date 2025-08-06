@@ -169,7 +169,6 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
       background-color: #003366;
       border-color: #0059b3;
     }
-    /* NO hay .completed */
     .checkmark {
       position: absolute;
       right: 18px;

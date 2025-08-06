@@ -114,83 +114,84 @@ if ($fechaRes && $rowF = $fechaRes->fetch_assoc()) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
 body {
-  background-color: #001f3f;
-  color: white;
-  font-family: 'Segoe UI', sans-serif;
-}
-.ficha {
-  background-color: #012a5c;
-  padding: 2rem;
-  border-radius: 1.5rem;
-  max-width: 900px;
-  margin: 2rem auto;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-}
-h3, h5 {
-  color: #ffc107;
-  text-align: center;
-}
-.progress {
-  height: 35px;
-  background-color: #2c3e50;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-.progress-bar {
-  background-color: #ffc107 !important;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-.btn-toggle {
-  width: 90%;
-  margin: 4px auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  border-radius: 1rem;
-  font-size: 1rem;
-  padding: 12px 24px;
-  text-align: left;
-  color: white;
-  background-color: #012a5c;  /* SIEMPRE azul oscuro, no cambia al marcar */
-  border: 2px solid #004080;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: all 0.2s ease-in-out;
-  position: relative;
-  min-height: 50px;
-}
-.btn-toggle:hover {
-  background-color: #003366;
-  border-color: #0059b3;
-}
-/* No hay .completed */
-.checkmark {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.checkmark svg {
-  width: 2.2em;
-  height: 2.2em;
-  stroke: #ffc107;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-  filter: drop-shadow(0 0 2px #001f3f);
-}
-.fecha-actualizacion {
-  font-size: 1rem;
-  color: #87d0ff;
-  text-align: center;
-  margin-top: 0.5rem;
-  margin-bottom: 1.2rem;
-}
+      background-color: #001f3f;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1rem;
+    }
+    .ficha {
+      background-color: #012a5c;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    h3, h5 {
+      color: #ffc107;
+      text-align: center;
+      font-size: 1.4rem;
+    }
+    .progress {
+      height: 35px;
+      background-color: #2c3e50;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background-color: #ffc107 !important;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .btn-toggle {
+      width: 90%;
+      margin: 4px auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      border-radius: 1rem;
+      font-size: 1rem;
+      padding: 10px 28px 10px 20px;
+      text-align: left;
+      color: white;
+      background-color: #012a5c;
+      border: 2px solid #004080;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
+      min-height: 54px;
+      position: relative;
+    }
+    .btn-toggle:hover {
+      background-color: #003366;
+      border-color: #0059b3;
+    }
+    .checkmark {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .checkmark svg {
+      width: 2.2em;
+      height: 2.2em;
+      stroke: #ffc107;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      filter: drop-shadow(0 0 2px #001f3f);
+    }
+    .fecha-actualizacion {
+      font-size: 1rem;
+      color: #87d0ff;
+      text-align: center;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
   </style>
 </head>
 <body>
