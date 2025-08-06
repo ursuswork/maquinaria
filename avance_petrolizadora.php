@@ -147,7 +147,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
       font-weight: bold;
       font-size: 1.2rem;
     }
-    .btn-toggle {
+    ..btn-toggle {
   width: 90%;
   margin: 6px auto;
   display: flex;
@@ -164,21 +164,24 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
   transition: all 0.2s ease-in-out;
   min-height: 46px;
 }
-.completed {
-  background-color: #1857c1 !important;
-  color: #fff !important;
-  font-weight: bold;
-  border: 2px solid #0d327a !important;
+.btn-toggle:hover {
+  background-color: #003366;
+  border-color: #0059b3;
 }
-.checkmark {
-  margin-left: 12px;
+.checkmark-box {
+  width: 2.2em;
+  height: 2.2em;
+  background: rgba(255, 193, 7, 0.16); /* círculo amarillo translúcido */
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.09);
 }
-.checkmark svg {
-  width: 2em;
-  height: 2em;
+.checkmark-box svg {
+  width: 1.3em;
+  height: 1.3em;
   stroke: #ffc107;
   stroke-width: 5;
   stroke-linecap: round;
@@ -218,20 +221,20 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
     <form method="POST" class="mb-1">
       <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
       <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-      <button type="submit" class="btn btn-toggle <?= $ya ? 'completed' : 'btn-outline-light' ?>">
+      <button type="submit" class="btn btn-toggle btn-outline-light">
         <span><?= $etapa ?> (<?= $peso ?>%)</span>
         <?php if ($ya): ?>
-          <span class="checkmark">
+          <span class="checkmark-box">
             <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
           </span>
         <?php endif; ?>
       </button>
     </form>
   <?php else: ?>
-    <div class="btn btn-toggle <?= $ya ? 'completed' : '' ?>" style="pointer-events:none;">
+    <div class="btn btn-toggle" style="pointer-events:none;">
       <span><?= $etapa ?> (<?= $peso ?>%)</span>
       <?php if ($ya): ?>
-        <span class="checkmark">
+        <span class="checkmark-box">
           <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
         </span>
       <?php endif; ?>
