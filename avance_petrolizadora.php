@@ -133,7 +133,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
     h3, h5 {
       color: #ffc107;
       text-align: center;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
     }
     .progress {
       height: 35px;
