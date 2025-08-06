@@ -214,24 +214,25 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
     <?php endif; ?>
 
     <?php if ($puede_modificar): ?>
-      <form method="POST">
       <?php foreach ($etapas as $grupo => $pasos): ?>
         <h5 class="text-center text-info mt-4"><?= htmlspecialchars($grupo) ?></h5>
         <?php foreach ($pasos as $etapa => $peso):
           $ya = in_array($etapa, $completadas);
         ?>
-          <button type="submit" name="etapa" value="<?= htmlspecialchars($etapa) ?>" class="btn btn-toggle">
-            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
-            <?php if ($ya): ?>
-              <span class="checkmark">
-                <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-              </span>
-            <?php endif; ?>
+          <form method="POST" class="mb-1" style="display: flex;">
+            <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
             <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-          </button>
+            <button type="submit" class="btn btn-toggle">
+              <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+              <?php if ($ya): ?>
+                <span class="checkmark">
+                  <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+                </span>
+              <?php endif; ?>
+            </button>
+          </form>
         <?php endforeach; ?>
       <?php endforeach; ?>
-      </form>
     <?php else: ?>
       <?php foreach ($etapas as $grupo => $pasos): ?>
         <h5 class="text-center text-info mt-4"><?= htmlspecialchars($grupo) ?></h5>
