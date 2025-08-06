@@ -149,7 +149,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
     }
     .btn-toggle {
       width: 90%;
-      margin: 4px auto;
+      margin: 3px auto;
       display: flex;
       align-items: center;
       justify-content: flex-start;
@@ -169,6 +169,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
       background-color: #003366;
       border-color: #0059b3;
     }
+    /* NO hay .completed */
     .checkmark {
       position: absolute;
       right: 18px;
@@ -212,33 +213,41 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_esparcidor WH
       </div>
     <?php endif; ?>
 
-    <?php foreach ($etapas as $grupo => $pasos): ?>
-      <h5 class="text-center text-info mt-4"><?= $grupo ?></h5>
-      <?php foreach ($pasos as $etapa => $peso):
-        $ya = in_array($etapa, $completadas);
-        if ($puede_modificar):
-      ?>
-        <form method="POST" class="mb-1">
-          <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
-          <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
-          <button type="submit" class="btn btn-toggle btn-outline-light">
-            <span><?= $etapa ?> (<?= $peso ?>%)</span>
-            <?php if ($ya): ?>
+    <?php if ($puede_modificar): ?>
+      <?php foreach ($etapas as $grupo => $pasos): ?>
+        <h5 class="text-center text-info mt-4"><?= htmlspecialchars($grupo) ?></h5>
+        <?php foreach ($pasos as $etapa => $peso):
+          $ya = in_array($etapa, $completadas);
+        ?>
+          <form method="POST" class="mb-1" style="display: flex;">
+            <input type="hidden" name="etapa" value="<?= htmlspecialchars($etapa) ?>">
+            <input type="hidden" name="accion" value="<?= $ya ? 'desmarcar' : 'marcar' ?>">
+            <button type="submit" class="btn btn-toggle">
+              <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+              <?php if ($ya): ?>
+                <span class="checkmark">
+                  <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
+                </span>
+              <?php endif; ?>
+            </button>
+          </form>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <?php foreach ($etapas as $grupo => $pasos): ?>
+        <h5 class="text-center text-info mt-4"><?= htmlspecialchars($grupo) ?></h5>
+        <?php foreach ($pasos as $etapa => $peso): ?>
+          <div class="btn btn-toggle" style="pointer-events:none;">
+            <span><?= htmlspecialchars($etapa) ?> (<?= $peso ?>%)</span>
+            <?php if (in_array($etapa, $completadas)): ?>
               <span class="checkmark">
                 <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
               </span>
             <?php endif; ?>
-          </button>
-        </form>
-      <?php else: ?>
-        <div class="btn btn-toggle" style="pointer-events:none;">
-          <span><?= $etapa ?> (<?= $peso ?>%)</span>
-          <?php if ($ya): ?>
-            <span class="checkmark">
-              <svg viewBox="0 0 32 32"><polyline points="8,17 14,23 24,9"></polyline></svg>
-            </span>
-          <?php endif; ?>
-        </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endforeach; ?>
+    <?php endif; ?>
 
     <div class="text-center mt-4">
       <a href="inventario.php" class="btn btn-outline-light">← Volver al Inventario</a>
