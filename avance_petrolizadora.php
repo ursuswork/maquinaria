@@ -172,8 +172,8 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
 .checkmark-box {
   width: 3em;
   height: 3em;
-  background: rgba(255, 193, 7, 0.22); /* círculo amarillo translúcido */
-  border-radius: 50%;
+  background: rgba(255, 193, 7, 0.22); /* amarillo translúcido */
+  border-radius: 0.5em;                 /* esquinas ligeramente redondeadas */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +182,7 @@ $fecha_actualizacion = $conn->query("SELECT updated_at FROM avance_petrolizadora
   top: 50%;
   transform: translateY(-50%);
   box-shadow: 0 2px 6px rgba(0,0,0,0.11);
-  pointer-events: none; /* evita clics accidentales en el círculo */
+  pointer-events: none;
 }
 .checkmark-box svg {
   width: 2.2em;
