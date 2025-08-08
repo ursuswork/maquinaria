@@ -458,9 +458,9 @@ function abrirLightbox(src) {
   lightbox.classList.add('active');
 }
 
-// Cierre con clic fuera de imagen o en la imagen
+// Cierre con clic fuera de la imagen
 document.getElementById('lightbox').addEventListener('click', function (e) {
-  if (e.target === this || e.target.id === 'img-lightbox') {
+  if (e.target === this) {
     cerrarLightbox();
   }
 });
@@ -474,7 +474,7 @@ function cerrarLightbox() {
 // Cierre con tecla Escape
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') cerrarLightbox();
-}
+});
 </script>
 </body>
 </html>
