@@ -193,21 +193,33 @@ $resultado = $conn->query($sql);
     .text-center-middle {
       text-align: center; vertical-align: middle !important;
     }
-    /* Lightbox */
-    .lightbox {
-      display:none;
-      position:fixed; z-index:1001; left:0; top:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.8); justify-content:center; align-items:center;
-    }
-    .lightbox img { max-width:90vw; max-height:85vh; border-radius:15px; box-shadow:0 8px 40px #000a; }
-    .lightbox.active { display:flex; }
-    .lightbox:active { display:none; }
-    @media (max-width: 992px) {
-      .container-custom { padding: 16px 2px; }
-      .titulo-maquinaria { font-size: 2rem; }
-      .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-      .top-bar-btns { justify-content: center; }
-    }
+   /* Lightbox mejorado */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox img {
+  max-width: 95vw;
+  max-height: 95vh;
+  border-radius: 15px;
+  box-shadow: 0 8px 40px #000a;
+  transition: transform 0.25s ease-in-out;
+}
+
+.lightbox img:hover {
+  transform: scale(1.05);
+}
+
+.lightbox.active {
+  display: flex;
+}
   </style>
 </head>
 <body>
@@ -458,7 +470,7 @@ function abrirLightbox(src) {
   lightbox.classList.add('active');
 }
 
-// Cierre con clic fuera de la imagen
+// Cierre solo al hacer clic fuera de la imagen
 document.getElementById('lightbox').addEventListener('click', function (e) {
   if (e.target === this) {
     cerrarLightbox();
